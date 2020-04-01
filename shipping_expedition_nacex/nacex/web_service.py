@@ -204,52 +204,38 @@ class NacexWebService():
         
         today = datetime.date.today()
         datetime_body = today.strftime('%d/%m/%Y')
-        
+        #partner_name        
         if partner_picking.name==False:
             partner_name = partner_picking.parent_id.name 
         else:
-            partner_name = partner_picking.name 
-        
+            partner_name = partner_picking.name        
         #street2
         obs1 = ''
-        if partner_picking.street2!=False:
-            obs1 = partner_picking.street2        
-        #notes
         obs2 = ''
+        if partner_picking.street2!=False:
+            street2_len = len(str(partner_picking.street2))
+            if(street2_len<=38):
+                obs1 = partner_picking.street2
+            else:
+                obs1 = partner_picking.street2[0:38]
+                obs2 = partner_picking.street2[37:75]
+        #notes
         obs3 = ''
-        obs4 = ''
-        
+        obs4 = ''        
         if picking.shipping_expedition_note!=False:
             shipping_expedition_note_len = len(str(picking.shipping_expedition_note))
             if(shipping_expedition_note_len>1):
                 if(shipping_expedition_note_len<=38):
-                    obs2 = picking.shipping_expedition_note
-                elif(shipping_expedition_note_len>38 and shipping_expedition_note_len<=76):
-                    obs2 = picking.shipping_expedition_note[0:38]
-                    obs3 = picking.shipping_expedition_note[37:75]                
-                elif(shipping_expedition_note_len>76 and shipping_expedition_note_len<114):
-                    obs2 = picking.shipping_expedition_note[0:38]
-                    obs3 = picking.shipping_expedition_note[37:75]
-                    obs4 = picking.shipping_expedition_note[75:113]                
+                    obs3 = picking.shipping_expedition_note                                
                 else:
-                    obs2 = picking.shipping_expedition_note[0:38]
-                    obs3 = picking.shipping_expedition_note[37:75]
-                    obs4 = picking.shipping_expedition_note[75:113]
-        
-        partner_picking_phone = ''
-        
+                    obs3 = picking.shipping_expedition_note[0:38]
+                    obs4 = picking.shipping_expedition_note[37:75]
+        #phone        
+        partner_picking_phone = ''        
         if partner_picking.mobile!=False:
             partner_picking_phone = partner_picking.mobile
         elif partner_picking.phone!=False:
             partner_picking_phone = partner_picking.phone
-
-        _logger.info('partner_picking_phone')
-        _logger.info(partner_picking_phone)
-
-        _logger.info('mobile')
-        _logger.info(partner_picking.mobile)
-        _logger.info('phone')
-        _logger.info(partner_picking.phone)
         #tip_ser
         tip_ser = self.company.nacex_tip_ser
         
