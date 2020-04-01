@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_delivery_carrier_range_admin,delivery.carrier.range,model_delivery_carrier_range,,1,1,1,1
+access_delivery_carrier_range_group_user,delivery.carrier.range.user,model_delivery_carrier_range,base.group_user,1,1,1,1
