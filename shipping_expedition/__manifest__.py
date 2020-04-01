@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'Base module for carrier expeditions',
-    'version': '1.6.2',
-    'author': '@victor.almau',
+    'name': 'Shipping expedition',
+    'version': '10.0.1.0.0',    
+    'author': 'Odoo Nodriza Tech (ONT)',
+    'website': 'https://nodrizatech.com/',
     'category': 'Delivery',
-    'complexity': 'normal',
+    'license': 'AGPL-3',
     'depends': ['delivery', 'stock'],
     'data': [
         'views/delivery.xml',
@@ -14,8 +15,6 @@
         'views/stock.xml',                                
         'security/ir.model.access.csv',
     ],
-    'tests': [],
     'installable': True,
-    'auto_install': False,
-    'license': 'AGPL-3',
- }
+    'auto_install': False,    
+}
