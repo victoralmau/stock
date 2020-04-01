@@ -1,29 +1,31 @@
-# README #
+El módulo contiene el desarrollo que permite realizar toda la integración respecto a TXT
 
-This README would normally document whatever steps are necessary to get your application up and running.
+## odoo.conf
+```
+aws_access_key_id=xxxx
+aws_secret_key_id=xxxxx
+aws_region_name=eu-west-1
+``` 
 
-### What is this repository for? ###
+## Parámetros de configuración
+```
+txt_sender_customer
+txt_s3_bucket
+txt_s3_folder
+txt_expedition_info_template_id
+``` 
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+## Crones
 
-### How do I get set up? ###
+### Shipping Expedition Update Txt 
+Frecuencia: cada 6 horas
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+Descripción: 
 
-### Contribution guidelines ###
+Revisa todas las expediciones con transportista 'txt' con fecha de creación < hoy y cuyo estado NO sea ('cancelado', 'entregado')
+Respecto a los resultados anteriores se conecta a la web ("API") de TXT para consultar el estado de la expedición y actualizarlo así como notificar por Slack si hay algún error / incidencia
 
-* Writing tests
-* Code review
-* Other guidelines
+### Mail Info TXT 
+Frecuencia: 1 vez al día
 
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+Descripción: Revisa todas las expediciones del transportista 'txt' que NO tengan definida fecha de envío email y cuyo estado NO sea 'Error', 'Generado', 'Cancelado' y 'Entregado' para enviar el email automático al cliente
