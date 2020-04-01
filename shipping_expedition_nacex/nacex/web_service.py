@@ -212,8 +212,8 @@ class NacexWebService():
         
         #street2
         obs1 = ''
-        if self.company.street2!=False:
-            obs1 = self.company.street2
+        if self.partner_picking.street2!=False:
+            obs1 = self.partner_picking.street2
         
         #notes
         obs2 = ''
