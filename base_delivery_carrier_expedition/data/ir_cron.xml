@@ -1,0 +1,15 @@
+<openerp>
+    <data noupdate="1">
+        <record id="unique_name" model="ir.cron">
+            <field name="name">Shipping Expedition Updates</field>
+            <field name="active" eval="True" />
+            <field name="user_id" ref="base.user_root" />
+            <field name="interval_number">1</field>
+            <field name="interval_type">hours</field>
+            <field name="numbercall">-1</field>
+            <field name="model" eval="'shipping.expedition'" />
+            <field name="function" eval="'cron_action_update_state'" />
+            <field name="args" eval="" />
+        </record>
+    </data>
+</openerp>

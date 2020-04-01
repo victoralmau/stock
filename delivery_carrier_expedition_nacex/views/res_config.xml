@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <record id="view_nacex_config_settings" model="ir.ui.view">
+    <field name="model">nacex.config.settings</field>
+    <field name="arch" type="xml">
+      <form string="Configure Nacex" class="oe_form_configuration">
+        <header>
+          <button string="Apply" type="object" name="execute" class="oe_highlight"/>
+          or
+          <button string="Cancel" type="object" name="cancel" class="oe_link"/>
+        </header>
+
+        <group groups="base.group_multi_company">
+          <div>
+            <div>
+              <label for="company_id" string="Select Company"/>
+              <field name="company_id"
+                  widget="selection"
+                  class="oe_inline"/>
+            </div>
+          </div>
+        </group>
+        <separator string="Web Service Authentication"/>
+        <group>
+          <div>              
+            <div>
+              <label for="del_cli"/>
+              <field name="del_cli" class="oe_inline"/>
+            </div>            
+            <div>
+              <label for="num_cli"/>
+              <field name="num_cli" class="oe_inline"/>
+            </div>
+            <div>
+              <label for="dep_cli"/>
+              <field name="dep_cli" class="oe_inline"/>
+            </div>
+            <div>
+              <label for="tip_ser"/>
+              <field name="tip_ser" class="oe_inline"/>
+            </div>
+            <div>
+              <label for="tip_cob"/>
+              <field name="tip_cob" class="oe_inline"/>
+            </div>
+            <div>
+              <label for="tip_env"/>
+              <field name="tip_env" class="oe_inline"/>
+            </div>
+            <div>
+              <label for="print_model"/>
+              <field name="print_model" class="oe_inline"/>
+            </div>
+            <div>
+              <label for="print_et"/>
+              <field name="print_et" class="oe_inline"/>
+            </div>
+          </div>
+        </group>        
+      </form>
+    </field>
+  </record>
+
+  <record id="action_nacex_config" model="ir.actions.act_window">
+    <field name="name">Configure Nacex</field>
+    <field name="type">ir.actions.act_window</field>
+    <field name="res_model">nacex.config.settings</field>
+    <field name="view_mode">form</field>
+    <field name="target">inline</field>
+  </record>
+
+  <menuitem id="menu_nacex_config" name="Nacex"
+            parent="base_delivery_carrier_expedition.menu_carriers_config"
+            sequence="20" action="action_nacex_config"/>
+
+</odoo>

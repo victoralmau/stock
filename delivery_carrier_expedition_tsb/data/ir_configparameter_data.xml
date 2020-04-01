@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data noupdate="1">
+        <record id="tsb_sender_customer" model="ir.config_parameter">
+            <field name="key">tsb_sender_customer</field>
+            <field name="value">05000326</field>
+        </record>
+        <record id="tsb_sender_center" model="ir.config_parameter">
+            <field name="key">tsb_sender_center</field>
+            <field name="value">01</field>
+        </record>
+        <record id="tsb_ftp_host" model="ir.config_parameter">
+            <field name="key">tsb_ftp_host</field>
+            <field name="value">212.170.132.134</field>
+        </record>
+        <record id="tsb_ftp_user" model="ir.config_parameter">
+            <field name="key">tsb_ftp_user</field>
+            <field name="value">ARELUX</field>
+        </record>
+        <record id="tsb_ftp_password" model="ir.config_parameter">
+            <field name="key">tsb_ftp_password</field>
+            <field name="value">0</field>
+        </record>
+        <record id="tsb_ftp_directory_upload" model="ir.config_parameter">
+            <field name="key">tsb_ftp_directory_upload</field>
+            <field name="value">/toTSB/PROGEC</field>
+        </record>
+        <record id="tsb_ftp_directory_download" model="ir.config_parameter">
+            <field name="key">tsb_ftp_directory_download</field>
+            <field name="value">/fromTSB/RIC</field>
+        </record>                            
+    </data>
+</openerp>

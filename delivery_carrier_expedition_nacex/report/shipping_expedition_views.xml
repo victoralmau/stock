@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <report
+            string="Expedicion Nacex"
+            id="action_shipping_expedition_nacex"
+            model="stock.picking"
+            report_type="qweb-pdf"
+            name="delivery_carrier_expedition_nacex.report_nacex"
+            file="delivery_carrier_expedition_nacex.expedition.report_nacex"
+        />        
+    </data>
+</odoo>
