@@ -8,6 +8,7 @@ Addons
 nombre | version
 --- | ---
 [delivery_carrier_range](delivery_carrier_range/) | 10.0.1.0.0
+[picking_arelux](picking_arelux/) | 10.0.1.0.0
 [shipping_expedition](shipping_expedition/) | 10.0.1.0.0
 [shipping_expedition_cbl](shipping_expedition_cbl/) | 10.0.1.0.0
 [shipping_expedition_link_tracker](shipping_expedition_link_tracker/) | 10.0.1.0.0
