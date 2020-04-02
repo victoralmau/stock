@@ -1,6 +1,6 @@
 El módulo contiene el desarrollo que permite realizar algunas mejoras respecto a stock_picking.
 
-Parámetros de configuración
+## Parámetros de configuración
 ```
 arelux_stock_picking_delivery_carrier_default_carrier_id
 ```
