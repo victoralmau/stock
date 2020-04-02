@@ -1,0 +1,11 @@
+import delivery_carrier
+import report
+import sale_order
+import stock_pack_operation
+import stock_pack_operation_lot
+import stock_quant
+import stock_inventory_line
+import stock_picking
+import stock_picking_type
+import stock_production_lot
+import stock_scrap
