@@ -105,19 +105,4 @@ class ShippingExpedition(models.Model):
         )
         if len(shipping_expedition_ids)>0:
             for shipping_expedition_id in shipping_expedition_ids:            
-                shipping_expedition_id.update_state_cbl(None, True)
-                        
-    @api.multi    
-    def cron_send_mail_info_cbl(self, cr=None, uid=False, context=None):
-        cbl_expedition_info_template_id = self.env['ir.config_parameter'].sudo().get_param('cbl_expedition_info_template_id')
-        
-        shipping_expedition_ids = self.env['shipping.expedition'].search(
-            [
-                ('carrier_id.carrier_type', '=', 'cbl'),
-                ('state', 'not in', ('error', 'generate','canceled', 'delivered')),
-                ('date_send_mail_info', '=', False)
-            ]
-        )
-        if len(shipping_expedition_ids)>0:
-            for shipping_expedition_id in shipping_expedition_ids:
-                shipping_expedition_id.action_send_mail_info(cbl_expedition_info_template_id)                                                                                                                                                        
+                shipping_expedition_id.update_state_cbl(None, True)                                                                                                                                                        

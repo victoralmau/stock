@@ -12,10 +12,6 @@
         <record id="cbl_s3_folder" model="ir.config_parameter">
             <field name="key">cbl_s3_folder</field>
             <field name="value">/odoo-carriers-ftp/test/cbl/</field>
-        </record>        
-        <record id="cbl_expedition_info_template_id" model="ir.config_parameter">
-            <field name="key">cbl_expedition_info_template_id</field>
-            <field name="value">False</field>
-        </record>                                            
+        </record>                                                    
     </data>
 </openerp>

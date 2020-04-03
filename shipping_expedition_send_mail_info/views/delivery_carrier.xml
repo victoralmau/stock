@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="shipping_expedition_send_mail_info" model="ir.ui.view">
+        <field name="name">shipping_expedition_send_mail_info</field>
+        <field name="model">delivery.carrier</field>
+        <field name="inherit_id" ref="delivery.view_delivery_carrier_form"/>
+        <field name="arch" type="xml">
+            <field name="send_mail_info" position="after">   
+                <field name="mail_info_mail_template_id"/>
+                <field name="mail_info_mail_template_id"/>
+            </field>
+        </field>
+    </record>       
+</odoo>
