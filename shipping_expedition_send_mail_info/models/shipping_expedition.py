@@ -48,7 +48,7 @@ class ShippingExpedition(models.Model):
                             self.action_send_mail_info_real()
             
     @api.multi    
-    def cron_shiiping_expeditionsend_mail_info(self, cr=None, uid=False, context=None):
+    def cron_shipping_expeditionsend_mail_info(self, cr=None, uid=False, context=None):
         shipping_expedition_ids = self.env['shipping.expedition'].search(
             [
                 ('carrier_id.send_mail_info', '=', True),
