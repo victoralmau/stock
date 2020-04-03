@@ -13,7 +13,44 @@ class ShippingExpedition(models.Model):
     )
     
     @api.one
-    def action_send_sms_info(self, sms_template_id=False):
+    def action_send_sms_info_real(self):
+        sms_compose_message_vals = {
+            'model': 'shipping.expedition',
+            'res_id': self.id,
+            'country_id': self.partner_id.mobile_code_res_country_id.id,
+            'mobile': self.partner_id.mobile,
+            'sms_template_id': self.carrier_id.sms_info_sms_template_id
+        }
+        #Fix user_id
+        if self.user_id.id>0:
+            self.env.user.id = self.user_id.id
+            sms_compose_message_obj = self.env['sms.compose.message'].sudo(self.env.user.id).create(sms_compose_message_vals)
+        else:
+            sms_compose_message_obj = self.env['sms.compose.message'].sudo().create(sms_compose_message_vals)
+            
+        return_onchange_sms_template_id = sms_compose_message_obj.onchange_sms_template_id(self.carrier_id.sms_info_sms_template_id.id, 'shipping.expedition', self.id)
+        
+        sms_compose_message_obj.update({
+            'sender': return_onchange_sms_template_id['value']['sender'],
+            'message': return_onchange_sms_template_id['value']['message']                                                     
+        })
+        sms_compose_message_obj.send_sms_action()
+        
+        if sms_compose_message_obj.action_send==True:
+            #save_log
+            automation_log_vals = {                    
+                'model': 'shipping.expedition',
+                'res_id': self.id,
+                'category': 'shipping_expedition',
+                'action': 'send_sms',                                                                                                                                                                                           
+            }
+            automation_log_obj = self.env['automation.log'].sudo().create(automation_log_vals)
+            #other                                                                                                                                                         
+            self.date_send_sms_info = datetime.today()
+            self.action_custom_send_sms_info_slack()#Fix Slack
+    
+    @api.one
+    def action_send_sms_info(self):
         allow_send_sms = False
         #operations
         if self.date_send_sms_info==False:
@@ -29,41 +66,8 @@ class ShippingExpedition(models.Model):
                             if self.partner_id.mobile_code_res_country_id==False:
                                 allow_send_sms = False
                             #allow_send_sms
-                            if allow_send_sms==True:                                
-                                sms_compose_message_vals = {
-                                    'model': 'shipping.expedition',
-                                    'res_id': self.id,
-                                    'country_id': self.partner_id.mobile_code_res_country_id.id,
-                                    'mobile': self.partner_id.mobile,
-                                    'sms_template_id': sms_template_id
-                                }
-                                #Fix user_id
-                                if self.user_id.id>0:
-                                    self.env.user.id = self.user_id.id
-                                    sms_compose_message_obj = self.env['sms.compose.message'].sudo(self.env.user.id).create(sms_compose_message_vals)
-                                else:
-                                    sms_compose_message_obj = self.env['sms.compose.message'].sudo().create(sms_compose_message_vals)
-                                    
-                                return_onchange_sms_template_id = sms_compose_message_obj.onchange_sms_template_id(self.carrier_id.sms_info_sms_template_id.id, 'shipping.expedition', self.id)
-                                
-                                sms_compose_message_obj.update({
-                                    'sender': return_onchange_sms_template_id['value']['sender'],
-                                    'message': return_onchange_sms_template_id['value']['message']                                                     
-                                })
-                                sms_compose_message_obj.send_sms_action()
-                                
-                                if sms_compose_message_obj.action_send==True:
-                                    #save_log
-                                    automation_log_vals = {                    
-                                        'model': 'shipping.expedition',
-                                        'res_id': self.id,
-                                        'category': 'shipping_expedition',
-                                        'action': 'send_sms',                                                                                                                                                                                           
-                                    }
-                                    automation_log_obj = self.env['automation.log'].sudo().create(automation_log_vals)
-                                    #other                                                                                                                                                         
-                                    self.date_send_sms_info = datetime.today()
-                                    self.action_custom_send_sms_info_slack()#Fix Slack
+                            if allow_send_sms==True:
+                                self.action_send_sms_info_real()                                
     
     @api.one 
     def cron_shipping_expeditionsend_sms_info_item(self):
