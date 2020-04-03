@@ -70,8 +70,10 @@
     <field name="target">inline</field>
   </record>
 
-  <menuitem id="menu_nacex_config" name="Nacex"
-            parent="base_delivery_carrier_expedition.menu_carriers_config"
-            sequence="20" action="action_nacex_config"/>
-
+    <menuitem id="menu_nacex_config" 
+        name="Nacex"
+        parent="shipping_expedition.menu_carriers_config"
+        sequence="20" 
+        action="action_nacex_config"
+    />
 </odoo>

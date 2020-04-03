@@ -5,9 +5,9 @@
         <field name="model">delivery.carrier</field>
         <field name="inherit_id" ref="delivery.view_delivery_carrier_form"/>
         <field name="arch" type="xml">
-            <field name="send_mail_info" position="after">   
-                <field name="mail_info_mail_template_id"/>
-                <field name="mail_info_mail_template_id"/>
+            <field name="integration_level" position="after">   
+                <field name="send_mail_info" />
+                <field name="mail_info_mail_template_id" domain="[('model_id.model', '=', 'shipping.expedition')]}" options='{"no_open": True,"no_create": True, "no_create_edit": True}'/>
             </field>
         </field>
     </record>       

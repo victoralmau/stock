@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <record id="view_picking_internal_search_delivery_carrier_expedition_cbl" model="ir.ui.view">
-        <field name="name">view_picking_internal_search_delivery_carrier_expedition_cbl</field>
+    <record id="shipping_expedition_cbl_view_picking_internal_search" model="ir.ui.view">
+        <field name="name">shipping_expedition_cbl_view_picking_internal_search</field>
         <field name="model">stock.picking</field>
         <field name="inherit_id" ref="stock.view_picking_internal_search" />
         <field name="priority" eval="21"/>

@@ -11,12 +11,10 @@
         'python' : ['boto'],
     },
     'data': [
-        'views/delivery.xml',
-        'views/res_config.xml',
-        'views/res_partner.xml',
+        'data/ir_configparameter_data.xml',
+        'data/ir_cron.xml',
         'views/shipping_expedition.xml',
-        'views/stock.xml',                                
-        'security/ir.model.access.csv',
+        'views/stock_picking.xml'
     ],
     'installable': True,
     'auto_install': False,    

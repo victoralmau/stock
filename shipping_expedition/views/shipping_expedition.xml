@@ -22,7 +22,6 @@
                             <field name="delivery_code"/>
                             <field name="date"/>
                             <field name="hour" attrs="{'invisible': [('hour', '==', False)]}"/>
-                            <field name="date_send_mail_info" attrs="{'invisible': [('date_send_mail_info', '==', False)]}"/>
                             <field name="observations" attrs="{'invisible': [('observations', '==', False)]}"/>
                             <field name="state_code"/>
                             <field name="origin"/>

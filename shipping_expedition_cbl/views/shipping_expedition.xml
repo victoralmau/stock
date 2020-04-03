@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <record id="view_shipping_expedition_cbl_form" model="ir.ui.view">
+    <record id="shipping_expedition_cbl_shipping_expedition_form_view" model="ir.ui.view">
         <field name="model">shipping.expedition</field>
-        <field name="inherit_id" ref="base_delivery_carrier_expedition.shipping_expedition_form_view"/>
+        <field name="inherit_id" ref="shipping_expedition.shipping_expedition_form_view"/>
         <field name="arch" type="xml">
             <field name="exps_rels" position="after">   
                 <field name="cbl_url" widget="url" attrs="{'invisible': [('carrier_type','!=', 'cbl')]}"/>
             </field>
         </field>
     </record>
-    <record id="view_shipping_expedition_search_delivery_carrier_expedition_cbl" model="ir.ui.view">
-        <field name="name">view_shipping_expedition_search_delivery_carrier_expedition_cbl</field>
+    <record id="shipping_expedition_cbl_view_shipping_expedition_search" model="ir.ui.view">
+        <field name="name">shipping_expedition_cbl_view_shipping_expedition_search</field>
         <field name="model">shipping.expedition</field>
-        <field name="inherit_id" ref="base_delivery_carrier_expedition.view_shipping_expedition_search" />
+        <field name="inherit_id" ref="shipping_expedition.view_shipping_expedition_search" />
         <field name="priority" eval="21"/>
         <field name="arch" type="xml">
             <xpath expr="//filter[@name='my_shipping_expeditions_filter']" position="after">                

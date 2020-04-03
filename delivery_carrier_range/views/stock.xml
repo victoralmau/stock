@@ -59,7 +59,7 @@
     </record>     
     <menuitem id="menuitem_delivery_carrier_range" 
         name="Rangos precios"
-        parent="base_delivery_carrier_expedition.menu_carriers_config"
+        parent="stock.menu_stock_config_settings"
         sequence="30" 
         action="delivery_carrier_range_action"/>      
 </odoo>
