@@ -6,7 +6,7 @@
     'website': 'https://nodrizatech.com/',
     'category': 'Delivery',
     'license': 'AGPL-3',
-    'depends': ['stock_pickings_do_new_transfer'],    
+    'depends': ['stock_pickings_do_new_transfer', 'shipping_expedition'],    
     'data': [],
     'installable': True,
     'auto_install': False,    
