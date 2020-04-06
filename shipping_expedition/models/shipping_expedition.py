@@ -131,7 +131,7 @@ class ShippingExpedition(models.Model):
                 self.env['mail.followers'].create(reg)
         #check remove create uid
         if record.user_id.id>0:
-            if record.user_id.id!=record.create_ui.id:
+            if record.user_id.id!=record.create_uid.id:
                 mail_followers_ids = self.env['mail.followers'].search(
                     [
                         ('res_model', '=', 'shipping.expedition'),
