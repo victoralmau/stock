@@ -6,8 +6,8 @@
             id="action_shipping_expedition_nacex"
             model="stock.picking"
             report_type="qweb-pdf"
-            name="delivery_carrier_expedition_nacex.report_nacex"
-            file="delivery_carrier_expedition_nacex.expedition.report_nacex"
+            name="shipping_expedition_nacex.report_nacex"
+            file="shipping_expedition_nacex.expedition.report_nacex"
         />        
     </data>
 </odoo>

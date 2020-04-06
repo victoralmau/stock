@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo noupdate="1">
-  <record id="nacex" model="res.partner">
-    <field name="name">nacex</field>
-    <field name="customer" eval="False"/>
-    <field name="supplier" eval="False"/>
-    <field name="email">webservice@nacex.com</field>
-  </record>
-</odoo>

@@ -12,9 +12,8 @@
     },
     'data': [
         'data/ir_cron.xml',
-        'data/res_partner.xml',    
+        'views/delivery_carrier.xml',    
         'views/stock.xml',
-        'views/res_config.xml',
         'views/shipping_expedition.xml',        
         'report/shipping_expedition_views.xml',
         'report/report_nacex.xml',

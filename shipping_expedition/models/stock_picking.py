@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-# Copyright 2012-2015 Akretion <http://www.akretion.com>.
-# Copyright 2013-2016 Camptocamp SA
-# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
@@ -95,9 +92,15 @@ class StockPicking(models.Model):
             'exps_rels': None,
         }
 
+    @api.one
+    def generate_shipping_expedition(self):
+        return True
+
     @api.multi
-    def generate_shipping_expedition(self, package_ids=None):
-        return True                
+    def action_generate_shipping_expedition(self):
+        for obj in self:
+            if obj.shipping_expedition_id.id==0:
+                obj.generate_shipping_expedition()
 
     @api.multi
     def action_generate_shipping_expedition(self, package_ids=None):

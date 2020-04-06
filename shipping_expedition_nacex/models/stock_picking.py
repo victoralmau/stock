@@ -1,0 +1,348 @@
+# -*- coding: utf-8 -*-
+from operator import attrgetter
+
+from openerp import _, api, exceptions, fields, models
+
+from ..nacex.web_service import NacexWebService
+
+import urllib, cStringIO
+
+import logging
+_logger = logging.getLogger(__name__)
+
+import base64
+import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
+
+class StockPicking(models.Model):
+    _inherit = 'stock.picking'
+    
+    @api.one
+    def generate_shipping_expedition(self):
+        #operations
+        if self.carrier_id.carrier_type=='nacex':
+            self.generate_shipping_expedition_nacex()
+        #return
+        return super(StockPicking, self).generate_shipping_expedition()
+        
+    @api.one
+    def generate_shipping_expedition_nacex(self):
+        if self.shipping_expedition_id.id==0 and self.carrier_id.carrier_type=='nacex' and self.partner_id.id>0:
+            result_put_expedition = self.nacex_ws_putExpedicion()
+            #error
+            if result_put_expedition['errors']==True:
+                _logger.info(result_put_expedition)  
+                raise exceptions.Warning(result_put_expedition['error'])              
+            #create            
+            shipping_expedition_vals = {
+                'picking_id': self.id,
+                'order_id': 0,
+                'user_id': 0,
+                'carrier_id': self.carrier_id.id,
+                'partner_id': self.partner_id.id,
+                'code': result_put_expedition['return']['result']['expe_codigo'],
+                'delivery_code': result_put_expedition['return']['result']['ag_cod_num_exp'],
+                'date': result_put_expedition['return']['result']['fecha_objetivo'],
+                'hour': result_put_expedition['return']['result']['hora_entrega'],
+                'observations': result_put_expedition['return']['result']['cambios'],
+                'state': 'generate',
+                'state_code': 2,                
+            }            
+            shipping_expedition_obj = self.env['shipping.expedition'].sudo().create(shipping_expedition_vals)
+    
+    @api.one
+    def nacex_ws_putExpedicion(self):
+        #define        
+        today = datetime.date.today()
+        datetime_body = today.strftime('%d/%m/%Y')
+        #partner_name        
+        if self.partner_id.parent_id.id>0:
+            partner_name = self.partner_id.parent_id.name 
+        else:
+            partner_name = self.partner_id.name        
+        #street2
+        obs1 = ''
+        obs2 = ''
+        if self.partner_id.street2!=False:
+            street2_len = len(str(self.partner_id.street2))
+            if(street2_len<=38):
+                obs1 = self.partner_id.street2
+            else:
+                obs1 = self.partner_id.street2[0:38]
+                obs2 = self.partner_id.street2[37:75]
+        #notes
+        obs3 = ''
+        obs4 = ''        
+        if self.shipping_expedition_note!=False:
+            shipping_expedition_note_len = len(str(self.shipping_expedition_note))
+            if(shipping_expedition_note_len>1):
+                if(shipping_expedition_note_len<=38):
+                    obs3 = self.shipping_expedition_note                                
+                else:
+                    obs3 = self.shipping_expedition_note[0:38]
+                    obs4 = self.shipping_expedition_note[37:75]
+        #phone        
+        partner_picking_phone = ''        
+        if self.partner_id.mobile!=False:
+            partner_picking_phone = self.partner_id.mobile
+        elif partner_picking.phone!=False:
+            partner_picking_phone = self.partner_id.phone
+        #tools
+        nacex_username = tools.config.get('nacex_username')
+        nacex_password = tools.config.get('nacex_password')
+        #create
+        url="http://gprs.nacex.com/nacex_ws/soap"
+        body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:typ="urn:soap/types">
+        		<soapenv:Header/>
+        		<soapenv:Body>
+        			<typ:putExpedicion>
+        				<String_1>"""+str(nacex_username)+"""</String_1>
+        				<String_2>"""+str(nacex_password)+"""</String_2>
+        				<arrayOfString_3>del_cli="""+str(self.carrier_id.nacex_del_cli)+"""</arrayOfString_3>
+        				<arrayOfString_3>num_cli="""+str(self.carrier_id.nacex_num_cli)+"""</arrayOfString_3>
+        				<arrayOfString_3>fec="""+str(datetime_body)+"""</arrayOfString_3>
+        				<arrayOfString_3>dep_cli="""+str(self.carrier_id.nacex_dep_cli)+"""</arrayOfString_3>
+        				<arrayOfString_3>tip_ser="""+str(self.carrier_id.nacex_tip_ser)+"""</arrayOfString_3>
+        				<arrayOfString_3>tip_cob="""+str(self.carrier_id.nacex_tip_cob)+"""</arrayOfString_3>
+        				<arrayOfString_3>tip_env="""+str(self.carrier_id.nacex_tip_env)+"""</arrayOfString_3>
+        				<arrayOfString_3>obs1="""+str(obs1)+"""</arrayOfString_3>
+                        <arrayOfString_3>obs2="""+str(obs2)+"""</arrayOfString_3>
+                        <arrayOfString_3>obs3="""+str(obs3)+"""</arrayOfString_3>
+                        <arrayOfString_3>obs4="""+str(obs4)+"""</arrayOfString_3>        				        				
+        				<arrayOfString_3>ref_cli="""+str(self.name)+"""</arrayOfString_3>					
+        				<arrayOfString_3>bul=1</arrayOfString_3>
+        				<arrayOfString_3>kil="""+str(self.weight)+"""</arrayOfString_3>
+                        <arrayOfString_3>nom_rec="""+str(self.company.website)+"""</arrayOfString_3>
+                        <arrayOfString_3>dir_rec="""+str(self.company.street[0:60])+"""</arrayOfString_3>
+                        <arrayOfString_3>cp_rec="""+str(self.company.zip)+"""</arrayOfString_3>
+                        <arrayOfString_3>pob_rec="""+str(self.company.city[0:39])+"""</arrayOfString_3>
+                        <arrayOfString_3>tel_rec="""+str(self.company.phone)+"""</arrayOfString_3>
+        				<arrayOfString_3>nom_ent="""+str(partner_name[0:50])+"""</arrayOfString_3>
+                        <arrayOfString_3>per_ent="""+str(partner_name[0:35])+"""</arrayOfString_3>
+        				<arrayOfString_3>dir_ent="""+str(self.partner_id.street[0:60])+"""</arrayOfString_3>                    
+        				<arrayOfString_3>pais_ent="""+str(self.partner_id.country_id.code)+"""</arrayOfString_3>					
+        				<arrayOfString_3>cp_ent="""+str(self.partner_id.zip)+"""</arrayOfString_3>
+        				<arrayOfString_3>pob_ent="""+str(self.partner_id.city[0:39])+"""</arrayOfString_3>
+        				<arrayOfString_3>tel_ent="""+str(partner_picking_phone)+"""</arrayOfString_3>        				        				
+        			"""
+        #prealerta
+        if self.partner_id.mobile!= False:
+            body += """
+                        <arrayOfString_3>tip_pre1=S</arrayOfString_3>
+        				<arrayOfString_3>mod_pre1=S</arrayOfString_3>
+        				<arrayOfString_3>pre1="""+str(self.partner_id.mobile)+"""</arrayOfString_3>"""
+        #final
+        body += """
+                    </typ:putExpedicion>
+        		</soapenv:Body>
+        	</soapenv:Envelope>"""
+        b = StringIO.StringIO()
+        #continue
+        curl = pycurl.Curl()
+        curl.setopt(pycurl.WRITEFUNCTION, b.write)    
+        curl.setopt(pycurl.FORBID_REUSE, 1)
+        curl.setopt(pycurl.FRESH_CONNECT, 1)                        
+        curl.setopt(pycurl.URL, url)
+        curl.setopt(pycurl.POSTFIELDS, body)        
+        curl.setopt(pycurl.USERAGENT, "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)")
+        curl.setopt(pycurl.HTTPHEADER, ["Content-Type: text/xml; charset=utf-8"])
+        curl.perform()                
+    
+        response = {
+            'errors': True, 
+            'error': "", 
+            'return': "",
+        }        
+        if curl.getinfo(pycurl.RESPONSE_CODE) == 200:        
+            response['errors'] = False
+            
+            response_curl = b.getvalue()
+            
+            root = ET.fromstring(response_curl)
+            
+            response['return'] = {
+                'label': "",                    
+                'results': []
+            }
+                                    
+            for item in root.findall('{http://schemas.xmlsoap.org/soap/envelope/}Body'):                
+                for item2 in item.findall('{urn:soap/types}putExpedicionResponse'):                    
+                    for result in item2.findall('result'):
+                        response['return']['results'].append(result.text)
+            
+            if response['return']['results'][0]=="ERROR":
+                response['errors'] = True
+                response['error'] = response['return']['results'][1]
+            else:                                                                            
+                response['return']['result'] = {
+                    'expe_codigo': response['return']['results'][0],
+                    'ag_cod_num_exp': response['return']['results'][1],
+                    'color': response['return']['results'][2],
+                    'ent_ruta': response['return']['results'][3],
+                    'ent_cod': response['return']['results'][4],
+                    'ent_nom': response['return']['results'][5],
+                    'ent_tlf': response['return']['results'][6],
+                    'serv': response['return']['results'][7],
+                    'hora_entrega': response['return']['results'][8],
+                    'barcode': response['return']['results'][9], 
+                    'fecha_objetivo': datetime.datetime.strptime(response['return']['results'][10], "%d/%m/%Y").date(),                   
+                    'cambios': response['return']['results'][11],
+                    'origin': picking.name 
+                }                                                                                                                                                                                                                                                      
+            
+        else:
+            response['error'] = b.getvalue()
+            _logger.info('Response KO')            
+            _logger.info(pycurl.RESPONSE_CODE)
+            
+            response_curl = b.getvalue()            
+            root = ET.fromstring(response_curl)
+            
+            _logger.info(response_curl)
+            
+            response['errors'] = True
+            
+            response['return'] = {
+                'label': "",                    
+                'results': []
+            }
+                                    
+            for item in root.findall('{http://schemas.xmlsoap.org/soap/envelope/}Body'):                
+                for item2 in item.findall('{urn:soap/types}putExpedicionResponse'):                    
+                    for result in item2.findall('result'):
+                        response['return']['results'].append(result.text)
+            
+            if response['return']['results'][0]=="ERROR":                
+                response['error'] = response['return']['results'][1]            
+                                            
+        return response
+    
+    @api.one
+    def view_etiqueta_nacex(self):
+        #tools
+        nacex_username = tools.config.get('nacex_username')
+        nacex_password = tools.config.get('nacex_password')
+        #define        
+        delivery_code_split = self.shipping_expedition_id.delivery_code.split('/')
+        #url
+        url = "http://gprs.nacex.com/nacex_ws/ws?method=getEtiqueta&user="+str(nacex_username)+"&pass="+str(nacex_password)+"&data=ag="+str(delivery_code_split[0])+"%7Cnumero="+str(delivery_code_split[1])+"%7Cmodelo=IMAGEN_B"                
+        
+        b = StringIO.StringIO()
+                    
+        curl = pycurl.Curl()
+        curl.setopt(pycurl.WRITEFUNCTION, b.write)    
+        curl.setopt(pycurl.FORBID_REUSE, 1)
+        curl.setopt(pycurl.FRESH_CONNECT, 1)                        
+        curl.setopt(pycurl.URL, url)        
+        curl.setopt(pycurl.USERAGENT, "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)")
+        curl.setopt(pycurl.HTTPHEADER, ["Content-Type: text/xml; charset=utf-8"])
+        curl.perform()                                
+        
+        response = {
+            'errors': True,  
+            'return': "",
+            'return_real': "",
+        }
+        
+        if curl.getinfo(pycurl.RESPONSE_CODE) == 200:                                
+            response_curl = b.getvalue()
+            
+            response_curl_split = response_curl.split('|')
+            
+            if response_curl_split[0]!="ERROR":
+                response['return_real'] = response_curl
+                            
+                edits = [('-', '+'), ('_', '/'), ('*', '=')] # etc.
+                for search, replace in edits:
+                    response_curl = response_curl.replace(search, replace)
+                
+                response_curl = response_curl.decode('base64')
+                
+                response['errors'] = False
+                response['return'] = response_curl 
+        else:
+            response = {
+                'errors': True,  
+                'error': "No se puede generar la etiqueta de una expedicion que no esta creada todavia",
+                'return_real': "",
+            }
+        #return
+        return response;
+    
+    @api.one
+    def action_view_etiqueta_item(self):
+        if self.shipping_expedition_id.id>0:
+            response_view_etiqueta = self.view_etiqueta_nacex()
+            if response_view_etiqueta['errors']==True:
+                raise exceptions.Warning(response_view_etiqueta['error'])
+            else:
+                delivery_code_split = self.shipping_expedition_id.delivery_code.split('/')
+                #vals
+                ir_attachment_vals = {
+                    'name': delivery_code_split[0]+"-"+delivery_code_split[1]+'.png'
+                    'datas': base64.encodestring(response_view_etiqueta['return']),
+                    'datas_fname': delivery_code_split[0]+"-"+delivery_code_split[1]+'.png',
+                    'res_model': 'stock.picking',
+                    'res_id': self.id
+                }
+                ir_attachment_obj = self.env['ir.attachment'].sudo().create(ir_attachment_vals)                
+                       
+    @api.multi
+    def action_view_etiqueta(self, package_ids=None):
+        for obj in self:
+            if obj.shipping_expedition_id.id>0:
+                obj.action_view_etiqueta_item()                                                                              
+    
+    @api.multi
+    def _get_expedition_image(self):
+        #tools
+        nacex_username = tools.config.get('nacex_username')
+        nacex_password = tools.config.get('nacex_password')
+        #operations
+        self.ensure_one()
+        if self.shipping_expedition_id.id>0:                
+            if self.carrier_id.carrier_type == 'nacex':
+                url_image_expedition = 'http://gprs.nacex.com/nacex_ws/ws?method=getEtiqueta&user='+str(nacex_username)+'&pass='+str(nacex_password)+'&data=codexp='+str(self.shipping_expedition_id.code)+'|modelo=IMAGEN'
+                #return url_image_expedition
+                file = cStringIO.StringIO(urllib.urlopen(url_image_expedition).read())
+                img = Image.open(file)
+                return img
+                
+    @api.one
+    def _get_expedition_image_url_ir_attachment(self):
+        if self.shipping_expedition_id.id>0:                
+            if self.carrier_id.carrier_type == 'nacex':
+                ir_attachment_ids = self.env['ir.attachment'].search(
+                    [ 
+                        ('res_model', '=', 'stock.picking'),
+                        ('res_id', '=', self.id)
+                     ]
+                )
+                return_url = ''
+                for ir_attachment_id in ir_attachment_ids:
+                    return_url = '/web/image/'+str(ir_attachment_id.id)
+                    
+                return return_url               
+    
+    @api.multi
+    def action_edit_shipping_expedition(self, package_ids=None):        
+        self.ensure_one()                
+        if self.carrier_id.carrier_type == 'nacex':
+            return self._edit_nacex_expedition(package_ids=package_ids)
+        _super = super(StockPicking, self)
+        return _super.action_edit_shipping_expedition(package_ids=package_ids)
+        
+    @api.multi    
+    def cron_change_auto_done_nacex(self, cr=None, uid=False, context=None):
+        stock_picking_ids = self.env['stock.picking'].search(
+            [
+                ('picking_type_id', '=', 7),
+                ('state', 'in', ('confirmed', 'partial_available', 'assigned')),
+                ('carrier_type', '=', 'nacex'),
+                ('shipping_expedition_id', '!=', False)
+            ]
+        )
+        if stock_picking_ids!=False:                
+            for stock_picking_id in stock_picking_ids:
+                stock_picking_id.do_transfer()                                                                                    

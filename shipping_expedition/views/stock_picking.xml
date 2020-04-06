@@ -7,8 +7,7 @@
         <field name="priority" eval="20"/>
         <field name="arch" type="xml">
             <field name="state" position="before">
-                <button name="action_generate_shipping_expedition" attrs="{'invisible': [('shipping_expedition_id', '>', '0')]}" string="Crear expedición" type="object"/>
-                <button name="action_edit_shipping_expedition" attrs="{'invisible': [('shipping_expedition_id', '=', '0')]}" string="Editar expedición" type="object"/>            
+                <button name="action_generate_shipping_expedition" attrs="{'invisible': [('shipping_expedition_id', '!=', False)]}" string="Crear expedición" type="object"/>            
             </field>
             <field name="partner_id" position="after">
                 <field name="shipping_expedition_id"/>

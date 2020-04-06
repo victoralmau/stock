@@ -6,8 +6,8 @@
         <field name="inherit_id" ref="delivery.view_delivery_carrier_form"/>
         <field name="arch" type="xml">
             <field name="integration_level" position="after">   
-                <field name="send_mail_info" />
-                <field name="mail_info_mail_template_id" domain="[('model_id.model', '=', 'shipping.expedition')]}" options='{"no_open": True,"no_create": True, "no_create_edit": True}'/>
+                <field name="send_mail_info" attrs="{'invisible': [('carrier_type', 'not in', ('cbl', 'nacex', 'tsb', 'txt'))]}" />
+                <field name="mail_info_mail_template_id" domain="[('model_id.model', '=', 'shipping.expedition')]}" options='{"no_open": True,"no_create": True, "no_create_edit": True}' attrs="{'invisible': [('send_mail_info', '=', False)]}"/>
             </field>
         </field>
     </record>       

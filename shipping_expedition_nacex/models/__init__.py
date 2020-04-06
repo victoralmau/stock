@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import company
-import res_config
-import stock
+import delivery_carrier
+import stock_picking
 import shipping_expedition

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data noupdate="1">
+        <record id="stock_pickings_do_new_transfer_picking_type_id" model="ir.config_parameter">
+            <field name="key">stock_pickings_do_new_transfer_picking_type_id</field>
+            <field name="value">7</field>
+        </record>                                                                    
+    </data>
+</openerp>

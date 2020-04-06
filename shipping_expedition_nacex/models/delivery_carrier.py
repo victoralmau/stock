@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
-from openerp import api, models, fields
+from openerp import _, api, exceptions, fields, models
 
-class ResCompany(models.Model):
-    _inherit = 'res.company'
-    
+import logging
+_logger = logging.getLogger(__name__)
+
+class DeliveryCarrier(models.Model):
+    _inherit = 'delivery.carrier'        
+
     nacex_del_cli = fields.Char(
         string='Delegacion cliente'
     )
@@ -48,4 +51,4 @@ class ResCompany(models.Model):
     )
     nacex_print_et = fields.Char(
         string='Modelo etiquetadora'
-    )   
+    )                                                                                       
