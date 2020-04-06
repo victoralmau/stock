@@ -24,8 +24,3 @@ Descripción:
 
 Revisa todas las expediciones con transportista 'cbl' con fecha de creación < hoy y cuyo estado NO sea ('cancelado', 'entregado')
 Respecto a los resultados anteriores se conecta a la web ("API") de CBL para consultar el estado de la expedición y actualizarlo así como notificar por Slack si hay algún error / incidencia
-
-### Mail Info CBL 
-Frecuencia: 1 vez al día
-
-Descripción: Revisa todas las expediciones del transportista 'cbl' que NO tengan definida fecha de envío email y cuyo estado NO sea 'Error', 'Generado', 'Cancelado' y 'Entregado' para enviar el email automático al cliente
