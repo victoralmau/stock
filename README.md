@@ -13,6 +13,7 @@ nombre | version
 [shipping_expedition_cbl](shipping_expedition_cbl/) | 10.0.1.0.0
 [shipping_expedition_link_tracker](shipping_expedition_link_tracker/) | 10.0.1.0.0
 [shipping_expedition_nacex](shipping_expedition_nacex/) | 10.0.1.0.0
+[shipping_expedition_s3](shipping_expedition_s3/) | 10.0.1.0.0
 [shipping_expedition_send_mail_info](shipping_expedition_send_mail_info/) | 10.0.1.0.0
 [shipping_expedition_send_sms_info](shipping_expedition_send_sms_info/) | 10.0.1.0.0
 [shipping_expedition_tsb](shipping_expedition_tsb/) | 10.0.1.0.0
