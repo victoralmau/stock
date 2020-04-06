@@ -12,12 +12,6 @@ En el apartado de Inventario > Configuración > Carriers se añade el apartado "
 
 ## Crones
 
-### Change Auto Done Nacex 
-Frecuencia: 1 vez al día
-
-Descripción: Revisa todos los AM en estado "Esperando disponibilidad", "Parcialmente disponible" o "Reservado" cuyo transportista seal del tipo 'nacex' y que tengan expedicion definida
-Realiza la acción de marcarlo como "Hecho"
-
 ### Shipping Expedition Update Nacex 
 Frecuencia: cada 6 horas
 
