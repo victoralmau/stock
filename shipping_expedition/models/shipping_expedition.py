@@ -141,7 +141,8 @@ class ShippingExpedition(models.Model):
                 if mail_followers_ids!=False:
                     for mail_follower_id in mail_followers_ids:
                         if mail_follower_id.partner_id.id==record.create_uid.partner_id.id:
-                            mail_follower_id.unlink()                                
+                            #mail_follower_id.unlink()
+                            _logger.info('pendiente de revisar la eliminacion')                                
         #record                                                                
         return record
                   
