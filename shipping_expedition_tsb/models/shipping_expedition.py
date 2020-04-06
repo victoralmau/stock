@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-# © 2013 Yannick Vaucher (Camptocamp SA)
-# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 from openerp import _, api, exceptions, fields, models
 
-from ..tsb.web_service import TsbWebService
-
 import logging
-
 _logger = logging.getLogger(__name__)
+
+import os
+import ftplib
 
 class ShippingExpedition(models.Model):
     _inherit = 'shipping.expedition'        
@@ -20,32 +18,107 @@ class ShippingExpedition(models.Model):
     )
     tsb_url = fields.Char(
         string='Tsb Url'
-    )                
+    )
     
     @api.one
-    def update_state_tsb(self, webservice_class=None):    
-        user = self.env.user
+    def action_update_state(self):
+        #operations
+        if self.carrier_id.carrier_type=='tsb':
+            self.action_update_state_tsb()
+        #return
+        return super(StockPicking, self).action_update_state()
         
-        company = user.company_id
-        if webservice_class is None:
-            webservice_class = TsbWebService
-        
-        web_service = webservice_class(company)
-        
-        web_service.sender_customer = self.env['ir.config_parameter'].sudo().get_param('tsb_sender_customer')        
-        web_service.tsb_ftp_host = self.env['ir.config_parameter'].sudo().get_param('tsb_ftp_host')
-        web_service.tsb_ftp_user = self.env['ir.config_parameter'].sudo().get_param('tsb_ftp_user')
-        web_service.tsb_ftp_password = self.env['ir.config_parameter'].sudo().get_param('tsb_ftp_password')
-        web_service.tsb_ftp_directory_download = self.env['ir.config_parameter'].sudo().get_param('tsb_ftp_directory_download')
-        
-        res = web_service.status_expedition(self)                                                                                         
-
     @api.one
-    def update_state(self):
-        if self.carrier_id!=False:
-            if self.carrier_id.id!=False:        
-                if self.carrier_id.id>0:             
-                    if self.carrier_id.carrier_type == 'tsb':
-                        return self.update_state_tsb()
-                                            
-        return super(ShippingExpedition, self).update_state()                            
+    def action_update_state_tsb(self):
+        self.update_state_tsb()
+        return False                
+    
+    @api.one
+    def update_state_tsb(self):            
+        separator_fields = '|'
+        #response
+        response = {
+            'errors': True, 
+            'error': "", 
+            'return': "",
+        }                 
+        #file_name ric
+        file_name_real = "RIC_"+self.carrier_id.tsb_sender_customer+'.txt'
+        file_name = os.path.dirname(os.path.abspath(__file__))+'/'+file_name_real
+        #ftp + download
+        ftp = ftplib.FTP(self.carrier_id.tsb_ftp_host)
+        ftp.login(self.carrier_id.tsb_ftp_user, self.carrier_id.tsb_ftp_password)  
+        ftp.cwd(self.carrier_id.tsb_ftp_directory_download)                
+        
+        ls = []
+        ftp.retrlines('MLSD', ls.append)
+        
+        shipping_expedition_find = False
+        
+        for entry in ls:
+            entry_split = entry.split(";")
+            entry_name = str(entry_split[4])
+            entry_name = entry_name.replace(" ", "")
+            
+            if entry_name!="." and entry_name!="..":                                
+                ftp.retrbinary("RETR "+entry_name, open(file_name, 'wb').write)                                           
+                #read_file        
+                if os.path.isfile(file_name):
+                    f = open(file_name, 'r')
+                    for line in f:
+                        if separator_fields in line:                           
+                            line_split = line.split(separator_fields)                        
+                            
+                            expedition_line = line_split[0]                    
+                            reference_line = line_split[1]
+                            origin_line = line_split[15]
+                            ctrl_identiticket_line = line_split[28]
+                            ctrl_localizator_line = line_split[29]
+                            ctrl_link_line = line_split[30]  
+                            estd_fecha_llegada_line = line_split[33]
+                            estd_codigo_situacion_line = line_split[36]
+                            
+                            if self.picking_id.name==reference_line and shipping_expedition_find==False:                                                                                                
+                                estd_fecha_llegada_line_split = estd_fecha_llegada_line.split(' ')
+                                estd_fecha_llegada_line2 = estd_fecha_llegada_line_split[0].split('/')
+                                estd_fecha_llegada_line_real = estd_fecha_llegada_line2[2]+'-'+estd_fecha_llegada_line2[1]+'-'+estd_fecha_llegada_line2[0] 
+                                
+                                self.code = expedition_line
+                                self.delivery_code = reference_line                    
+                                self.tsb_identiticket = ctrl_identiticket_line
+                                self.date = estd_fecha_llegada_line_real
+                                self.tsb_localizator = ctrl_localizator_line
+                                self.tsb_url = ctrl_link_line
+                                #codigo_situacion
+                                if estd_codigo_situacion_line!="00000001":
+                                    #state_new
+                                    if estd_codigo_situacion_line=="00000002":
+                                        state_new = "shipped"
+                                    elif estd_codigo_situacion_line=="00000003" or estd_codigo_situacion_line=="00000006":
+                                        state_new = "in_transit"
+                                    elif estd_codigo_situacion_line=="00000004":
+                                        state_new = "in_delegation"                            
+                                    elif estd_codigo_situacion_line=="00000005":                            
+                                        state_new = "delivered"
+                                    else:
+                                        state_new = "incidence"
+                                    #update_state
+                                    if self.state!=state_new:
+                                        self.state = state_new
+                                #result
+                                response['return'] = {
+                                    'label': "",                    
+                                }
+                                response['return']['result'] = {
+                                    'expe_codigo': expedition_line,
+                                    'fecha': estd_fecha_llegada_line_real,
+                                    'estado_code': estd_codigo_situacion_line,
+                                    'origen': origin_line,
+                                    'albaran': reference_line,
+                                    'exps_rels': "", 
+                                }                                
+                                shipping_expedition_find = True                                
+        #response
+        ftp.quit()
+        response['errors'] = False                                                                                   
+        return response                                

@@ -102,7 +102,17 @@ class ShippingExpedition(models.Model):
     
     @api.model
     def create(self, values):
-        record = super(ShippingExpedition, self).create(values)                    
+        record = super(ShippingExpedition, self).create(values)
+        #order_id
+        if record.picking_id.id>0:
+            if record.picking_id.origin!=False:
+                sale_order_ids = self.env['sale.order'].search([('name', '=', str(record.picking_id.origin))])
+                if len(sale_order_ids)>0:
+                    for sale_order_id in sale_order_ids:
+                        record.order_id = sale_order_id.id
+                        #user_id
+                        if sale_order_id.user_id.id>0:
+                            record.user_id = sale_order_id.user_id.id
         #add partner_id follower
         if record.partner_id.id>0:
             reg = {
@@ -145,28 +155,22 @@ class ShippingExpedition(models.Model):
                             #mail_follower_id.unlink()                                
         #record                                                                
         return record
-                  
-    @api.one
-    def update_state(self):
-        return True
     
+    @api.multi    
+    def cron_shipping_expeditions_update_state(self, cr=None, uid=False, context=None):
+        shipping_expedition_ids = self.env['shipping.expedition'].search(
+            [
+                ('state', 'not in', ('delivered', 'canceled')),
+                ('carrier_id.carrier_type', 'in', ('cbl', 'txt', 'tsb', 'nacex'))
+            ]
+        )
+        if len(shipping_expedition_ids)>0:                
+            for shipping_expedition_id in shipping_expedition_ids:
+                shipping_expedition_id.action_update_state()
+                
     @api.one
     def action_update_state(self):
-        if self.state!="delivered":
-            self.update_state()
-                                 
-        return True
-    
-    @api.one
-    def cancel_state(self):
-        return True    
-    
-    @api.one
-    def action_cancell(self):
-        if self.state!="canceled":
-            self.cancel_state()
-    
-        return True
+        return False        
     
     @api.one    
     def action_error_update_state_expedition_message_slack(self, res):

@@ -6,14 +6,14 @@
         <field name="inherit_id" ref="shipping_expedition.shipping_expedition_view_delivery_carrier_form"/>
         <field name="arch" type="xml">
             <field name="carrier_type" position="after">
-                <field name="nacex_del_cli" attrs="{'invisible': [('carrier_type', '!=', 'nacex')]}"/>
-                <field name="nacex_num_cli" attrs="{'invisible': [('carrier_type', '!=', 'nacex')]}"/>
-                <field name="nacex_dep_cli" attrs="{'invisible': [('carrier_type', '!=', 'nacex')]}"/>
-                <field name="nacex_tip_ser" attrs="{'invisible': [('carrier_type', '!=', 'nacex')]}"/>
-                <field name="nacex_tip_cob" attrs="{'invisible': [('carrier_type', '!=', 'nacex')]}"/>
-                <field name="nacex_tip_env" attrs="{'invisible': [('carrier_type', '!=', 'nacex')]}"/>
-                <field name="nacex_print_model" attrs="{'invisible': [('carrier_type', '!=', 'nacex')]}"/>
-                <field name="nacex_print_et" attrs="{'invisible': [('carrier_type', '!=', 'nacex')]}"/>
+                <field name="nacex_del_cli" attrs="{'invisible': [('carrier_type', '!=', 'nacex')]}" groups="base.group_no_one"/>
+                <field name="nacex_num_cli" attrs="{'invisible': [('carrier_type', '!=', 'nacex')]}" groups="base.group_no_one"/>
+                <field name="nacex_dep_cli" attrs="{'invisible': [('carrier_type', '!=', 'nacex')]}" groups="base.group_no_one"/>
+                <field name="nacex_tip_ser" attrs="{'invisible': [('carrier_type', '!=', 'nacex')]}" groups="base.group_no_one"/>
+                <field name="nacex_tip_cob" attrs="{'invisible': [('carrier_type', '!=', 'nacex')]}" groups="base.group_no_one"/>
+                <field name="nacex_tip_env" attrs="{'invisible': [('carrier_type', '!=', 'nacex')]}" groups="base.group_no_one"/>
+                <field name="nacex_print_model" attrs="{'invisible': [('carrier_type', '!=', 'nacex')]}" groups="base.group_no_one"/>
+                <field name="nacex_print_et" attrs="{'invisible': [('carrier_type', '!=', 'nacex')]}" groups="base.group_no_one"/>
             </field>
         </field>
     </record>

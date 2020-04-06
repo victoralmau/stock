@@ -11,8 +11,7 @@
         'python' : ['boto'],
     },
     'data': [
-        'data/ir_configparameter_data.xml',
-        'data/ir_cron.xml',
+        'views/delivery_carrier.xml',
         'views/shipping_expedition.xml',
         'views/stock_picking.xml',
     ],

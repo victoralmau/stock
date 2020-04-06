@@ -11,9 +11,8 @@
         'python' : ['suds', 'pycurl', 'boto'],
     },
     'data': [
-        'data/ir_cron.xml',
         'views/delivery_carrier.xml',    
-        'views/stock.xml',
+        'views/stock_picking.xml',
         'views/shipping_expedition.xml',        
         'report/shipping_expedition_views.xml',
         'report/report_nacex.xml',

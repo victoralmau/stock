@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
-# © 2013 Yannick Vaucher (Camptocamp SA)
-# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 from openerp import _, api, exceptions, fields, models
 
-from ..txt.web_service import TxtWebService
 from datetime import datetime
+import datetime
 
 import logging
 _logger = logging.getLogger(__name__)
+
+from bs4 import BeautifulSoup
+import requests
 
 class ShippingExpedition(models.Model):
     _inherit = 'shipping.expedition'        
@@ -17,7 +18,7 @@ class ShippingExpedition(models.Model):
         store=False,
         string='TXT Url'
     )
-    
+            
     @api.one
     def define_delegation_phone_txt(self):
         delegations_txt = {
@@ -139,36 +140,33 @@ class ShippingExpedition(models.Model):
                     self.txt_url = "http://tracking.txt.es/?EXPED=@33701@fx4iqq5kj101tks@R@"+self.origin+"@"+date_split[0]+"@"                                
     
     @api.one
-    def update_state_txt(self, webservice_class=None, is_cron_exec=False):    
-        user = self.env.user
+    def action_update_state(self):
+        #operations
+        if self.carrier_id.carrier_type=='txt':
+            self.action_update_state_txt()
+        #return
+        return super(StockPicking, self).action_update_state()
         
-        company = user.company_id
-        if webservice_class is None:
-            webservice_class = TxtWebService
-        
-        web_service = webservice_class(company, self.env)                                
-        res = web_service.status_expedition(self)
-        
-        if res['errors'] == True:
-            if res['error']=='':
-                res['error'] = 'Error sin especificar'
-                
-            self.action_error_update_state_expedition_message_slack(res)#slack.message                                                    
-            
-            if is_cron_exec==False:                
-                raise exceptions.Warning(res['error'])
+    @api.one
+    def action_update_state_txt(self):
+        res = self.action_update_state_txt_real()[0]
+        #operations
+        if res['errors']==True:
+            _logger.info(res)  
+            raise exceptions.Warning(res['error'])
         else:
+            #fecha_entrega
             if 'fecha_entrega' in res['return']:
                 if '/' in res['return']['fecha_entrega']: 
                     fecha_split = res['return']['fecha_entrega'].split('/')
                     self.date = fecha_split[2]+'-'+fecha_split[1]+'-'+fecha_split[0]
-            
+            #num_albaran
             if 'num_albaran' in res['return']:                                 
                 self.code = res['return']['num_albaran']
-            
+            #observaciones
             if 'observaciones' in res['return']:                 
                 self.observations = res['return']['observaciones']
-            
+            #destino_expedicion1
             if 'destino_expedicion1' in res['return']:                 
                 self.delegation_name = res['return']['destino_expedicion1']                
                 self.define_delegation_phone_txt()                                
@@ -182,37 +180,45 @@ class ShippingExpedition(models.Model):
                 state_new = "in_transit"
             elif res['return']['estado_expedicion']=="INCIDENCIA" or res['return']['estado_expedicion']=="EN INCIDENCIA":
                 state_new = "incidence"
-                
+            #state update                
             if state_new!=False and state_new!=state_old:
                 self.state = state_new
-                
-                if state_new=="incidence":
-                    res_to_slack = res
-                    res_to_slack['error'] = res_to_slack['return']['observaciones']
-                    self.action_incidence_expedition_message_slack(res_to_slack)#slack_message                    
-                        
-        return res                                                                                                                                 
-
+    
     @api.one
-    def update_state(self):           
-        if self.carrier_id!=False:
-            if self.carrier_id.id!=False:
-                if self.carrier_id.id>0:             
-                    if self.carrier_id.carrier_type == 'txt':
-                        return self.update_state_txt(None)
-                        
-        return super(ShippingExpedition, self).update_state()
+    def action_update_state_txt_real(self):
+        url_tracking = self.txt_url        
         
-    @api.multi    
-    def cron_update_shipping_expedition_state_txt(self, cr=None, uid=False, context=None):
-        current_date = datetime.today()
-        shipping_expedition_ids = self.env['shipping.expedition'].search(
-            [
-                ('carrier_id.carrier_type', '=', 'txt'),
-                ('state', 'not in', ('canceled', 'delivered')),
-                ('create_date', '<', current_date.strftime("%Y-%m-%d"))
-            ]
-        )
-        if len(shipping_expedition_ids)>0:
-            for shipping_expedition_id in shipping_expedition_ids:            
-                shipping_expedition_id.update_state_txt(None, True)                                                            
+        response = {
+            'errors': True, 
+            'error': "Pendiente de realizar", 
+            'return': "",
+        }            
+        
+        page = requests.get(url_tracking)
+        soup = BeautifulSoup(page.content, 'html.parser')                        
+        estado_expedicion_input = soup.find('input', {'id': 'TxtEstadoExpedicion'})
+        if estado_expedicion_input!=None:
+            response['errors'] = False
+            response['return'] = {}            
+            response['return']['estado_expedicion'] = estado_expedicion_input.get('value')#Fix
+        
+            inputs = soup.find_all('input')
+            for input_field in inputs:                
+                if input_field['id']=='TxtDestinoExpedicion1':
+                    response['return']['destino_expedicion1'] = input_field['value']
+                elif input_field['id']=="TxtNumalbaran":
+                    response['return']['num_albaran'] = input_field['value']
+                elif input_field['id']=="TxtEstadoExpedicion":
+                    response['return']['estado_expedicion'] = input_field['value']
+                elif input_field['id']=="TxtFechaSalida":
+                    response['return']['fecha_salida'] = input_field['value']
+                elif input_field['id']=="TxtFechaEntrega":
+                    if response['return']['estado_expedicion']=="ENTREGADO":
+                        response['return']['fecha_entrega'] = input_field['value']                    
+                elif input_field['id']=="TxtObservaciones":
+                    response['return']['observaciones'] = input_field['value']                        
+        
+            if 'num_albaran' not in response['return']:
+                response['errors'] = True
+        #return                                                                                                    
+        return response                                                                    

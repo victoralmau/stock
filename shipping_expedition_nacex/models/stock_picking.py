@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 from operator import attrgetter
-
 from openerp import _, api, exceptions, fields, models
-
-from ..nacex.web_service import NacexWebService
+from openerp.exceptions import Warning
 
 import urllib, cStringIO
 
@@ -14,6 +12,8 @@ import base64
 import sys
 reload(sys)
 sys.setdefaultencoding('utf8')
+
+from datetime import datetime
 
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
@@ -29,32 +29,34 @@ class StockPicking(models.Model):
     @api.one
     def generate_shipping_expedition_nacex(self):
         if self.shipping_expedition_id.id==0 and self.carrier_id.carrier_type=='nacex' and self.partner_id.id>0:
-            result_put_expedition = self.nacex_ws_putExpedicion()
-            #error
-            if result_put_expedition['errors']==True:
-                _logger.info(result_put_expedition)  
-                raise exceptions.Warning(result_put_expedition['error'])              
-            #create            
-            shipping_expedition_vals = {
-                'picking_id': self.id,
-                'order_id': 0,
-                'user_id': 0,
-                'carrier_id': self.carrier_id.id,
-                'partner_id': self.partner_id.id,
-                'code': result_put_expedition['return']['result']['expe_codigo'],
-                'delivery_code': result_put_expedition['return']['result']['ag_cod_num_exp'],
-                'date': result_put_expedition['return']['result']['fecha_objetivo'],
-                'hour': result_put_expedition['return']['result']['hora_entrega'],
-                'observations': result_put_expedition['return']['result']['cambios'],
-                'state': 'generate',
-                'state_code': 2,                
-            }            
-            shipping_expedition_obj = self.env['shipping.expedition'].sudo().create(shipping_expedition_vals)
+            res = self.nacex_ws_putExpedicion()[0]
+            #operations
+            if res['errors']==True:
+                _logger.info(res)  
+                raise exceptions.Warning(res['error'])
+            else:                             
+                #create            
+                shipping_expedition_vals = {
+                    'picking_id': self.id,
+                    'carrier_id': self.carrier_id.id,
+                    'partner_id': self.partner_id.id,
+                    'code': res['return']['result']['expe_codigo'],
+                    'delivery_code': res['return']['result']['ag_cod_num_exp'],
+                    'date': res['return']['result']['fecha_objetivo'],
+                    'hour': res['return']['result']['hora_entrega'],
+                    'origin': self.name,
+                    'observations': res['return']['result']['cambios'],
+                    'state': 'generate',
+                    'state_code': 2,                
+                }            
+                shipping_expedition_obj = self.env['shipping.expedition'].sudo().create(shipping_expedition_vals)
+                #update
+                self.shipping_expedition_id = shipping_expedition_obj.id
     
     @api.one
     def nacex_ws_putExpedicion(self):
         #define        
-        today = datetime.date.today()
+        today = datetime.today()
         datetime_body = today.strftime('%d/%m/%Y')
         #partner_name        
         if self.partner_id.parent_id.id>0:
@@ -113,11 +115,11 @@ class StockPicking(models.Model):
         				<arrayOfString_3>ref_cli="""+str(self.name)+"""</arrayOfString_3>					
         				<arrayOfString_3>bul=1</arrayOfString_3>
         				<arrayOfString_3>kil="""+str(self.weight)+"""</arrayOfString_3>
-                        <arrayOfString_3>nom_rec="""+str(self.company.website)+"""</arrayOfString_3>
-                        <arrayOfString_3>dir_rec="""+str(self.company.street[0:60])+"""</arrayOfString_3>
-                        <arrayOfString_3>cp_rec="""+str(self.company.zip)+"""</arrayOfString_3>
-                        <arrayOfString_3>pob_rec="""+str(self.company.city[0:39])+"""</arrayOfString_3>
-                        <arrayOfString_3>tel_rec="""+str(self.company.phone)+"""</arrayOfString_3>
+                        <arrayOfString_3>nom_rec="""+str(self.company_id.website)+"""</arrayOfString_3>
+                        <arrayOfString_3>dir_rec="""+str(self.company_id.street[0:60])+"""</arrayOfString_3>
+                        <arrayOfString_3>cp_rec="""+str(self.company_id.zip)+"""</arrayOfString_3>
+                        <arrayOfString_3>pob_rec="""+str(self.company_id.city[0:39])+"""</arrayOfString_3>
+                        <arrayOfString_3>tel_rec="""+str(self.company_id.phone)+"""</arrayOfString_3>
         				<arrayOfString_3>nom_ent="""+str(partner_name[0:50])+"""</arrayOfString_3>
                         <arrayOfString_3>per_ent="""+str(partner_name[0:35])+"""</arrayOfString_3>
         				<arrayOfString_3>dir_ent="""+str(self.partner_id.street[0:60])+"""</arrayOfString_3>                    
@@ -273,15 +275,15 @@ class StockPicking(models.Model):
     @api.one
     def action_view_etiqueta_item(self):
         if self.shipping_expedition_id.id>0:
-            response_view_etiqueta = self.view_etiqueta_nacex()
-            if response_view_etiqueta['errors']==True:
-                raise exceptions.Warning(response_view_etiqueta['error'])
+            res = self.view_etiqueta_nacex()
+            if res['errors']==True:
+                raise exceptions.Warning(res['error'])
             else:
                 delivery_code_split = self.shipping_expedition_id.delivery_code.split('/')
                 #vals
                 ir_attachment_vals = {
-                    'name': delivery_code_split[0]+"-"+delivery_code_split[1]+'.png'
-                    'datas': base64.encodestring(response_view_etiqueta['return']),
+                    'name': delivery_code_split[0]+"-"+delivery_code_split[1]+'.png',
+                    'datas': base64.encodestring(res['return']),
                     'datas_fname': delivery_code_split[0]+"-"+delivery_code_split[1]+'.png',
                     'res_model': 'stock.picking',
                     'res_id': self.id
@@ -323,26 +325,4 @@ class StockPicking(models.Model):
                 for ir_attachment_id in ir_attachment_ids:
                     return_url = '/web/image/'+str(ir_attachment_id.id)
                     
-                return return_url               
-    
-    @api.multi
-    def action_edit_shipping_expedition(self, package_ids=None):        
-        self.ensure_one()                
-        if self.carrier_id.carrier_type == 'nacex':
-            return self._edit_nacex_expedition(package_ids=package_ids)
-        _super = super(StockPicking, self)
-        return _super.action_edit_shipping_expedition(package_ids=package_ids)
-        
-    @api.multi    
-    def cron_change_auto_done_nacex(self, cr=None, uid=False, context=None):
-        stock_picking_ids = self.env['stock.picking'].search(
-            [
-                ('picking_type_id', '=', 7),
-                ('state', 'in', ('confirmed', 'partial_available', 'assigned')),
-                ('carrier_type', '=', 'nacex'),
-                ('shipping_expedition_id', '!=', False)
-            ]
-        )
-        if stock_picking_ids!=False:                
-            for stock_picking_id in stock_picking_ids:
-                stock_picking_id.do_transfer()                                                                                    
+                return return_url                                                                                        

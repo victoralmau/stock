@@ -1,3 +1,4 @@
 # -*- coding: utf-8 -*-
-import stock
+import delivery_carrier
+import stock_picking
 import shipping_expedition

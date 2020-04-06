@@ -8,6 +8,7 @@
     'license': 'AGPL-3',
     'depends': ['base', 'delivery', 'stock'],
     'data': [
+        'data/ir_cron.xml',
         'views/delivery_carrier.xml',
         'views/res_partner.xml',
         'views/shipping_expedition.xml',

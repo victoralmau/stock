@@ -8,7 +8,7 @@
     'license': 'AGPL-3',
     'depends': ['shipping_expedition'],
     'data': [
-        'data/ir_configparameter_data.xml',
+        'views/delivery_carrier.xml',
         'views/shipping_expedition.xml',
         'views/product_template.xml',
     ],

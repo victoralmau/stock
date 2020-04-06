@@ -1,108 +1,135 @@
 # -*- coding: utf-8 -*-
-# © 2013 Yannick Vaucher (Camptocamp SA)
-# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 from openerp import _, api, exceptions, fields, models
-
-from ..cbl.web_service import CblWebService
-from datetime import datetime
+from openerp.exceptions import Warning
 
 import logging
 _logger = logging.getLogger(__name__)
+
+import urllib
+import urllib2
+
+import requests
+import unidecode
+from bs4 import BeautifulSoup
 
 class ShippingExpedition(models.Model):
     _inherit = 'shipping.expedition'        
     
     cbl_url = fields.Char(
         string='CBL Url'
-    )                
+    )
     
     @api.one
-    def update_state_cbl(self, webservice_class=None, is_cron_exec=False):    
-        user = self.env.user
+    def action_update_state(self):
+        #operations
+        if self.carrier_id.carrier_type=='cbl':
+            self.action_update_state_cbl()
+        #return
+        return super(StockPicking, self).action_update_state()
         
-        company = user.company_id
-        if webservice_class is None:
-            webservice_class = CblWebService
+    @api.one
+    def action_update_state_cbl(self):
+        url = 'https://clientes.cbl-logistica.com/public/consultaenvios.aspx'
+        values = {}
         
-        web_service = webservice_class(company, self.env)                        
+        response = {
+            'errors': True, 
+            'error': "Pendiente de realizar", 
+            'return': "",
+        }
         
-        res = web_service.status_expedition(self)
+        page = requests.get(url)
+        soup = BeautifulSoup(page.content, 'html.parser')        
+        inputs = soup.find_all('input')
+        for input_field in inputs:
+            if input_field['type']=='hidden':
+                values[input_field['id']] = input_field['value']
+            else:
+                values[input_field['id']] = ''
         
-        if res['errors'] == True:
-            if res['error']=='':
-                res['error'] = 'Error sin especificar'
-                
-            self.action_error_update_state_expedition_message_slack(res)#slack.message                
-                        
-            if is_cron_exec==False:                
-                raise exceptions.Warning(res['error'])
+        if 'WebCUI_usuario' in values:
+            values['WebCUI_usuario'] = '500506010'
+            response['errors'] = False
+            response['error'] = ''
+            response['return'] = {}
+        
+        if self.code!=False and self.code!="":
+            if 'WebCUI_nenvio' in values:            
+                values['WebCUI_nenvio'] = self.code
         else:
-            if 'fecha_entrega' in res['return']:
-                if '/' in res['return']['fecha_entrega']:
-                    fecha_split = res['return']['fecha_entrega'].split('/')
+            if 'WebCUI_ref' in values:            
+                values['WebCUI_ref'] = self.picking_id.name                                        
+                    
+        if response['errors']==False:                
+            data = urllib.urlencode(values)
+            response_data = urllib2.urlopen(url, data)        
+            page = response_data.read()        
+            soup = BeautifulSoup(page, 'html.parser')        
+            trs = soup.find_all('tr')
+            td0_previous = False            
+            for tr in trs:            
+                tds = tr.find_all('td')
+                                                
+                if len(tds)==1:
+                    td0 = unidecode.unidecode(tds[0].text.lower())
+                    if td0_previous=='observaciones':
+                        response['return'][str(td0_previous)] = str(td0)
+                        
+                    td0_previous = td0
+                    
+                elif len(tds)==2:
+                    td0 = unidecode.unidecode(tds[0].text.lower())
+                    td0 = td0.replace(".", "").replace(":", "").replace(" ", "_")
+                    td0_previous = td0
+                                                            
+                    td1 = tds[1].text
+                                        
+                    if td0=="situacion":
+                        td1 = unidecode.unidecode(td1.lower())
+                        td1 = td1.replace(" ", "_")
+                                                                        
+                    response['return'][str(td0)] = str(td1)                                     
+        
+        if 'situacion' not in response['return']:
+            response['errors'] = True
+        #operations
+        if response['errors']==True:
+            _logger.info(response)
+            raise exceptions.Warning(response['error'])
+        else:                
+            #fecha_entrega                                        
+            if 'fecha_entrega' in response['return']:
+                if '/' in response['return']['fecha_entrega']:
+                    fecha_split = response['return']['fecha_entrega'].split('/')
                     self.date = fecha_split[2][0:4]+'-'+fecha_split[1]+'-'+fecha_split[0]
-            
-            if 'detalle_del_envio_' in res['return']:                                 
-                self.code = res['return']['detalle_del_envio_']
-                
-            if 'ag_destino' in res['return']:
-                self.delegation_name = res['return']['ag_destino']
-                
-            if 'telefono' in res['return']:
-                self.delegation_phone = res['return']['telefono']
-                
-            if 'observaciones' in res['return']:
-                self.observations = res['return']['observaciones']                                                                                                                    
+            #detalle_del_envio_            
+            if 'detalle_del_envio_' in response['return']:                                 
+                self.code = response['return']['detalle_del_envio_']
+            #ag_destino                
+            if 'ag_destino' in response['return']:
+                self.delegation_name = response['return']['ag_destino']
+            #telefono                        
+            if 'telefono' in response['return']:
+                self.delegation_phone = response['return']['telefono']
+            #observaciones                
+            if 'observaciones' in response['return']:
+                self.observations = response['return']['observaciones']                                                                                                                    
             #state
             state_old = self.state
             state_new = False
-                        
-            if res['return']['situacion']=="entregada" or res['return']['situacion']=="entregada_con_incidencia":
+                                    
+            if response['return']['situacion']=="entregada" or response['return']['situacion']=="entregada_con_incidencia":
                 state_new = "delivered"
-            elif res['return']['situacion']=="en_gestion":
+            elif response['return']['situacion']=="en_gestion":
                 state_new = "shipped"
-            elif res['return']['situacion']=="en_destino":
+            elif response['return']['situacion']=="en_destino":
                 state_new = "in_delegation"
-            elif res['return']['situacion']=="en_reparto" or res['return']['situacion']=="en_transito":
+            elif response['return']['situacion']=="en_reparto" or response['return']['situacion']=="en_transito":
                 state_new = "in_transit"
-            elif res['return']['situacion']=="devuelta":
+            elif response['return']['situacion']=="devuelta":
                 state_new = "canceled"
-            elif res['return']['situacion']=="incidencia":
+            elif response['return']['situacion']=="incidencia":
                 state_new = "incidence"                
-            
+            #update state
             if state_new!=False and state_new!=state_old:
-                self.state = state_new
-                
-                if state_new=="incidence":
-                    res_to_slack = res
-                    res_to_slack['error'] = res_to_slack['return']['observaciones']                    
-                    self.action_incidence_expedition_message_slack(res_to_slack)#slack_message                    
-                else:
-                    #self.action_send_mail_info(82) 
-                    _logger.info('action_send_mail_info')                                       
-        
-        return res                                                                                                             
-
-    @api.one
-    def update_state(self):           
-        if self.carrier_id!=False:
-            if self.carrier_id.id!=False:        
-                if self.carrier_id.id>0:             
-                    if self.carrier_id.carrier_type == 'cbl':
-                        return self.update_state_cbl(None)
-                                            
-        return super(ShippingExpedition, self).update_state()        
-                        
-    @api.multi    
-    def cron_update_shipping_expedition_state_cbl(self, cr=None, uid=False, context=None):
-        current_date = datetime.today()
-        shipping_expedition_ids = self.env['shipping.expedition'].search(
-            [
-                ('carrier_id.carrier_type', '=', 'cbl'),
-                ('state', 'not in', ('canceled', 'delivered')),
-                ('create_date', '<', current_date.strftime("%Y-%m-%d"))
-            ]
-        )
-        if len(shipping_expedition_ids)>0:
-            for shipping_expedition_id in shipping_expedition_ids:            
-                shipping_expedition_id.update_state_cbl(None, True)                                                                                                                                                        
+                self.state = state_new                                                                                                                                                                        

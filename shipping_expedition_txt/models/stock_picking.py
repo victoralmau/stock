@@ -1,112 +1,126 @@
 # -*- coding: utf-8 -*-
+from operator import attrgetter
+from openerp import _, api, exceptions, fields, models, tools
+
 import logging
-import pycurl
-import StringIO
-import xml.etree.ElementTree as ET
-import datetime
+import urllib, cStringIO
 
 _logger = logging.getLogger(__name__)
 
-from openerp import _, api, exceptions, fields, models, tools
-
+from datetime import datetime
 import os
 import codecs
-import urllib2
-from xml.dom.minidom import parseString
 
-import requests
-import unidecode
-from bs4 import BeautifulSoup
-
-import boto
-from boto.s3.key import Key
-
-class TxtWebService():
-
-    def __init__(self, company, env):
-        self.company = company
-        self.custom_env = env
-        #confif
-        self.sender_customer = self.custom_env['ir.config_parameter'].sudo().get_param('txt_sender_customer')        
-        self.s3_bucket = self.custom_env['ir.config_parameter'].sudo().get_param('txt_s3_bucket')
-        self.s3_folder = self.custom_env['ir.config_parameter'].sudo().get_param('txt_s3_folder')                            
+class StockPicking(models.Model):
+    _inherit = 'stock.picking'
     
-    def generate_expedition(self, picking, packages):
-        delivery_carrier = picking.carrier_id       
-        partner_picking = picking.partner_id
-        country_partner_picking = partner_picking.country_id
+    @api.one
+    def generate_shipping_expedition(self):
+        #operations
+        if self.carrier_id.carrier_type=='txt':
+            self.generate_shipping_expedition_txt()
+        #return
+        return super(StockPicking, self).generate_shipping_expedition()
         
-        today = datetime.date.today()
+    @api.one
+    def generate_shipping_expedition_txt(self):
+        if self.shipping_expedition_id.id==0 and self.carrier_id.carrier_type=='txt' and self.partner_id.id>0:
+            res = self.generate_shipping_expedition_txt_real()[0]
+            #operations
+            if res['errors']==True:
+                _logger.info(res)  
+                raise exceptions.Warning(res['error'])
+            else:                             
+                #create            
+                shipping_expedition_vals = {
+                    'picking_id': self.id,
+                    'order_id': 0,
+                    'user_id': 0,
+                    'carrier_id': self.carrier_id.id,
+                    'partner_id': self.partner_id.id,
+                    'code': '',
+                    'delivery_code': 'Generado '+str(self.name),
+                    'date': datetime.today().strftime("%Y-%m-%d"),
+                    'hour': '',
+                    'origin': self.name,
+                    'observations': '',
+                    'state': 'generate',
+                    'state_code': 2,                
+                }            
+                shipping_expedition_obj = self.env['shipping.expedition'].sudo().create(shipping_expedition_vals)
+                #update
+                self.shipping_expedition_id = shipping_expedition_obj.id
+                    
+    @api.one
+    def generate_shipping_expedition_txt_real(self):
+        #define
+        today = datetime.today()
         datetime_body = today.strftime('%d/%m/%Y')
-        separator_fields = '#'        
-        
+        separator_fields = '#'                
         #partner_name
-        if partner_picking.name==False:
-            partner_name = partner_picking.parent_id.name 
+        if self.partner_id.parent_id.id>0:
+            partner_name = self.partner_id.parent_id.name 
         else:
-            partner_name = partner_picking.name
-            
+            partner_name = self.partner_id.name            
         #partner_phone
         partner_phone = ''
-        if partner_picking.mobile!=False:
-            partner_phone = partner_picking.mobile
+        if self.partner_id.mobile!=False:
+            partner_phone = self.partner_id.mobile
         else:
-            if partner_picking.phone!=False:
-                partner_phone = partner_picking.phone
-                
+            if self.partner_id.phone!=False:
+                partner_phone = self.partner_id.phone
         #email        
-        if partner_picking.email==False:
+        if self.partner_id.email==False:
             partner_email = ''
         else:
-            partner_email = partner_picking.email
-        
+            partner_email = self.partner_id.email        
         #shipping_expedition_note
-        if picking.shipping_expedition_note==False:
+        if self.shipping_expedition_note==False:
             observations1 = ''
             observations2 = ''
         else:
-            observations1 = picking.shipping_expedition_note
+            observations1 = self.shipping_expedition_note
             observations2 = ''
-    
+        #txt_fields
         txt_fields = [
             {
                 'type': 'customer_reference',
-                'value': str(picking.name),
+                'value': str(self.name),
                 'size': 24,
             },
             {
                 'type': 'sender_customer',
-                'value': self.sender_customer,
+                'value': self.carrier_id.txt_sender_customer,
                 'size': 11,
             },            
             {
                 'type': 'sender_name',
-                'value': str(self.company.name),
+                'value': str(self.company_id.name),
                 'size': 40,
             },
             {
                 'type': 'sender_address',
-                'value': str(self.company.street),
+                'value': str(self.company_id.street),
                 'size': 40,
             },
             {
                 'type': 'sender_country',
-                'value': str(self.company.country_id.code),
+                'value': str(self.company_id.country_id.code),
                 'size': 5,
             },
             {
                 'type': 'sender_zip',
-                'value': str(self.company.zip),
+                'value': str(self.company_id.zip),
                 'size': 7,
             },
             {
                 'type': 'sender_city',
-                'value': str(self.company.city),
+                'value': str(self.company_id.city),
                 'size': 40,
             },
             {
                 'type': 'sender_cif',
-                'value': str(self.company.vat),
+                'value': str(self.company_id.vat),
                 'size': 16,
             },
             {
@@ -116,27 +130,27 @@ class TxtWebService():
             },
             {
                 'type': 'receiver_address',
-                'value': str(partner_picking.street),
+                'value': str(self.partner_id.street),
                 'size': 40,
             },
             {
                 'type': 'receiver_country',
-                'value': str(partner_picking.country_id.code),
+                'value': str(self.partner_id.country_id.code),
                 'size': 5,
             },
             {
                 'type': 'receiver_zip',
-                'value': str(partner_picking.zip),
+                'value': str(self.partner_id.zip),
                 'size': 7,
             },
             {
                 'type': 'receiver_city',
-                'value': str(partner_picking.city),
+                'value': str(self.partner_id.city),
                 'size': 40,
             },
             {
                 'type': 'receiver_cif',
-                'value': str(partner_picking.vat),
+                'value': str(self.partner_id.vat),
                 'size': 16,
             },
             {
@@ -151,12 +165,12 @@ class TxtWebService():
             },
             {
                 'type': 'packs',
-                'value': str(picking.number_of_packages),
+                'value': str(self.number_of_packages),
                 'size': 4,
             },
             {
                 'type': 'kgs',
-                'value': str(int(picking.weight)),
+                'value': str(int(self.weight)),
                 'size': 5,
             },
             {
@@ -206,7 +220,7 @@ class TxtWebService():
             },
             {
                 'type': 'tk_mailidio',
-                'value': str(partner_picking.country_id.code),
+                'value': str(self.partner_id.country_id.code),
                 'size': 5,
             },
             {
@@ -222,7 +236,7 @@ class TxtWebService():
             },
             {
                 'type': 'total_cashondelivery',
-                'value': str(format(picking.total_cashondelivery, '.2f')),
+                'value': str(format(self.total_cashondelivery, '.2f')),
                 'size': 10.2,
             },                                                                                                
         ]                        
@@ -240,9 +254,13 @@ class TxtWebService():
             'return': "",
         }                                
         #open file for reading
-        picking_name_replace = picking.name.replace("/", "-")
+        picking_name_replace = self.name.replace("/", "-")
         file_name_real = str(picking_name_replace)+'.txt'
-        file_name = os.path.dirname(os.path.abspath(__file__))+'/'+file_name_real                    
+        #folder_name
+        folder_name = str(os.path.abspath(__file__))
+        folder_name = folder_name.replace('/models/stock_picking.py', '/'+str(self.carrier_id.carrier_type))
+        file_name_real = str(folder_name)+'/'+str(file_name_real)
+        file_name = os.path.dirname(file_name_real)                    
         #check if exists line
         line_exist_in_file = False
         if os.path.isfile(file_name):
@@ -250,19 +268,9 @@ class TxtWebService():
         #continue line_exist_in_file
         if line_exist_in_file==False:
             #fh = open(file_name,'a')# if file does not exist, create it
-            fh = codecs.open(file_name, "a", "utf-8-sig")                            
+            fh = codecs.open(file_name_real, "a", "utf-8-sig")                            
             fh.write(txt_line)
-            fh.close()
-            #upload_s3
-            destination_filename = str(self.s3_folder)+str(file_name_real)            
-            return_upload_to_s3 = self.custom_env['s3.model'].sudo().upload_to_s3(file_name, destination_filename, self.s3_bucket, True)
-            if return_upload_to_s3==False:
-                response = {
-                    'errors': True, 
-                    'error': "Error al copiar el archivo en S3", 
-                    'return': "",
-                }
-                return response           
+            fh.close()                       
             #change return and generate shipping_expedition
             response['errors'] = False                      
         else:
@@ -271,43 +279,5 @@ class TxtWebService():
                 'error': "Ya existe este albaran en el archivo .txt", 
                 'return': "",
             }
-            
-        return response
-        
-    def status_expedition(self, shipping_expedition):
-        url_tracking = shipping_expedition.txt_url        
-        
-        response = {
-            'errors': True, 
-            'error': "Pendiente de realizar", 
-            'return': "",
-        }            
-        
-        page = requests.get(url_tracking)
-        soup = BeautifulSoup(page.content, 'html.parser')                        
-        estado_expedicion_input = soup.find('input', {'id': 'TxtEstadoExpedicion'})
-        if estado_expedicion_input!=None:
-            response['errors'] = False
-            response['return'] = {}            
-            response['return']['estado_expedicion'] = estado_expedicion_input.get('value')#Fix
-        
-            inputs = soup.find_all('input')
-            for input_field in inputs:                
-                if input_field['id']=='TxtDestinoExpedicion1':
-                    response['return']['destino_expedicion1'] = input_field['value']
-                elif input_field['id']=="TxtNumalbaran":
-                    response['return']['num_albaran'] = input_field['value']
-                elif input_field['id']=="TxtEstadoExpedicion":
-                    response['return']['estado_expedicion'] = input_field['value']
-                elif input_field['id']=="TxtFechaSalida":
-                    response['return']['fecha_salida'] = input_field['value']
-                elif input_field['id']=="TxtFechaEntrega":
-                    if response['return']['estado_expedicion']=="ENTREGADO":
-                        response['return']['fecha_entrega'] = input_field['value']                    
-                elif input_field['id']=="TxtObservaciones":
-                    response['return']['observaciones'] = input_field['value']                        
-        
-            if 'num_albaran' not in response['return']:
-                response['errors'] = True
-                                                                                                    
-        return response                                                              
+        #return            
+        return response                                                            
