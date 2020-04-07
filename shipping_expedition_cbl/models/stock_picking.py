@@ -8,6 +8,7 @@ _logger = logging.getLogger(__name__)
 
 from datetime import datetime
 
+import base64
 import os
 import codecs
 
@@ -39,7 +40,18 @@ class StockPicking(models.Model):
                 })  
                 #raise
                 raise exceptions.Warning(res['error'])
-            else:                             
+            else:
+                #file_name
+                file_name = self.name.replace('/','-')+'.txt'
+                #vals
+                ir_attachment_vals = {
+                    'name': file_name,
+                    'datas': base64.encodestring(res['txt_line']),
+                    'datas_fname': file_name,
+                    'res_model': 'stock.picking',
+                    'res_id': self.id
+                }
+                ir_attachment_obj = self.env['ir.attachment'].sudo().create(ir_attachment_vals)                             
                 #create            
                 shipping_expedition_vals = {
                     'picking_id': self.id,
@@ -54,9 +66,15 @@ class StockPicking(models.Model):
                     'origin': self.name,
                     'observations': '',
                     'state': 'generate',
-                    'state_code': 2,                
+                    'state_code': 2,
+                    'ir_attachment_id': ir_attachment_obj.id                 
                 }            
                 shipping_expedition_obj = self.env['shipping.expedition'].sudo().create(shipping_expedition_vals)
+                #update ir_attachment_id
+                ir_attachment_obj.write({
+                    'res_model': 'shipping.expedition',
+                    'res_id': shipping_expedition_obj.id
+                })
                 #update
                 self.shipping_expedition_id = shipping_expedition_obj.id                
                     
@@ -256,6 +274,7 @@ class StockPicking(models.Model):
             'errors': True, 
             'error': "", 
             'return': "",
+            'txt_line': txt_line
         }                                                
         #open file for reading
         picking_name_replace = self.name.replace("/", "-")
