@@ -6,7 +6,7 @@
     'website': "http://www.arelux.com",
     'category': 'Test',
     'version': '1.5.9',
-    'depends': ['base', 'delivery', 'sale', 'stock', 'account'],
+    'depends': ['base', 'delivery', 'sale', 'stock', 'account', 'shipping_expedition'],
     'data': [
         'data/ir_cron.xml',
         'views/delivery_carrier.xml',

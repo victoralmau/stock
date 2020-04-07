@@ -98,21 +98,15 @@ class ShippingExpedition(models.Model):
     )
     delegation_phone = fields.Char(
         string='Telefono delegacion'
-    )        
+    )
+    ir_attachment_id = fields.Many2one(
+        comodel_name='ir.attachment',
+        string='Adjunto'
+    )            
     
     @api.model
     def create(self, values):
         record = super(ShippingExpedition, self).create(values)
-        #order_id
-        if record.picking_id.id>0:
-            if record.picking_id.origin!=False:
-                sale_order_ids = self.env['sale.order'].search([('name', '=', str(record.picking_id.origin))])
-                if len(sale_order_ids)>0:
-                    for sale_order_id in sale_order_ids:
-                        record.order_id = sale_order_id.id
-                        #user_id
-                        if sale_order_id.user_id.id>0:
-                            record.user_id = sale_order_id.user_id.id
         #add partner_id follower
         if record.partner_id.id>0:
             reg = {

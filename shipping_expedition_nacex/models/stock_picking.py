@@ -52,6 +52,8 @@ class StockPicking(models.Model):
                 shipping_expedition_obj = self.env['shipping.expedition'].sudo().create(shipping_expedition_vals)
                 #update
                 self.shipping_expedition_id = shipping_expedition_obj.id
+                #Fix
+                self.action_view_etiqueta_item()
     
     @api.one
     def nacex_ws_putExpedicion(self):
@@ -288,7 +290,9 @@ class StockPicking(models.Model):
                     'res_model': 'stock.picking',
                     'res_id': self.id
                 }
-                ir_attachment_obj = self.env['ir.attachment'].sudo().create(ir_attachment_vals)                
+                ir_attachment_obj = self.env['ir.attachment'].sudo().create(ir_attachment_vals)
+                #update ir_attachment_id
+                self.ir_attachment_id = ir_attachment_obj.id                 
                        
     @api.multi
     def action_view_etiqueta(self, package_ids=None):

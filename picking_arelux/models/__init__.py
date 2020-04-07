@@ -1,6 +1,7 @@
 import delivery_carrier
 import report
 import sale_order
+import shipping_expedition
 import stock_pack_operation
 import stock_pack_operation_lot
 import stock_quant

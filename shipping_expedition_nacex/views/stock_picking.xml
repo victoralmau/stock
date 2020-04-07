@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
         <field name="state" position="before">
             <button name="action_view_etiqueta"
-                attrs="{'invisible': [('shipping_expedition_id', '==', '0')]}"
+                attrs="{'invisible': [('shipping_expedition_id', '=', False)]}"
                 string="Ver etiqueta" type="object"/>      
         </field>
         </field>
