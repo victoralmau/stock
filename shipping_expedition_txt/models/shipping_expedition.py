@@ -145,7 +145,7 @@ class ShippingExpedition(models.Model):
         if self.carrier_id.carrier_type=='txt':
             self.action_update_state_txt()
         #return
-        return super(StockPicking, self).action_update_state()
+        return super(ShippingExpedition, self).action_update_state()
         
     @api.one
     def action_update_state_txt(self):

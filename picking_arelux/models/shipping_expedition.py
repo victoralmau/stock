@@ -9,7 +9,7 @@ class ShippingExpedition(models.Model):
     _inherit = 'shipping.expedition'
         
     @api.model
-    def create(self, vals):
+    def create(self, values):
         record = super(ShippingExpedition, self).create(values)
         #order_id
         if record.picking_id.id>0:

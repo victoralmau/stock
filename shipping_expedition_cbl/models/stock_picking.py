@@ -60,7 +60,7 @@ class StockPicking(models.Model):
         datetime_body = today.strftime('%d/%m/%Y')
         separator_fields = '#'                
         #partner_name
-        if sef.partner_id.parent_id.id>0:
+        if self.partner_id.parent_id.id>0:
             partner_name = self.partner_id.parent_id.name 
         else:
             partner_name = self.partner_id.name

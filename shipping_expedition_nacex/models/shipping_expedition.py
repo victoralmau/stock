@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from operator import attrgetter
-from openerp import _, api, exceptions, fields, models
+from openerp import _, api, exceptions, fields, models, tools
 from openerp.exceptions import Warning
 
-import urllib, cStringIO
+import urllib, StringIO, pycurl
+import xml.etree.ElementTree as ET
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -27,7 +28,7 @@ class ShippingExpedition(models.Model):
         if self.carrier_id.carrier_type=='nacex':
             self.action_update_state_nacex()
         #return
-        return super(StockPicking, self).action_update_state()
+        return super(ShippingExpedition, self).action_update_state()
         
     @api.one
     def action_update_state_nacex(self):

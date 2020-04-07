@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from operator import attrgetter
-from openerp import _, api, exceptions, fields, models
+from openerp import _, api, exceptions, fields, models, tools
 from openerp.exceptions import Warning
 
-import urllib, cStringIO
+import urllib, StringIO, pycurl
+import xml.etree.ElementTree as ET
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -190,9 +191,9 @@ class StockPicking(models.Model):
                     'serv': response['return']['results'][7],
                     'hora_entrega': response['return']['results'][8],
                     'barcode': response['return']['results'][9], 
-                    'fecha_objetivo': datetime.datetime.strptime(response['return']['results'][10], "%d/%m/%Y").date(),                   
+                    'fecha_objetivo': datetime.strptime(response['return']['results'][10], "%d/%m/%Y").date(),                   
                     'cambios': response['return']['results'][11],
-                    'origin': picking.name 
+                    'origin': self.name 
                 }                                                                                                                                                                                                                                                      
             
         else:
@@ -277,7 +278,7 @@ class StockPicking(models.Model):
     @api.one
     def action_view_etiqueta_item(self):
         if self.shipping_expedition_id.id>0:
-            res = self.view_etiqueta_nacex()
+            res = self.view_etiqueta_nacex()[0]
             if res['errors']==True:
                 raise exceptions.Warning(res['error'])
             else:
