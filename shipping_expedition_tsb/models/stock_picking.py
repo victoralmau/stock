@@ -30,7 +30,13 @@ class StockPicking(models.Model):
             res = self.generate_shipping_expedition_tsb_real()[0]
             #operations
             if res['errors']==True:
-                _logger.info(res)  
+                #logger
+                _logger.info(res)
+                #action_error_create_shipping_expedition_message_slack
+                self.action_error_create_shipping_expedition_message_slack({
+                    'error': res['error']
+                })  
+                #raise
                 raise exceptions.Warning(res['error'])
             else:                             
                 #create            

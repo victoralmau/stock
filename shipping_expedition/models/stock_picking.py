@@ -59,8 +59,4 @@ class StockPicking(models.Model):
                 
     @api.one    
     def action_error_create_shipping_expedition_message_slack(self, res):
-        return
-        
-    @api.one    
-    def action_error_edit_shipping_expedition_message_slack(self, res):
         return                        

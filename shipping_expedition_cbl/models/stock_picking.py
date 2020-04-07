@@ -31,7 +31,13 @@ class StockPicking(models.Model):
             res = self.generate_shipping_expedition_cbl_real()[0]
             #operations
             if res['errors']==True:
-                _logger.info(res)  
+                #logger
+                _logger.info(res)
+                #action_error_create_shipping_expedition_message_slack
+                self.action_error_create_shipping_expedition_message_slack({
+                    'error': res['error']
+                })  
+                #raise
                 raise exceptions.Warning(res['error'])
             else:                             
                 #create            
@@ -52,7 +58,7 @@ class StockPicking(models.Model):
                 }            
                 shipping_expedition_obj = self.env['shipping.expedition'].sudo().create(shipping_expedition_vals)
                 #update
-                self.shipping_expedition_id = shipping_expedition_obj.id
+                self.shipping_expedition_id = shipping_expedition_obj.id                
                     
     @api.one
     def generate_shipping_expedition_cbl_real(self):
