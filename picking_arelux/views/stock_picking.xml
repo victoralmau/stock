@@ -30,9 +30,6 @@
             <field name="partner_id" position="before">	    	
                 <field name="partner_state_id" attrs="{'readonly': True}"/>
 	       </field>
-           <field name="origin" position="after">	    	
-                <field name="total_cashondelivery"/>
-	       </field>
            <field name="number_of_packages" position="after">	    	
                 <field name="number_of_pallets"/>
 	       </field>

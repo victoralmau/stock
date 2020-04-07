@@ -168,12 +168,4 @@ class ShippingExpedition(models.Model):
     
     @api.one    
     def action_error_update_state_expedition_message_slack(self, res):
-        return
-        
-    @api.one    
-    def action_incidence_expedition_message_slack(self, res):
-        return
-        
-    @api.one    
-    def action_error_cancell_expedition_message_slack(self, res):
         return                                    

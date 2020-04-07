@@ -97,7 +97,7 @@ class StockPicking(models.Model):
         partner_picking_phone = ''        
         if self.partner_id.mobile!=False:
             partner_picking_phone = self.partner_id.mobile
-        elif partner_picking.phone!=False:
+        elif self.partner_id.phone!=False:
             partner_picking_phone = self.partner_id.phone
         #tools
         nacex_username = tools.config.get('nacex_username')

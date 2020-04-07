@@ -24,15 +24,9 @@ class StockPicking(models.Model):
         compute='_get_partner_state_id', 
         string='Provincia',
         store=True
-    )
-    total_cashondelivery = fields.Float(
-        compute='_total_cashondelivery',
-        store=False, 
-        string='Total contrareembolso pedido'
-    )
+    )    
     order_id = fields.Many2one(
         comodel_name='sale.order',
-        compute='_order_id',
         string='Pedido',
         copy=False
     )
@@ -42,7 +36,6 @@ class StockPicking(models.Model):
     )
     purchase_id = fields.Many2one(
         comodel_name='purchase.order',
-        compute='_purchase_id',
         string='Compra',
         copy=False
     )
@@ -64,6 +57,25 @@ class StockPicking(models.Model):
         comodel_name='account.invoice',
         string='Factura devolucion'
     )        
+    
+    @api.multi
+    def force_assign(self):
+        #operations
+        for obj in self:
+            if obj.group_id.id>0:
+                procurement_order_ids = self.env['procurement.order'].sudo().search([('group_id', '=', obj.group_id.id)])
+                if len(procurement_order_ids)>0:
+                    procurement_order_id = procurement_order_ids[0]
+                    #sale_line_id
+                    if procurement_order_id.sale_line_id.id>0:
+                        obj.order_id = procurement_order_id.sale_line_id.order_id.id
+                        #confirmation_date_order
+                        obj.confirmation_date_order = obj.order_id.confirmation_date
+                    #purchase_line_id
+                    if procurement_order_id.purchase_line_id.id>0:
+                        obj.purchase_id = procurement_order_id.purchase_line_id.order_id.id                                                                     
+        #return
+        return super(StockPicking, self).force_assign()
     
     
     @api.model
@@ -141,7 +153,6 @@ class StockPicking(models.Model):
             sale_order_ids = self.env['sale.order'].search([('name', '=', str(vals['origin']))])
             if len(sale_order_ids)>0:
                 for sale_order_id in sale_order_ids:
-                    vals['confirmation_date_order'] = sale_order_id.confirmation_date
                     #Fix nacex
                     if sale_order_id.carrier_id.id!=False:
                         if sale_order_id.carrier_id.carrier_type=='nacex':
@@ -162,32 +173,7 @@ class StockPicking(models.Model):
             obj.partner_state_id = ''
             if obj.partner_id.id>0:
                 if obj.partner_id.state_id.id>0:
-                    obj.partner_state_id = obj.partner_id.state_id.name
-                    
-    @api.one        
-    def _total_cashondelivery(self):
-        for obj in self:                      
-            if obj!=False and obj.origin!='':
-                sale_order_obj = self.env['sale.order'].search([('name', '=', obj.origin)])            
-                obj.total_cashondelivery = sale_order_obj.total_cashondelivery
-                
-    @api.one        
-    def _order_id(self):
-        for obj in self:                      
-            if obj!=False and obj.origin!='':
-                sale_order_ids = self.env['sale.order'].search([('name', '=', obj.origin)])
-                if sale_order_ids!=False:                
-                    for sale_order_id in sale_order_ids:
-                        obj.order_id = sale_order_id.id 
-                        
-    @api.one        
-    def _purchase_id(self):
-        for obj in self:                      
-            if obj!=False and obj.origin!='':
-                purchase_order_ids = self.env['purchase.order'].search([('name', '=', obj.origin)])
-                if purchase_order_ids!=False:                
-                    for purchase_order_id in purchase_order_ids:
-                        obj.purchase_id = purchase_order_id.id                        
+                    obj.partner_state_id = obj.partner_id.state_id.name                        
                         
     @api.multi
     def _add_delivery_cost_to_so(self):
