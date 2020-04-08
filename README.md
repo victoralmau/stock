@@ -20,3 +20,4 @@ nombre | version
 [shipping_expedition_txt](shipping_expedition_txt/) | 10.0.1.0.0
 [stock_pickings_do_new_transfer](stock_pickings_do_new_transfer/) | 10.0.1.0.0
 [stock_pickings_do_new_transfer_arelux](stock_pickings_do_new_transfer_arelux/) | 10.0.1.0.0
+[stock_pickings_do_new_transfer_not_allow_stock_negative](stock_pickings_do_new_transfer_not_allow_stock_negative/) | 10.0.1.0.0
