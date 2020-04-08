@@ -36,8 +36,8 @@ class ShippingExpedition(models.Model):
             res = self.nacex_ws_getEstadoExpedicion()[0]
             #operations
             if res['errors']==True:
-                _logger.info(res)  
-                raise exceptions.Warning(res['error'])
+                _logger.info(res)
+                self.action_error_update_state_expedition(res)#Fix error
             else:
                 #other_fields
                 fecha_split = res['return']['result']['fecha'].split('/')

@@ -153,7 +153,7 @@ class ShippingExpedition(models.Model):
         #operations
         if res['errors']==True:
             _logger.info(res)  
-            raise exceptions.Warning(res['error'])
+            self.action_error_update_state_expedition(res)#Fix error
         else:
             #fecha_entrega
             if 'fecha_entrega' in res['return']:

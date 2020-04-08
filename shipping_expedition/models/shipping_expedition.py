@@ -167,5 +167,5 @@ class ShippingExpedition(models.Model):
         return False        
     
     @api.one    
-    def action_error_update_state_expedition_message_slack(self, res):
+    def action_error_update_state_expedition(self, res):
         return                                    
