@@ -45,10 +45,10 @@ class SaleOrder(models.Model):
                 #check  picking_note                   
                 if obj.picking_note!=False:
                     for carrier_check in carriers_check:        
-                        if carrier_check in picking_note.picking_note or carrier_check.upper() in picking_note.picking_note:
+                        if carrier_check in obj.picking_note or carrier_check.upper() in obj.picking_note:
                             delivery_carrier_ids = self.env['delivery.carrier'].search([ ('carrier_type', '=', carrier_check)])                            
                             for delivery_carrier_id in delivery_carrier_ids:
-                                picking_note.carrier_id = delivery_carrier_id.id
+                                obj.carrier_id = delivery_carrier_id.id
         #action_confirm                                                            
         return_data =  super(SaleOrder, self).action_confirm()
         if return_data==True:        
