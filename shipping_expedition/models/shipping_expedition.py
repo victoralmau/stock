@@ -152,10 +152,13 @@ class ShippingExpedition(models.Model):
     
     @api.multi    
     def cron_shipping_expeditions_update_state(self, cr=None, uid=False, context=None):
+        current_date = datetime.today()
+        
         shipping_expedition_ids = self.env['shipping.expedition'].search(
             [
                 ('state', 'not in', ('delivered', 'canceled')),
-                ('carrier_id.carrier_type', 'in', ('cbl', 'txt', 'tsb', 'nacex'))
+                ('carrier_id.carrier_type', 'in', ('cbl', 'txt', 'tsb', 'nacex')),
+                ('date', '<', current_date.strftime("%Y-%m-%d"))
             ]
         )
         if len(shipping_expedition_ids)>0:                
