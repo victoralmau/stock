@@ -13,15 +13,16 @@ class ProductTemplate(models.Model):
     )
     
     @api.one
-    def get_quantity_by_serial_number(self, serial_number=False):
+    def get_quantity_by_lot_id(self, lot_id=0):
         qty = 0
-        if serial_number==False:
-            stock_history_ids = self.env['stock.history'].sudo().search([('product_id', '=', self.id)])
-        else:
-            stock_history_ids = self.env['stock.history'].sudo().search([('product_id', '=', self.id),('serial_number', '=', serial_number)])
         
-        if len(stock_history_ids)>0:            
-            for stock_history_id in stock_history_ids:
-                qty += stock_history_id.quantity
+        if lot_id==0:
+            stock_quant_ids = self.env['stock.quant'].sudo().search([('location_id', '=', 15),('product_id', '=', self.id)])
+        else:
+            stock_quant_ids = self.env['stock.quant'].sudo().search([('location_id', '=', 15),('product_id', '=', self.id),('lot_id', '=', lot_id)])
+        #operations
+        if len(stock_quant_ids)>0:
+            for stock_quant_id in stock_quant_ids:
+                qty += stock_quant_id.qty
                 
         return qty        

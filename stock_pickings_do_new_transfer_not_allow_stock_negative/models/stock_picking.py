@@ -20,13 +20,13 @@ class StockPicking(models.Model):
                         if len(pack_operation_product_id.pack_lot_ids)>0:
                             for pack_lot_id in pack_operation_product_id.pack_lot_ids:
                                 if pack_lot_id.qty>0:
-                                    qty_item = pack_operation_product_id.product_id.product_tmpl_id.get_quantity_by_serial_number(pack_lot_id.lot_id.name)[0]
+                                    qty_item = pack_operation_product_id.product_id.product_tmpl_id.get_quantity_by_lot_id(pack_lot_id.lot_id.id)[0]
                                     qty_item_final = qty_item-pack_lot_id.qty
                                     if qty_item_final<0:
                                         raise exceptions.Warning('El producto '+str(pack_operation_product_id.product_id.name)+' - '+str(pack_lot_id.lot_id.name)+' se quedaria con stock '+str(qty_item_final))                                    
                         else:
                             if pack_operation_product_id.qty_done>0:
-                                qty_item = pack_operation_product_id.product_id.product_tmpl_id.get_quantity_by_serial_number(False)[0]
+                                qty_item = pack_operation_product_id.product_id.product_tmpl_id.get_quantity_by_lot_id(0)[0]
                                 qty_item_final = qty_item-pack_operation_product_id.qty_done
                                 if qty_item_final<0:
                                     raise exceptions.Warning('El producto '+str(pack_operation_product_id.product_id.name)+' se quedaria con stock '+str(qty_item_final))
