@@ -31,6 +31,16 @@ class StockPicking(models.Model):
         readonly=True,
         copy=False
     )
+    
+    @api.multi
+    def action_cancel(self):
+        return_action_cancel = super(StockPicking, self).action_cancel()
+        #operations
+        for obj in self:
+            if obj.shipping_expedition_id.id>0:
+                obj.shipping_expedition_id.state = 'canceled'
+        #return
+        return return_action_cancel
 
     @api.multi
     def get_shipping_expedition_values(self, expedition):
