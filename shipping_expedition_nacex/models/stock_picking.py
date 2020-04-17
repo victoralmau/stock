@@ -66,7 +66,12 @@ class StockPicking(models.Model):
     def nacex_ws_putExpedicion(self):
         #define        
         today = datetime.today()
-        datetime_body = today.strftime('%d/%m/%Y')        
+        datetime_body = today.strftime('%d/%m/%Y')
+        #partner_name        
+        if self.partner_id.name==False:
+            partner_name = self.partner_id.parent_id.name 
+        else:
+            partner_name = self.partner_id.name        
         #street2
         obs1 = ''
         obs2 = ''

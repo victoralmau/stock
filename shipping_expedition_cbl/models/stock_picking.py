@@ -82,7 +82,12 @@ class StockPicking(models.Model):
     def generate_shipping_expedition_cbl_real(self):
         today = datetime.today()
         datetime_body = today.strftime('%d/%m/%Y')
-        separator_fields = '#'
+        separator_fields = '#'                
+        #partner_name
+        if self.partner_id.name==False:
+            partner_name = self.partner_id.parent_id.name 
+        else:
+            partner_name = self.partner_id.name    
         #partner_phone
         partner_phone = ''
         if self.partner_id.mobile!=False:
