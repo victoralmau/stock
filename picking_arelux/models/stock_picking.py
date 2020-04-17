@@ -56,27 +56,7 @@ class StockPicking(models.Model):
     out_refund_invoice_id = fields.Many2one(
         comodel_name='account.invoice',
         string='Factura devolucion'
-    )        
-    
-    @api.multi
-    def force_assign(self):
-        #operations
-        for obj in self:
-            if obj.group_id.id>0:
-                procurement_order_ids = self.env['procurement.order'].sudo().search([('group_id', '=', obj.group_id.id)])
-                if len(procurement_order_ids)>0:
-                    procurement_order_id = procurement_order_ids[0]
-                    #sale_line_id
-                    if procurement_order_id.sale_line_id.id>0:
-                        obj.order_id = procurement_order_id.sale_line_id.order_id.id
-                        #confirmation_date_order
-                        obj.confirmation_date_order = obj.order_id.confirmation_date
-                    #purchase_line_id
-                    if procurement_order_id.purchase_line_id.id>0:
-                        obj.purchase_id = procurement_order_id.purchase_line_id.order_id.id                                                                     
-        #return
-        return super(StockPicking, self).force_assign()
-    
+    )
     
     @api.model
     def fields_view_get(self, view_id=None, view_type='tree', toolbar=False, submenu=False):        
@@ -165,7 +145,20 @@ class StockPicking(models.Model):
             vals['name'] = self.env['ir.sequence'].next_by_code(self.env['stock.picking.type'].search([('id', '=', ptype_id)])[0].sequence_id.code)
             vals['picking_type_id'] = ptype_id                    
         #return
-        return super(StockPicking, self).create(vals)        
+        return_object = super(StockPicking, self).create(vals)
+        #sale_order_ids
+        sale_order_ids = self.env['sale.order'].sudo().search([('name', '=', return_object.origin)])
+        if len(sale_order_ids)>0:
+            sale_order_id = sale_order_ids[0]
+            return_object.order_id = sale_order_id.id 
+            return_object.confirmation_date_order = sale_order_id.confirmation_date
+        #purchase_order
+        purchase_order_ids = self.env['purchase.order'].sudo().search([('name', '=', return_object.origin)])
+        if len(purchase_order_ids)>0:
+            purchase_order_id = purchase_order_ids[0]
+            return_object.purchase_id = purchase_order_id.id
+        #return
+        return return_object                     
     
     @api.multi        
     def _get_partner_state_id(self):
