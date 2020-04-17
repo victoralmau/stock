@@ -66,12 +66,7 @@ class StockPicking(models.Model):
     def nacex_ws_putExpedicion(self):
         #define        
         today = datetime.today()
-        datetime_body = today.strftime('%d/%m/%Y')
-        #partner_name        
-        if self.partner_id.parent_id.id>0:
-            partner_name = self.partner_id.parent_id.name 
-        else:
-            partner_name = self.partner_id.name        
+        datetime_body = today.strftime('%d/%m/%Y')        
         #street2
         obs1 = ''
         obs2 = ''
@@ -129,8 +124,8 @@ class StockPicking(models.Model):
                         <arrayOfString_3>cp_rec="""+str(self.company_id.zip)+"""</arrayOfString_3>
                         <arrayOfString_3>pob_rec="""+str(self.company_id.city[0:39])+"""</arrayOfString_3>
                         <arrayOfString_3>tel_rec="""+str(self.company_id.phone)+"""</arrayOfString_3>
-        				<arrayOfString_3>nom_ent="""+str(partner_name[0:50])+"""</arrayOfString_3>
-                        <arrayOfString_3>per_ent="""+str(partner_name[0:35])+"""</arrayOfString_3>
+        				<arrayOfString_3>nom_ent="""+str(self.partner_id.name[0:50])+"""</arrayOfString_3>
+                        <arrayOfString_3>per_ent="""+str(self.partner_id.name[0:35])+"""</arrayOfString_3>
         				<arrayOfString_3>dir_ent="""+str(self.partner_id.street[0:60])+"""</arrayOfString_3>                    
         				<arrayOfString_3>pais_ent="""+str(self.partner_id.country_id.code)+"""</arrayOfString_3>					
         				<arrayOfString_3>cp_ent="""+str(self.partner_id.zip)+"""</arrayOfString_3>
