@@ -152,7 +152,7 @@ class StockPicking(models.Model):
             },
             {
                 'type': 'receiver_name',
-                'value': str(self.partner_id.name[0:60]),
+                'value': str(partner_name[0:60]),
                 'size': 60,
             },
             {
