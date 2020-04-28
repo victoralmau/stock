@@ -36,7 +36,7 @@ class StockPackOperation(models.Model):
                 values['pack_lot_ids'] = values.get('pack_lot_ids_internal')
                 values['pack_lot_ids_internal'] = None        
         #return
-        return super(StockPackOperation, self).write(values)               
+        return super(StockPackOperation, self).write(values)
     
     @api.one        
     def _get_name(self):
@@ -59,4 +59,4 @@ class StockPackOperation(models.Model):
             stock_pack_operation_lot_ids = self.env['stock.pack.operation.lot'].search([('operation_id', '=', self.id)])
             self.pack_lot_ids_incoming = stock_pack_operation_lot_ids
             self.pack_lot_ids_outgoing = stock_pack_operation_lot_ids
-            self.pack_lot_ids_internal = stock_pack_operation_lot_ids                                                                                                                                                                                                            
+            self.pack_lot_ids_internal = stock_pack_operation_lot_ids

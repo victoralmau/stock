@@ -39,22 +39,33 @@ class StockPackOperationLot(models.Model):
         string='Cantidad lote'
     )
     
-    @api.model
-    def create(self, values):
-        if 'lot_id' not in values:     
-            #lot_id_picking_incoming       
-            if 'lot_id_picking_incoming' in values:
-                values['lot_id'] = values.get('lot_id_picking_incoming')
-            #lot_id_picking_outgoing
-            if 'lot_id_picking_outgoing' in values:
-                values['lot_id'] = values.get('lot_id_picking_outgoing')
-            #lot_id_picking_internal
-            if 'lot_id_picking_internal' in values:
-                values['lot_id'] = values.get('lot_id_picking_internal')                                
-        
-        return_object = super(StockPackOperationLot, self).create(values)
-        return return_object                                                    
-        
+    @api.multi
+    def write(self, values):
+        return_object = super(StockPackOperationLot, self).write(values)
+        #operations
+        if 'need_update_pack_lot_ids' not in values:
+            for item in self:
+                if item.operation_id.picking_id.picking_type_id.code=='incoming':
+                    item.write({
+                        'lot_id': item.lot_id_picking_incoming.id,
+                        'name': item.lot_id_picking_incoming.name,
+                        'need_update_pack_lot_ids': False
+                    })
+                elif item.operation_id.picking_id.picking_type_id.code=='outgoing':
+                    item.write({
+                        'lot_id': item.lot_id_picking_outgoing.id,
+                        'name': item.lot_id_picking_incoming.name,
+                        'need_update_pack_lot_ids': False
+                    })
+                elif item.operation_id.picking_id.picking_type_id.code=='internal':
+                    item.write({
+                        'lot_id': item.lot_id_picking_internal.id,
+                        'name': item.lot_id_picking_incoming.name,
+                        'need_update_pack_lot_ids': False
+                    })                    
+        #return
+        return return_object            
+            
     @api.one    
     @api.depends('lot_id.product_qty_store')    
     def _get_lot_it_product_qty(self):                
@@ -64,11 +75,8 @@ class StockPackOperationLot(models.Model):
     
     @api.one        
     def _get_lot_id_picking(self):
-        if self.id>0 and self.lot_id.id>0:
-            self.lot_id_picking_incoming = self.lot_id
-            self.lot_id_picking_outgoing = self.lot_id
-            self.lot_id_picking_internal = self.lot_id                            
-                    
+        _logger.info('_get_lot_id_picking')
+                                
     @api.one    
     @api.depends('lot_id_picking_incoming.product_qty_store')    
     def _get_lot_it_picking_incoming_product_qty(self):                
