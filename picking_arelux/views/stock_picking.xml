@@ -7,13 +7,15 @@
         <field name="arch" type="xml">
             <field name="name" position="after">	    	
                 <field name="supplier_ref"/>
+                <field name="operations_product_name" />
 	       </field>
            <field name="partner_id" position="before">	    	
                 <field name="partner_state_id"/>
 	       </field>
-           <field name="min_date" position="after">	    	
+           <field name="min_date" position="replace">
+                <field name="min_date" invisible="1"/>	    	
                 <field name="management_date" invisible="1"/>
-                <field name="confirmation_date_order" invisible="1"/>                
+                <field name="confirmation_date_order"/>                
                 <field name="user_id_done" invisible="1" />                
 	       </field>                        
         </field>

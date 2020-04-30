@@ -10,6 +10,11 @@ from lxml import etree
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
     
+    operations_product_name = fields.Text(
+        compute='_get_operations_product_name', 
+        string='Productos',
+        store=False
+    )
     supplier_ref = fields.Char( 
         string='Referencia del proveedor',
         size=30
@@ -159,6 +164,15 @@ class StockPicking(models.Model):
             return_object.purchase_id = purchase_order_id.id
         #return
         return return_object                     
+    
+    @api.multi        
+    def _get_operations_product_name(self):
+        for obj in self:
+            obj.operations_product_name = ''
+            for pack_operation_product_id in obj.pack_operation_product_ids:
+                if pack_operation_product_id.id>0:
+                    if pack_operation_product_id.product_id.id>0:
+                        obj.operations_product_name += str(pack_operation_product_id.product_id.name)+'\n'
     
     @api.multi        
     def _get_partner_state_id(self):
