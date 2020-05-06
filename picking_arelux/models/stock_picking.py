@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-from openerp import api, models, fields
+from odoo import api, models, fields
 from datetime import datetime
 
 import logging
 _logger = logging.getLogger(__name__)
-
-from lxml import etree
 
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
@@ -163,7 +161,7 @@ class StockPicking(models.Model):
             purchase_order_id = purchase_order_ids[0]
             return_object.purchase_id = purchase_order_id.id
         #return
-        return return_object                     
+        return return_object                             
     
     @api.multi        
     def _get_operations_product_name(self):
