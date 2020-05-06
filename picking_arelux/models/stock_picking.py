@@ -5,6 +5,8 @@ from datetime import datetime
 import logging
 _logger = logging.getLogger(__name__)
 
+from lxml import etree
+
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
     
