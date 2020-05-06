@@ -14,19 +14,8 @@ class StockProductionLot(models.Model):
     @api.multi    
     def cron_odoo_stock_production_lot_product_qty_store(self, cr=None, uid=False, context=None):
         stock_production_lot_ids = self.env['stock.production.lot'].search([('id', '>', 0)])
-        if stock_production_lot_ids!=False:
-            for stock_production_lot_id in stock_production_lot_ids:                
-                stock_quant_quantity_sum = 0 
-                                   
-                stock_quant_ids = self.env['stock.quant'].search(
-                    [
-                        ('product_id', '=', stock_production_lot_id.product_id.id),
-                        ('lot_id', '=', stock_production_lot_id.id),
-                        ('location_id.usage', '=', 'internal')
-                    ]
-                )                                
-                if len(stock_quant_ids)>0:
-                    for stock_quant_id in stock_quant_ids:
-                        stock_quant_quantity_sum += stock_quant_id.qty
-                        
-                stock_production_lot_id.product_qty_store = stock_quant_quantity_sum           
+        if len(stock_production_lot_ids)>0:
+            product_ids = stock_production_lot_ids.mapped('product_id')
+            if len(product_ids)>0:
+                for product_id in product_ids:
+                    product_id.regenerate_stock_production_lot_product_qty_store()                           
