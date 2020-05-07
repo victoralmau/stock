@@ -150,8 +150,8 @@ class ShippingExpedition(models.Model):
         #record                                                                
         return record
     
-    @api.multi    
-    def cron_shipping_expeditions_update_state(self, cr=None, uid=False, context=None):
+    @api.model    
+    def cron_shipping_expeditions_update_state(self):
         current_date = datetime.today()
         
         shipping_expedition_ids = self.env['shipping.expedition'].search(

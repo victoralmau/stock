@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Shipping expedition',
-    'version': '10.0.1.0.0',    
+    'version': '12.0.1.0.0',    
     'author': 'Odoo Nodriza Tech (ONT)',
     'website': 'https://nodrizatech.com/',
     'category': 'Delivery',
@@ -10,8 +10,8 @@
     'data': [
         'data/ir_cron.xml',
         'views/delivery_carrier.xml',
-        'views/res_partner.xml',
-        'views/shipping_expedition.xml',
+        'views/shipping_expedition.xml',#prevent error action res_partner
+        'views/res_partner.xml',        
         'views/stock_picking.xml',                                
         'security/ir.model.access.csv',
     ],

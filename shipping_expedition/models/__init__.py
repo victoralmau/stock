@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import delivery_carrier
-import stock_picking
-import shipping_expedition
-import res_partner
+from . import delivery_carrier
+from . import stock_picking
+from . import shipping_expedition
+from . import res_partner

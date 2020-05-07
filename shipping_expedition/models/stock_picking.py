@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-from odoo import _, api, fields, models
-from odoo.exceptions import UserError
+from odoo import api, fields, models
 
 import logging
-
 _logger = logging.getLogger(__name__)
                     
 class StockPicking(models.Model):
