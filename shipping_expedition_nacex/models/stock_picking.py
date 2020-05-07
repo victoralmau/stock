@@ -102,6 +102,10 @@ class StockPicking(models.Model):
         #tools
         nacex_username = tools.config.get('nacex_username')
         nacex_password = tools.config.get('nacex_password')
+        #tip_ser
+        tip_ser = str(self.carrier_id.nacex_tip_ser)
+        if self.partner_id.country_id.code not in ['ES', 'PT', 'AD']:
+            tip_ser = str(self.carrier_id.nacex_tip_ser_int)
         #create
         url="http://gprs.nacex.com/nacex_ws/soap"
         body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:typ="urn:soap/types">
@@ -114,7 +118,7 @@ class StockPicking(models.Model):
         				<arrayOfString_3>num_cli="""+str(self.carrier_id.nacex_num_cli)+"""</arrayOfString_3>
         				<arrayOfString_3>fec="""+str(datetime_body)+"""</arrayOfString_3>
         				<arrayOfString_3>dep_cli="""+str(self.carrier_id.nacex_dep_cli)+"""</arrayOfString_3>
-        				<arrayOfString_3>tip_ser="""+str(self.carrier_id.nacex_tip_ser)+"""</arrayOfString_3>
+        				<arrayOfString_3>tip_ser="""+str(tip_ser)+"""</arrayOfString_3>
         				<arrayOfString_3>tip_cob="""+str(self.carrier_id.nacex_tip_cob)+"""</arrayOfString_3>
         				<arrayOfString_3>tip_env="""+str(self.carrier_id.nacex_tip_env)+"""</arrayOfString_3>
         				<arrayOfString_3>obs1="""+str(obs1)+"""</arrayOfString_3>

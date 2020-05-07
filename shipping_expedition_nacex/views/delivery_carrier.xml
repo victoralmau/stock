@@ -10,6 +10,7 @@
                 <field name="nacex_num_cli" attrs="{'invisible': [('carrier_type', '!=', 'nacex')]}" groups="base.group_no_one"/>
                 <field name="nacex_dep_cli" attrs="{'invisible': [('carrier_type', '!=', 'nacex')]}" groups="base.group_no_one"/>
                 <field name="nacex_tip_ser" attrs="{'invisible': [('carrier_type', '!=', 'nacex')]}" groups="base.group_no_one"/>
+                <field name="nacex_tip_ser_int" attrs="{'invisible': [('carrier_type', '!=', 'nacex')]}" groups="base.group_no_one"/>                
                 <field name="nacex_tip_cob" attrs="{'invisible': [('carrier_type', '!=', 'nacex')]}" groups="base.group_no_one"/>
                 <field name="nacex_tip_env" attrs="{'invisible': [('carrier_type', '!=', 'nacex')]}" groups="base.group_no_one"/>
                 <field name="nacex_print_model" attrs="{'invisible': [('carrier_type', '!=', 'nacex')]}" groups="base.group_no_one"/>

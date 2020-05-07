@@ -20,15 +20,26 @@ class DeliveryCarrier(models.Model):
         selection=[
             ('02','02 - NACEX 12:00H'), 
             ('04','04 - PLUS BAG'), 
-            ('08','NACEX 19:00H'), 
+            ('08','08 - NACEX 19:00H'), 
             ('09','09 - PUENTE URBANO'), 
             ('11','11 - NACEX 08:30H'), 
-            ('20','20 - NACEX MALLORCA MAR�TIMO'), 
+            ('20','20 - NACEX MALLORCA MARÍTIMO'), 
             ('21','21 - NACEX SABADO'),
             ('26','26 - PLUS PACK'),
             ('27','27 - E-NACEX')
         ],
-        string='Tipo servicio'
+        string='Tipo servicio',
+        help='Tipo de servicio que se aplica para: España, Portugal y Andorra'
+    )
+    nacex_tip_ser_int = fields.Selection(
+        selection=[
+            ('E','E - EURONACEX TERRESTRE'), 
+            ('F','F - SERVICIO AEREO'), 
+            ('G','G - EURONACEX ECONOMY'), 
+            ('H','H - PLUSPACK EUROPA')            
+        ],
+        string='Tipo servicio internacional',
+        help='Tipo de servicio que se aplicara para el resto de paises salvo: España, Portugal y Andorra'
     )    
     nacex_tip_cob = fields.Selection(
         selection=[
