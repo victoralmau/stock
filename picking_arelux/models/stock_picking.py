@@ -159,10 +159,10 @@ class StockPicking(models.Model):
     def _get_operations_product_name(self):
         for obj in self:
             obj.operations_product_name = ''
-            for pack_operation_product_id in obj.pack_operation_product_ids:
-                if pack_operation_product_id.id>0:
-                    if pack_operation_product_id.product_id.id>0:
-                        obj.operations_product_name += str(pack_operation_product_id.product_id.name)+'\n'
+            for move_id_without_package in obj.move_ids_without_package:
+                if move_id_without_package.id>0:
+                    if move_id_without_package.product_id.id>0:
+                        obj.operations_product_name += str(move_id_without_package.product_id.name)+'\n'
     
     @api.multi        
     def _get_partner_state_id(self):
