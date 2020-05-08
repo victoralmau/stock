@@ -145,6 +145,24 @@ class StockPicking(models.Model):
         				<arrayOfString_3>pob_ent="""+str(self.partner_id.city[0:39])+"""</arrayOfString_3>
         				<arrayOfString_3>tel_ent="""+str(partner_picking_phone)+"""</arrayOfString_3>        				        				
         			"""
+        #con
+        if self.partner_id.country_id.code not in ['ES', 'PT', 'AD']:
+            #con
+            con = '' 
+            for pack_operation_product_id in self.pack_operation_product_ids:
+                if pack_operation_product_id.product_id.id>0:
+                   con += str(pack_operation_product_id.product_id.name)+','
+            #val_dec            
+            val_dec = "0.0"
+            if self.origin!=False:
+                sale_order_ids = self.env['sale.order'].sudo().search([('name', '=', self.origin)])
+                if len(sale_order_ids)>0:
+                    sale_order_id = sale_order_ids[0]
+                    val_dec = sale_order_id.amount_total
+            #body
+            body += """
+                        <arrayOfString_3>con="""+str(con[0:80])+"""</arrayOfString_3>
+        				<arrayOfString_3>val_dec="""+str(val_dec)+"""</arrayOfString_3>"""
         #prealerta
         if self.partner_id.mobile!= False:
             body += """
