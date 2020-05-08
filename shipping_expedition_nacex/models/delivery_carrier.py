@@ -55,7 +55,16 @@ class DeliveryCarrier(models.Model):
             ('1','1 - BAG'), 
             ('2','2 - PAQ')             
         ],
-        string='Tipo envio'
+        string='Tipo envio',
+        help='Tipo de envio que se aplica para: España, Portugal y Andorra'
+    )
+    nacex_tip_env_int = fields.Selection(
+        selection=[
+            ('D','D - Documentos'), 
+            ('M','M - Muestras')             
+        ],
+        string='Tipo envio internacional',
+        help='Tipo de envio que se aplicara para el resto de paises salvo: España, Portugal y Andorra'
     )
     nacex_print_model = fields.Char(
         string='Modelo impresora'

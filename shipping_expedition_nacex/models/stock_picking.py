@@ -106,6 +106,10 @@ class StockPicking(models.Model):
         tip_ser = str(self.carrier_id.nacex_tip_ser)
         if self.partner_id.country_id.code not in ['ES', 'PT', 'AD']:
             tip_ser = str(self.carrier_id.nacex_tip_ser_int)
+        #tip_env
+        tip_env = str(self.carrier_id.nacex_tip_env)
+        if self.partner_id.country_id.code not in ['ES', 'PT', 'AD']:
+            tip_env = str(self.carrier_id.nacex_tip_env_int)
         #create
         url="http://gprs.nacex.com/nacex_ws/soap"
         body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:typ="urn:soap/types">
@@ -120,7 +124,7 @@ class StockPicking(models.Model):
         				<arrayOfString_3>dep_cli="""+str(self.carrier_id.nacex_dep_cli)+"""</arrayOfString_3>
         				<arrayOfString_3>tip_ser="""+str(tip_ser)+"""</arrayOfString_3>
         				<arrayOfString_3>tip_cob="""+str(self.carrier_id.nacex_tip_cob)+"""</arrayOfString_3>
-        				<arrayOfString_3>tip_env="""+str(self.carrier_id.nacex_tip_env)+"""</arrayOfString_3>
+        				<arrayOfString_3>tip_env="""+str(tip_env)+"""</arrayOfString_3>
         				<arrayOfString_3>obs1="""+str(obs1)+"""</arrayOfString_3>
                         <arrayOfString_3>obs2="""+str(obs2)+"""</arrayOfString_3>
                         <arrayOfString_3>obs3="""+str(obs3)+"""</arrayOfString_3>
