@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="ont_base_picking_view_picking_withcarrier_out_form" model="ir.ui.view">
+        <field name="name">ont_base_picking_view_picking_withcarrier_out_form</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="delivery.view_picking_withcarrier_out_form" />
+        <field name="priority" eval="20"/>                
+        <field name="arch" type="xml">
+            <field name="shipping_weight" position="after">
+                <field name="number_of_packages" />
+                <field name="number_of_pallets"/>                
+            </field>
+            <field name="move_ids_without_package" position="after">
+                <field name="sale_order_note" placeholder="Añadir una nota interna que se imprimirá en el vale de entrega" readonly="1" style="width:100%;float:none;margin-bottom: 20px;" />
+                <field name="shipping_expedition_note" placeholder="Añadir una nota para la expedicion (transportista)" readonly="1" style="width:100%;float:none;margin-bottom: 20px;" />
+            </field>                                    
+        </field>
+    </record>        
+</odoo>
