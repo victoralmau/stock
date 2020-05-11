@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
             <field name="integration_level" position="after">   
                 <field name="send_sms_info" attrs="{'invisible': [('carrier_type', 'not in', ('cbl', 'nacex', 'tsb', 'txt'))]}" />
-                <field name="sms_info_sms_template_id" domain="[('model_id.model', '=', 'shipping.expedition')]}" options='{"no_open": True,"no_create": True, "no_create_edit": True}' attrs="{'invisible': [('send_sms_info', '=', False)]}"/>
+                <field name="sms_info_sms_template_id" domain="[('model_id.model', '=', 'shipping.expedition')]" options='{"no_open": True,"no_create": True, "no_create_edit": True}' attrs="{'invisible': [('send_sms_info', '=', False)]}"/>
             </field>
         </field>
     </record>       
