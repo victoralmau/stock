@@ -11,6 +11,13 @@ class StockProductionLot(models.Model):
         string='Cantidad Store'
     )
     
+    @api.model
+    def create(self, vals):
+        return_object = super(StockProductionLot, self).create(vals)
+        return_object.product_qty_store = 0#Fix
+        #return
+        return return_object
+    
     @api.multi    
     def cron_odoo_stock_production_lot_product_qty_store(self, cr=None, uid=False, context=None):
         stock_production_lot_ids = self.env['stock.production.lot'].search([('id', '>', 0)])
