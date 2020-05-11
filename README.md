@@ -7,6 +7,10 @@ Addons
 ----------------
 nombre | version
 --- | ---
+[delivery_carrier_range](delivery_carrier_range/) | 12.0.1.0.0
 [ont_base_picking](ont_base_picking/) | 12.0.1.0.0
 [picking_arelux](picking_arelux/) | 12.0.1.0.0
 [shipping_expedition](shipping_expedition/) | 12.0.1.0.0
+[stock_pickings_do_new_transfer](stock_pickings_do_new_transfer/) | 12.0.1.0.0
+[stock_pickings_do_new_transfer_arelux](stock_pickings_do_new_transfer_arelux/) | 12.0.1.0.0
+[stock_pickings_do_new_transfer_not_allow_stock_negative](stock_pickings_do_new_transfer_not_allow_stock_negative/) | 12.0.1.0.0
