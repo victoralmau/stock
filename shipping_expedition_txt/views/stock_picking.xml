@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="shipping_expedition_txt_view_picking_internal_search" model="ir.ui.view">
+        <field name="name">shipping_expedition_txt_view_picking_internal_search</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_internal_search" />
+        <field name="priority" eval="23"/>
+        <field name="arch" type="xml">
+            <filter name="done" position="before">                
+                <filter string="TXT" name="txt_filter" domain="[('carrier_id.carrier_type','=','txt')]"/>
+                <separator/>                                
+            </filter>                                                                                                                
+        </field>
+    </record>   
+</odoo>
