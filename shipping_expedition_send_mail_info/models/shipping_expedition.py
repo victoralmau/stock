@@ -40,23 +40,50 @@ class ShippingExpedition(models.Model):
     
     @api.one
     def action_send_mail_info(self):
-        if self.carrier_id.send_mail_info==True:
-            if self.carrier_id.mail_info_mail_template_id.id>0:
-                if self.date_send_mail_info==False:
-                    if self.state not in ['error', 'generate','canceled', 'delivered']:
-                        if self.delegation_name!=False and self.delegation_phone!=False:
-                            self.action_send_mail_info_real()
+        allow_send = False
+        if self.carrier_id.send_mail_info == True:
+            if self.carrier_id.mail_info_mail_template_id.id > 0:
+                if self.date_send_mail_info == False:
+                    if self.state not in ['error', 'generate', 'canceled', 'delivered']:
+                        if self.partner_id.email != False:
+                            if self.carrier_id.carrier_type == 'nacex':
+                                allow_send = True
+                            else:
+                                if self.delegation_name != False and self.delegation_phone != False:
+                                    allow_send = True
+                            # allow_send
+                            if allow_send == True:
+                                self.action_send_mail_info_real()
             
     @api.model    
     def cron_shipping_expeditionsend_mail_info(self):
+        # not nacex
         shipping_expedition_ids = self.env['shipping.expedition'].search(
             [
+                ('carrier_id.carrier_type', '!=', 'nacex'),
                 ('carrier_id.send_mail_info', '=', True),
                 ('carrier_id.mail_info_mail_template_id', '!=', False),
-                ('state', 'not in', ('error', 'generate','canceled', 'delivered')),
-                ('date_send_mail_info', '=', False)
+                ('state', 'not in', ('error', 'generate', 'canceled', 'delivered')),
+                ('date_send_mail_info', '=', False),
+                ('delegation_name', '!=', False),
+                ('delegation_phone', '!=', False),
+                ('partner_id.email', '!=', False)
             ]
         )
-        if len(shipping_expedition_ids)>0:
+        if len(shipping_expedition_ids) > 0:
             for shipping_expedition_id in shipping_expedition_ids:
-                shipping_expedition_id.action_send_mail_info()            
+                shipping_expedition_id.action_send_mail_info()
+        # nacex
+        shipping_expedition_ids = self.env['shipping.expedition'].search(
+            [
+                ('carrier_id.carrier_type', '=', 'nacex'),
+                ('carrier_id.send_mail_info', '=', True),
+                ('carrier_id.mail_info_mail_template_id', '!=', False),
+                ('state', 'not in', ('error', 'generate', 'canceled', 'delivered')),
+                ('date_send_mail_info', '=', False),
+                ('partner_id.email', '!=', False)
+            ]
+        )
+        if len(shipping_expedition_ids) > 0:
+            for shipping_expedition_id in shipping_expedition_ids:
+                shipping_expedition_id.action_send_mail_info()
