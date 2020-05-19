@@ -51,23 +51,21 @@ class ShippingExpedition(models.Model):
     
     @api.one
     def action_send_sms_info(self):
-        allow_send_sms = False
+        allow_send = False
         #operations
         if self.date_send_sms_info==False:
             if self.carrier_id.send_sms_info==True:
                 if self.carrier_id.sms_info_sms_template_id!=False:
                     if self.state not in ['error', 'generate','canceled', 'delivered']:
-                        if self.delegation_name!=False and self.delegation_phone!=False:
-                            allow_send_sms = True
-                            #mobile                        
-                            if self.partner_id.mobile==False:
-                                allow_send_sms = False
-                            #mobile_code_res_country_id
-                            if self.partner_id.mobile_code_res_country_id==False:
-                                allow_send_sms = False
-                            #allow_send_sms
-                            if allow_send_sms==True:
-                                self.action_send_sms_info_real()                                
+                        if self.partner_id.mobile != False and self.partner_id.mobile_code_res_country_id!=False:
+                            if self.carrier_id.carrier_type=='nacex':
+                                allow_send = True
+                            else:
+                                if self.delegation_name!=False and self.delegation_phone!=False:
+                                    allow_send = True
+                        #allow_send
+                        if allow_send==True:
+                            self.action_send_sms_info_real()
     
     @api.one 
     def cron_shipping_expeditionsend_sms_info_item(self):
@@ -79,8 +77,10 @@ class ShippingExpedition(models.Model):
     
     @api.multi
     def cron_shipping_expeditionsend_sms_info(self, cr=None, uid=False, context=None):
+        #not nacex
         shipping_expedition_ids = self.env['shipping.expedition'].search(
             [
+                ('carrier_id.carrier_type', '!=', 'nacex'),
                 ('carrier_id.send_sms_info', '=', True),
                 ('carrier_id.sms_info_sms_template_id', '!=', False),
                 ('state', 'not in', ('error', 'generate','canceled', 'delivered')),
@@ -93,4 +93,19 @@ class ShippingExpedition(models.Model):
         )
         if len(shipping_expedition_ids)>0:
             for shipping_expedition_id in shipping_expedition_ids:
-                shipping_expedition_id.cron_shipping_expeditionsend_sms_info_item()             
+                shipping_expedition_id.cron_shipping_expeditionsend_sms_info_item()
+        #nacex
+        shipping_expedition_ids = self.env['shipping.expedition'].search(
+            [
+                ('carrier_id.carrier_type', '=', 'nacex'),
+                ('carrier_id.send_sms_info', '=', True),
+                ('carrier_id.sms_info_sms_template_id', '!=', False),
+                ('state', 'not in', ('error', 'generate', 'canceled', 'delivered')),
+                ('date_send_sms_info', '=', False),
+                ('partner_id.mobile', '!=', False),
+                ('partner_id.mobile_code_res_country_id', '!=', False),
+            ]
+        )
+        if len(shipping_expedition_ids) > 0:
+            for shipping_expedition_id in shipping_expedition_ids:
+                shipping_expedition_id.cron_shipping_expeditionsend_sms_info_item()
