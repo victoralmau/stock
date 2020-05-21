@@ -10,7 +10,6 @@
     'data': [
         'data/ir_cron.xml',
         'views/delivery_carrier.xml',
-        'views/sale_order.xml',
         'views/stock_quant.xml',
         'views/stock_inventory_line.xml',
         'views/stock_move.xml',

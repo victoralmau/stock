@@ -9,40 +9,7 @@ from lxml import etree
 
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
-        
-    supplier_ref = fields.Char( 
-        string='Referencia del proveedor',
-        size=30
-    )    
-    partner_state_id = fields.Char(
-        compute='_get_partner_state_id', 
-        string='Provincia',
-        store=True
-    )    
-    order_id = fields.Many2one(
-        comodel_name='sale.order',
-        string='Pedido',
-        copy=False
-    )
-    confirmation_date_order = fields.Datetime(
-        string='Fecha confirmacion pedido',
-        store=True
-    )
-    purchase_id = fields.Many2one(
-        comodel_name='purchase.order',
-        string='Compra',
-        copy=False
-    )    
-    user_id_done = fields.Many2one(
-        comodel_name='res.users',
-        string='Preparado por',
-        copy=False
-    )
-    management_date = fields.Datetime(
-        string='Fecha preparacion',
-        copy=False, 
-        readonly=True
-    )
+
     out_refund_invoice_id = fields.Many2one(
         comodel_name='account.invoice',
         string='Factura devolucion'
@@ -105,68 +72,8 @@ class StockPicking(models.Model):
                                             stock_quant_quantity_sum += stock_quant_id.qty
                                                                                                                         
                                     pack_lot_id.lot_id.product_qty_store = stock_quant_quantity_sum 
-        #return            
-        return return_super       
-    
-    @api.multi
-    def _create_backorder(self, backorder_moves=[]):
-        for obj in self:
-            if obj.state=='done' and obj.user_id_done.id==0:                                
-                obj.user_id_done = obj.env.uid#Id actual
         #return
-        return super(StockPicking, self)._create_backorder(backorder_moves)                       
-    
-    @api.model
-    def create(self, vals):
-        nacex_samples = False
-        if 'origin' in vals:                   
-            sale_order_ids = self.env['sale.order'].search([('name', '=', str(vals['origin']))])
-            if len(sale_order_ids)>0:
-                for sale_order_id in sale_order_ids:
-                    #Fix nacex
-                    if sale_order_id.carrier_id.id!=False:
-                        if sale_order_id.carrier_id.carrier_type=='nacex':
-                            for order_line in sale_order_id.order_line:
-                                if order_line.product_id.id==97:
-                                    nacex_samples = True                                                                        
-                                    
-        if nacex_samples==True:
-            ptype_id = 7                            
-            vals['name'] = self.env['ir.sequence'].next_by_code(self.env['stock.picking.type'].search([('id', '=', ptype_id)])[0].sequence_id.code)
-            vals['picking_type_id'] = ptype_id                    
-        #return
-        return_object = super(StockPicking, self).create(vals)
-        #sale_order_ids
-        sale_order_ids = self.env['sale.order'].sudo().search([('name', '=', return_object.origin)])
-        if len(sale_order_ids)>0:
-            sale_order_id = sale_order_ids[0]
-            return_object.order_id = sale_order_id.id 
-            return_object.confirmation_date_order = sale_order_id.confirmation_date
-        #purchase_order
-        purchase_order_ids = self.env['purchase.order'].sudo().search([('name', '=', return_object.origin)])
-        if len(purchase_order_ids)>0:
-            purchase_order_id = purchase_order_ids[0]
-            return_object.purchase_id = purchase_order_id.id
-        #return
-        return return_object                             
-    
-    @api.multi        
-    def _get_partner_state_id(self):
-        for obj in self:
-            obj.partner_state_id = ''
-            if obj.partner_id.id>0:
-                if obj.partner_id.state_id.id>0:
-                    obj.partner_state_id = obj.partner_id.state_id.name                        
-                        
-    @api.multi
-    def _add_delivery_cost_to_so(self):
-        for obj in self:
-            if obj.sale_id.id>0:        
-                sale_order = obj.sale_id
-                if obj.carrier_id.id>0:
-                    sale_order.carrier_id = obj.carrier_id.id
-        #return            
-        return super(StockPicking, self)._add_delivery_cost_to_so()
+        return return_super
         
     @api.one    
     def action_send_account_invoice_out_refund(self):
