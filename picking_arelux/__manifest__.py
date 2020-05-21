@@ -16,6 +16,7 @@
         'views/stock_pack_operation_lot.xml',
         'views/stock_picking.xml',
         'views/stock_production_lot.xml',
+        'views/stock_return_picking.xml',
         'views/stock_scrap.xml',         
     ],
     'installable': True,
