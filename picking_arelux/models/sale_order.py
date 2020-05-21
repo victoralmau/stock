@@ -27,6 +27,8 @@ class SaleOrder(models.Model):
                             delivery_carrier_ids = self.env['delivery.carrier'].search([ ('carrier_type', '=', carrier_check)])                            
                             for delivery_carrier_id in delivery_carrier_ids:
                                 obj.carrier_id = delivery_carrier_id.id
+        # action_confirm
+        return_data = super(SaleOrder, self).action_confirm()
         # operations
         for item in self:
             if item.state == 'sale':
