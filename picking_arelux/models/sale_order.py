@@ -34,23 +34,16 @@ class SaleOrder(models.Model):
         for item in self:
             if item.state == 'sale':
                 for picking_id in item.picking_ids:
-                    if item.external_sale_order_id.id > 0:
-                        if item.external_sale_order_id.external_source_id.id > 0:
-                            for picking_id in item.picking_ids:
-                                if picking_id.picking_type_id.id != item.external_sale_order_id.external_source_id.external_sale_order_picking_type_id.id:
-                                    picking_id.picking_type_id = item.external_sale_order_id.external_source_id.external_sale_order_picking_type_id.id
-                                    picking_id.name = self.env['ir.sequence'].next_by_code(self.env['stock.picking.type'].search([('id', '=', picking_id.picking_type_id.id)])[0].sequence_id.code)
-                    else:
-                        #Fix nacex
-                        nacex_samples = False
-                        if picking_id.carrier_id.id>0:
-                            if picking_id.carrier_id.carrier_type=='nacex':
-                                for order_line in item.order_line:
-                                    if order_line.product_id.id==97:
-                                        nacex_samples = True
-                        #nacex_samples
-                        if nacex_samples==True:
-                            picking_id.picking_type_id = 7
-                            picking_id.name = self.env['ir.sequence'].next_by_code(self.env['stock.picking.type'].search([('id', '=', picking_id.picking_type_id.id)])[0].sequence_id.code)
+                    #Fix nacex
+                    nacex_samples = False
+                    if picking_id.carrier_id.id>0:
+                        if picking_id.carrier_id.carrier_type=='nacex':
+                            for order_line in item.order_line:
+                                if order_line.product_id.id==97:
+                                    nacex_samples = True
+                    #nacex_samples
+                    if nacex_samples==True:
+                        picking_id.picking_type_id = 7
+                        picking_id.name = self.env['ir.sequence'].next_by_code(self.env['stock.picking.type'].search([('id', '=', picking_id.picking_type_id.id)])[0].sequence_id.code)
         #return
         return return_data
