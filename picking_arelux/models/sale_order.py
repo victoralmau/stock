@@ -8,54 +8,49 @@ _logger = logging.getLogger(__name__)
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
     
-    picking_note = fields.Char( 
-        string='Nota albaran',
-    )
-    shipping_expedition_note = fields.Char( 
-        string='Nota expedicion',
-    )
-    picking_priority = fields.Selection(
-        [
-            ('0', 'No urgente'),
-            ('1', 'Normal'),
-            ('2', 'Urgente'),
-            ('3', 'Muy Urgente'),        
-        ],
-        default='1',        
-        string='Prioridad albaran',
-    ) 
-    
-    def _create_delivery_line(self, carrier, price_unit):
-        if price_unit>0:
-            return super(SaleOrder, self)._create_delivery_line(carrier, price_unit)               
-    
     @api.multi
     def action_confirm(self):
         #operations
-        for obj in self:
-            if obj.carrier_id.id==0:
+        for item in self:
+            if item.carrier_id.id==0:
                 carriers_check = ['cbl', 'txt', 'tsb']            
                 #check note
-                if obj.note!=False:
+                if item.note!=False:
                     for carrier_check in carriers_check:        
-                        if carrier_check in obj.note or carrier_check.upper() in obj.note:                                                                
+                        if carrier_check in item.note or carrier_check.upper() in obj.note:
                             delivery_carrier_ids = self.env['delivery.carrier'].search([ ('carrier_type', '=', carrier_check)])                            
                             for delivery_carrier_id in delivery_carrier_ids:
-                                obj.carrier_id = delivery_carrier_id.id
+                                item.carrier_id = delivery_carrier_id.id
                 #check  picking_note                   
-                if obj.picking_note!=False:
+                if item.picking_note!=False:
                     for carrier_check in carriers_check:        
-                        if carrier_check in obj.picking_note or carrier_check.upper() in obj.picking_note:
+                        if carrier_check in item.picking_note or carrier_check.upper() in obj.picking_note:
                             delivery_carrier_ids = self.env['delivery.carrier'].search([ ('carrier_type', '=', carrier_check)])                            
                             for delivery_carrier_id in delivery_carrier_ids:
-                                obj.carrier_id = delivery_carrier_id.id
+                                item.carrier_id = delivery_carrier_id.id
         #action_confirm                                                            
-        return_data =  super(SaleOrder, self).action_confirm()
-        if return_data==True:        
-            for obj in self:
-                for picking_id in obj.picking_ids:
-                    picking_id.sale_order_note = obj.picking_note
-                    picking_id.shipping_expedition_note = obj.shipping_expedition_note
-                    picking_id.priority = obj.picking_priority                
+        return_data = super(SaleOrder, self).action_confirm()
+        #operations
+        for item in self:
+            if item.state == 'sale':
+                for picking_id in item.picking_ids:
+                    if item.external_sale_order_id.id > 0:
+                        if item.external_sale_order_id.external_source_id.id > 0:
+                            for picking_id in item.picking_ids:
+                                if picking_id.picking_type_id.id != item.external_sale_order_id.external_source_id.external_sale_order_picking_type_id.id:
+                                    picking_id.picking_type_id = item.external_sale_order_id.external_source_id.external_sale_order_picking_type_id.id
+                                    picking_id.name = self.env['ir.sequence'].next_by_code(self.env['stock.picking.type'].search([('id', '=', picking_id.picking_type_id.id)])[0].sequence_id.code)
+                    else:
+                        #Fix nacex
+                        nacex_samples = False
+                        if picking_id.carrier_id.id>0:
+                            if picking_id.carrier_id.carrier_type=='nacex':
+                                for order_line in item.order_line:
+                                    if order_line.product_id.id==97:
+                                        nacex_samples = True
+                        #nacex_samples
+                        if nacex_samples==True:
+                            picking_id.picking_type_id = 7
+                            picking_id.name = self.env['ir.sequence'].next_by_code(self.env['stock.picking.type'].search([('id', '=', picking_id.picking_type_id.id)])[0].sequence_id.code)
         #return
-        return return_data                                                                                                                                       
+        return return_data
