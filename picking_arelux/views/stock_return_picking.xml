@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="picking_arelux_view_stock_return_picking_form_inherit_sale_stock" model="ir.ui.view">
+        <field name="name">picking_arelux_view_stock_return_picking_form_inherit_sale_stock</field>
+        <field name="model">stock.return.picking</field>
+        <field name="inherit_id" ref="stock_account.view_stock_return_picking_form_inherit_stock_account"/>
+        <field name="arch" type="xml">
+            <field name="to_refund" position="replace">
+                <field name="to_refund" invisible="1"/>
+	       </field>
+        </field>
+    </record>
+</odoo>
