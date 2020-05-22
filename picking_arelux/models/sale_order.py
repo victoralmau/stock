@@ -10,23 +10,23 @@ class SaleOrder(models.Model):
     @api.multi
     def action_confirm(self):
         #operations
-        for obj in self:
-            if obj.carrier_id.id==0:
+        for item in self:
+            if item.carrier_id.id==0:
                 carriers_check = ['cbl', 'txt', 'tsb']            
                 #check note
-                if obj.note!=False:
+                if item.note!=False:
                     for carrier_check in carriers_check:        
-                        if carrier_check in obj.note or carrier_check.upper() in obj.note:                                                                
+                        if carrier_check in item.note or carrier_check.upper() in item.note:
                             delivery_carrier_ids = self.env['delivery.carrier'].search([ ('carrier_type', '=', carrier_check)])                            
                             for delivery_carrier_id in delivery_carrier_ids:
-                                obj.carrier_id = delivery_carrier_id.id
+                                item.carrier_id = delivery_carrier_id.id
                 #check  picking_note                   
-                if obj.picking_note!=False:
+                if item.picking_note!=False:
                     for carrier_check in carriers_check:        
-                        if carrier_check in obj.picking_note or carrier_check.upper() in obj.picking_note:
+                        if carrier_check in item.picking_note or carrier_check.upper() in item.picking_note:
                             delivery_carrier_ids = self.env['delivery.carrier'].search([ ('carrier_type', '=', carrier_check)])                            
                             for delivery_carrier_id in delivery_carrier_ids:
-                                obj.carrier_id = delivery_carrier_id.id
+                                item.carrier_id = delivery_carrier_id.id
         # action_confirm
         return_data = super(SaleOrder, self).action_confirm()
         # operations
