@@ -10,7 +10,6 @@
     'data': [
         'data/ir_cron.xml',
         'views/delivery_carrier.xml',
-        'views/shipping_expedition.xml',
     ],
     'installable': True,
     'auto_install': False,    
