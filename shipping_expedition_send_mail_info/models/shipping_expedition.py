@@ -14,6 +14,7 @@ class ShippingExpedition(models.Model):
     
     @api.one
     def action_send_mail_info_real(self):
+        _logger.info('Enviamos el email respecto a la expedicion ' + str(self.id))
         mail_compose_message_vals = {                    
             'author_id': self.user_id.partner_id.id,
             'record_name': self.name,                                                                                                                                                                                           
@@ -44,7 +45,7 @@ class ShippingExpedition(models.Model):
         if self.carrier_id.send_mail_info == True:
             if self.carrier_id.mail_info_mail_template_id.id > 0:
                 if self.date_send_mail_info == False:
-                    if self.state not in ['error', 'generate', 'canceled', 'delivered']:
+                    if self.state not in ['error', 'generate', 'canceled', 'delivered', 'incidence']:
                         if self.partner_id.email != False:
                             if self.carrier_id.carrier_type == 'nacex':
                                 allow_send = True
@@ -63,11 +64,13 @@ class ShippingExpedition(models.Model):
                 ('carrier_id.carrier_type', '!=', 'nacex'),
                 ('carrier_id.send_mail_info', '=', True),
                 ('carrier_id.mail_info_mail_template_id', '!=', False),
-                ('state', 'not in', ('error', 'generate', 'canceled', 'delivered')),
+                ('state', 'not in', ('error', 'generate', 'canceled', 'delivered', 'incidence')),
+                ('user_id', '!=', False),
                 ('date_send_mail_info', '=', False),
                 ('delegation_name', '!=', False),
                 ('delegation_phone', '!=', False),
-                ('partner_id.email', '!=', False)
+                ('partner_id.email', '!=', False),
+                ('picking_id.date_done', '!=', False)
             ]
         )
         if len(shipping_expedition_ids) > 0:
@@ -79,9 +82,11 @@ class ShippingExpedition(models.Model):
                 ('carrier_id.carrier_type', '=', 'nacex'),
                 ('carrier_id.send_mail_info', '=', True),
                 ('carrier_id.mail_info_mail_template_id', '!=', False),
-                ('state', 'not in', ('error', 'generate', 'canceled', 'delivered')),
+                ('state', 'not in', ('error', 'generate', 'canceled', 'delivered', 'incidence')),
+                ('user_id', '!=', False),
                 ('date_send_mail_info', '=', False),
-                ('partner_id.email', '!=', False)
+                ('partner_id.email', '!=', False),
+                ('picking_id.date_done', '!=', False)
             ]
         )
         if len(shipping_expedition_ids) > 0:
