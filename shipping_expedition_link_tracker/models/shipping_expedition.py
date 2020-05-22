@@ -15,7 +15,7 @@ class ShippingExpedition(models.Model):
     @api.one    
     def action_generate_shipping_expedition_link_tracker(self):
         if self.link_tracker_id.id==0 or self.link_tracker_id.id==False:
-            if self.carrier_id.carrier_type=='txt' and self.txt_url!=False:
+            if self.carrier_id.carrier_type in ['txt', 'nacex'] and self.txt_url!=False:
                 link_tracker_vals = {
                     'title': self.code,    
                     'url': self.txt_url,                
