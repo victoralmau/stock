@@ -17,14 +17,14 @@ class SaleOrder(models.Model):
                 #check note
                 if item.note!=False:
                     for carrier_check in carriers_check:        
-                        if carrier_check in item.note or carrier_check.upper() in obj.note:
+                        if carrier_check in item.note or carrier_check.upper() in item.note:
                             delivery_carrier_ids = self.env['delivery.carrier'].search([ ('carrier_type', '=', carrier_check)])                            
                             for delivery_carrier_id in delivery_carrier_ids:
                                 item.carrier_id = delivery_carrier_id.id
                 #check  picking_note                   
                 if item.picking_note!=False:
                     for carrier_check in carriers_check:        
-                        if carrier_check in item.picking_note or carrier_check.upper() in obj.picking_note:
+                        if carrier_check in item.picking_note or carrier_check.upper() in item.picking_note:
                             delivery_carrier_ids = self.env['delivery.carrier'].search([ ('carrier_type', '=', carrier_check)])                            
                             for delivery_carrier_id in delivery_carrier_ids:
                                 item.carrier_id = delivery_carrier_id.id
