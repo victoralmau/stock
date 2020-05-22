@@ -10,7 +10,7 @@
                 <button name="action_generate_shipping_expedition" attrs="{'invisible': [('shipping_expedition_id', '!=', False)]}" string="Crear expedición" type="object"/>            
             </field>
             <field name="partner_id" position="after">
-                <field name="shipping_expedition_id"/>
+                <field name="shipping_expedition_id" options='{"no_create": True, "no_create_edit": True}'/>
             </field>      
             <xpath expr="//page//field[@name='carrier_id']" position="after">
                 <field name="carrier_type"/>

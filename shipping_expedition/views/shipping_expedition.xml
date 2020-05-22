@@ -15,9 +15,9 @@
                             <button name="action_update_state" type="object" string="Actualizar estado" class="oe_highlight" attrs="{'invisible': [('state','=','delivered')]}" />
                         </div>
                         <group>
-                            <field name="picking_id"/>
-                            <field name="carrier_id"/>                             
-                            <field name="partner_id"/>
+                            <field name="picking_id" options='{"no_create": True, "no_create_edit": True}'/>
+                            <field name="carrier_id" options='{"no_create": True, "no_create_edit": True}'/>
+                            <field name="partner_id" options='{"no_create": True, "no_create_edit": True}'/>
                             <field name="code" attrs="{'invisible': [('code', '==', False)]}"/>
                             <field name="delivery_code"/>
                             <field name="date"/>
@@ -26,8 +26,8 @@
                             <field name="state_code"/>
                             <field name="origin"/>
                             <field name="delivery_note" attrs="{'invisible': [('delivery_note', '==', False)]}"/>
-                            <field name="order_id"/>
-                            <field name="user_id"/>
+                            <field name="order_id" options='{"no_create": True, "no_create_edit": True}'/>
+                            <field name="user_id" options='{"no_create": True, "no_create_edit": True}'/>
                             <field name="carrier_type"/>
                             <field name="exps_rels" attrs="{'invisible': [('exps_rels', '==', False)]}"/>
                             <field name="delegation_name"/>
