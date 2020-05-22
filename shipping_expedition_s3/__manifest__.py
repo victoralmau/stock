@@ -6,7 +6,10 @@
     'website': 'https://nodrizatech.com/',
     'category': 'Delivery',
     'license': 'AGPL-3',
-    'depends': ['shipping_expedition', 'ir_attachment_s3'],
+    'depends': ['shipping_expedition'],
+    'external_dependencies': {
+        'python3' : ['boto3'],
+    },
     'data': [
         'views/delivery_carrier.xml',
     ],
