@@ -9,8 +9,7 @@
     'depends': ['delivery', 'shipping_expedition', 'aws_sms_shipping_expedition'],
     'data': [
         'data/ir_cron.xml',
-        'views/delivery_carrier.xml',
-        'views/shipping_expedition.xml',
+        'views/delivery_carrier.xml'
     ],
     'installable': True,
     'auto_install': False,    
