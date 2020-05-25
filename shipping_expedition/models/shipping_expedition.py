@@ -142,7 +142,7 @@ class ShippingExpedition(models.Model):
                         ('res_id', '=', record.id)
                     ]
                 )
-                if mail_followers_ids!=False:
+                if len(mail_followers_ids)>0:
                     for mail_follower_id in mail_followers_ids:
                         if mail_follower_id.partner_id.id==record.create_uid.partner_id.id:
                             self.env.cr.execute("DELETE FROM  mail_followers WHERE id = "+str(mail_follower_id.id))

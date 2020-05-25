@@ -51,8 +51,6 @@ class StockPicking(models.Model):
                 #create            
                 shipping_expedition_vals = {
                     'picking_id': self.id,
-                    'order_id': 0,
-                    'user_id': 0,
                     'carrier_id': self.carrier_id.id,
                     'partner_id': self.partner_id.id,
                     'code': '',
@@ -64,8 +62,19 @@ class StockPicking(models.Model):
                     'state': 'generate',
                     'state_code': 2,
                     'ir_attachment_id': ir_attachment_obj.id                 
-                }            
-                shipping_expedition_obj = self.env['shipping.expedition'].sudo().create(shipping_expedition_vals)
+                }
+                # order_id
+                if self.order_id.id > 0:
+                    shipping_expedition_vals['order_id'] = self.order_id.id
+                    # user_id
+                    if self.order_id.user_id.id > 0:
+                        shipping_expedition_vals['user_id'] = self.order_id.user_id.id
+                # create
+                if 'user_id' in shipping_expedition_vals:
+                    shipping_expedition_obj = self.env['shipping.expedition'].sudo(
+                        shipping_expedition_vals['user_id']).create(shipping_expedition_vals)
+                else:
+                    shipping_expedition_obj = self.env['shipping.expedition'].sudo().create(shipping_expedition_vals)
                 #update ir_attachment_id
                 ir_attachment_obj.write({
                     'res_model': 'shipping.expedition',

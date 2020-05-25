@@ -6,13 +6,14 @@
     'website': 'https://nodrizatech.com/',
     'category': 'Delivery',
     'license': 'AGPL-3',
-    'depends': ['base', 'delivery', 'stock', 'cashondelivery'],
+    'depends': ['base', 'delivery', 'stock', 'cashondelivery', 'stock_picking_sale_order'],
     'data': [
         'data/ir_cron.xml',
         'views/delivery_carrier.xml',
         'views/shipping_expedition.xml',#prevent error action res_partner
         'views/res_partner.xml',        
-        'views/stock_picking.xml',                                
+        'views/sale_order.xml',
+        'views/stock_picking.xml',
         'security/ir.model.access.csv',
     ],
     'installable': True,
