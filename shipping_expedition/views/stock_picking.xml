@@ -14,7 +14,10 @@
             </field>      
             <xpath expr="//page//field[@name='carrier_id']" position="after">
                 <field name="carrier_type"/>
-            </xpath>            
+            </xpath>
+            <field name="pack_operation_product_ids" position="after">
+                <field name="shipping_expedition_note" placeholder="Añadir una nota para la expedicion (transportista)" readonly="1" style="width:100%;float:none;margin-bottom: 20px;" />
+            </field>
         </field>
     </record>
     <record id="shipping_expedition_vpicktree" model="ir.ui.view">

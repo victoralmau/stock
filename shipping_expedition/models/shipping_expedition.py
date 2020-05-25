@@ -125,7 +125,7 @@ class ShippingExpedition(models.Model):
                     ('partner_id', '=', record.user_id.partner_id.id)
                 ]
             )
-            if mail_followers_ids_check==False:
+            if len(mail_followers_ids_check)==0:
                 reg = {
                     'res_id': record.id,
                     'res_model': 'shipping.expedition',

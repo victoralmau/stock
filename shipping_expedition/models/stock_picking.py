@@ -31,6 +31,9 @@ class StockPicking(models.Model):
         readonly=True,
         copy=False
     )
+    shipping_expedition_note = fields.Char(
+        string='Nota pedido de venta expedicion',
+    )
     
     @api.multi
     def action_cancel(self):

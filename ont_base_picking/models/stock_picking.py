@@ -11,20 +11,8 @@ from lxml import etree
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
-    order_id = fields.Many2one(
-        comodel_name='sale.order',
-        string='Pedido',
-        copy=False
-    )
-    confirmation_date_order = fields.Datetime(
-        string='Fecha confirmacion pedido',
-        store=True
-    )
     sale_order_note = fields.Char(
         string='Nota pedido de venta',
-    )
-    shipping_expedition_note = fields.Char(
-        string='Nota pedido de venta expedicion',
     )
     purchase_id = fields.Many2one(
         comodel_name='purchase.order',

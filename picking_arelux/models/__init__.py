@@ -1,7 +1,6 @@
 from . import delivery_carrier
 from . import product_product
 from . import sale_order
-from . import shipping_expedition
 from . import stock_pack_operation
 from . import stock_quant
 from . import stock_inventory_line

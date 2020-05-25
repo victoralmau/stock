@@ -1,21 +1,11 @@
 # -*- coding: utf-8 -*-
-from openerp import api, models, fields
-from openerp.exceptions import Warning
+from odoo import api, models, fields
 
 import logging
 _logger = logging.getLogger(__name__)
 
-
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
-
-    picking_note = fields.Char(
-        string='Nota albaran',
-    )
-
-    def _create_delivery_line(self, carrier, price_unit):
-        if price_unit > 0:
-            return super(SaleOrder, self)._create_delivery_line(carrier, price_unit)
 
     @api.multi
     def action_confirm(self):
@@ -24,6 +14,7 @@ class SaleOrder(models.Model):
         for item in self:
             if item.state == 'sale':
                 for picking_id in item.picking_ids:
-                    picking_id.sale_order_note = item.picking_note
+                    picking_id.order_id = item.id
+                    picking_id.confirmation_date_order = item.confirmation_date
         # return
         return return_data
