@@ -81,7 +81,9 @@ class StockPicking(models.Model):
         if self.partner_id.name==False:
             partner_name = self.partner_id.parent_id.name 
         else:
-            partner_name = self.partner_id.name        
+            partner_name = self.partner_id.name
+        #Fix solicitud mal formada
+        partner_name = partner_name.replace('&', '')
         #street2
         obs1 = ''
         obs2 = ''
@@ -259,13 +261,13 @@ class StockPicking(models.Model):
                 for item2 in item.findall('{urn:soap/types}putExpedicionResponse'):                    
                     for result in item2.findall('result'):
                         response['return']['results'].append(result.text)
-
-            _logger.info('response')
-            _logger.info(response)
-
-            if response['return']['results'][0]=="ERROR":                
-                response['error'] = response['return']['results'][1]            
-                                            
+            #Fix
+            if len(response['return']['results'])>0:
+                if response['return']['results'][0]=="ERROR":
+                    response['error'] = response['return']['results'][1]
+            #log
+            _logger.info(body)
+        #return
         return response
     
     @api.one
