@@ -6,7 +6,7 @@
     'website': 'https://nodrizatech.com/',
     'category': 'Delivery',
     'license': 'AGPL-3',
-    'depends': ['delivery', 'shipping_expedition', 'aws_sms_shipping_expedition'],
+    'depends': ['delivery', 'shipping_expedition', 'shipping_expedition_link_tracker', 'aws_sms_shipping_expedition'],
     'data': [
         'data/ir_cron.xml',
         'views/delivery_carrier.xml',
