@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="shipping_expedition_link_tracker_shipping_expedition_form_view" model="ir.ui.view">
+        <field name="name">shipping_expedition_link_tracker_shipping_expedition_form_view</field>
+        <field name="model">shipping.expedition</field>
+        <field name="inherit_id" ref="shipping_expedition.shipping_expedition_form_view" />
+        <field name="priority" eval="20"/>
+        <field name="arch" type="xml">
+            <field name="delegation_phone" position="after">
+                <field name="link_tracker_id" readonly="1" groups="base.group_no_one" />
+            </field>
+            <xpath expr="//header/button[@name='action_cancell'][1]" position="after">
+                <button name="action_generate_shipping_expedition_link_tracker_multi" attrs="{'invisible': [('link_tracker_id', '!=', False)]}" type="object" string="Generar link tracker"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

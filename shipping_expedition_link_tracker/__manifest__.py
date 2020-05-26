@@ -6,8 +6,10 @@
     'website': 'https://nodrizatech.com/',
     'category': 'Tools',
     'license': 'AGPL-3',
-    'depends': ['base', 'shipping_expedition', 'link_tracker'],
-    'data': [],
+    'depends': ['base', 'shipping_expedition', 'shipping_expedition_nacex', 'shipping_expedition_txt', 'link_tracker'],
+    'data': [
+        'views/shipping_expedition.xml',
+    ],
     'installable': True,
     'auto_install': False,    
 }

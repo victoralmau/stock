@@ -14,11 +14,7 @@ class ShippingExpedition(models.Model):
     
     @api.one 
     def cron_shipping_expeditionsend_sms_info_item(self):
-        #Fix link_tracker_id
-        if self.link_tracker_id.id==0:
-            res = self.action_generate_shipping_expedition_link_tracker()
-        #action_send_sms_info                        
-        self.action_send_sms_info()
+        return super(ShippingExpedition, self).cron_shipping_expeditionsend_sms_info_item()
     
     @api.model
     def cron_shipping_expeditionsend_sms_info(self):
