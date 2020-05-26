@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="sms_shipping_expedition_shipping_expedition_form_view" model="ir.ui.view">
-        <field name="name">sms_shipping_expedition_shipping_expedition_form_view</field>
+    <record id="shipping_expedition_link_tracker_shipping_expedition_form_view" model="ir.ui.view">
+        <field name="name">shipping_expedition_link_tracker_shipping_expedition_form_view</field>
         <field name="model">shipping.expedition</field>
         <field name="inherit_id" ref="shipping_expedition.shipping_expedition_form_view" />
         <field name="priority" eval="20"/>
