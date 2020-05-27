@@ -49,4 +49,4 @@ class ShippingExpedition(models.Model):
         )
         if len(shipping_expedition_ids) > 0:
             for shipping_expedition_id in shipping_expedition_ids:
-                shipping_expedition_id.cron_shipping_expeditionsend_sms_info_item()
+                shipping_expedition_id.action_send_sms_info()
