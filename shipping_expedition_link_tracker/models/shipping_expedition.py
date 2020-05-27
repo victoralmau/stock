@@ -12,13 +12,14 @@ class ShippingExpedition(models.Model):
         string='Link Tracker Id'
     )
 
-    @api.one
-    def cron_shipping_expeditionsend_sms_info_item(self):
-        # Fix link_tracker_id
-        if self.link_tracker_id.id == 0:
-            self.action_generate_shipping_expedition_link_tracker()
-        # action_send_sms_info
-        self.action_send_sms_info()
+    @api.model
+    def create(self, values):
+        return_object = super(ShippingExpedition, self).create(values)
+        # operations
+        if return_object.url_info!=False:
+            return_object.action_generate_shipping_expedition_link_tracker()
+        # return
+        return return_object
 
     @api.multi
     def action_generate_shipping_expedition_link_tracker_multi(self):
@@ -29,24 +30,12 @@ class ShippingExpedition(models.Model):
     @api.one    
     def action_generate_shipping_expedition_link_tracker(self):
         if self.link_tracker_id.id==0:
-            if self.carrier_id.carrier_type in ['txt', 'nacex']:
-                allow_create = False
-                #conditions
-                if self.carrier_id.carrier_type=='txt' and self.txt_url!=False:
-                    link_tracker_vals = {
-                        'title': self.code,
-                        'url': self.txt_url
-                    }
-                    allow_create = True
-                elif self.carrier_id.carrier_type=='nacex' and self.nacex_url!=False:
-                    link_tracker_vals = {
-                        'title': self.code,
-                        'url': self.nacex_url
-                    }
-                    allow_create = True
-                #create
-                if allow_create==True:
-                    link_tracker_obj = self.env['link.tracker'].sudo().create(link_tracker_vals)
-                    self.link_tracker_id = link_tracker_obj.id
+            if self.url_info!=False:
+                link_tracker_vals = {
+                    'title': self.code,
+                    'url': self.url_info
+                }
+                link_tracker_obj = self.env['link.tracker'].sudo().create(link_tracker_vals)
+                self.link_tracker_id = link_tracker_obj.id
         #return
         return True                                                                                        

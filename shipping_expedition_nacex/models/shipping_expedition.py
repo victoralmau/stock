@@ -15,13 +15,8 @@ reload(sys)
 sys.setdefaultencoding('utf8')
 
 class ShippingExpedition(models.Model):
-    _inherit = 'shipping.expedition'        
+    _inherit = 'shipping.expedition'
 
-    nacex_url = fields.Char(
-        compute='_get_nacex_url',
-        store=False
-    )
-    
     @api.one
     def action_update_state(self):
         #operations
@@ -123,9 +118,3 @@ class ShippingExpedition(models.Model):
             _logger.info(pycurl.RESPONSE_CODE)        
         #return                                            
         return response
-    
-    @api.one        
-    def _get_nacex_url(self):                
-        if self.carrier_type=="nacex":        
-            delivery_code_split = self.delivery_code.split("/")
-            self.nacex_url = "http://www.nacex.es/seguimientoDetalle.do?agencia_origen="+delivery_code_split[0]+"&numero_albaran="+delivery_code_split[1]+"&estado=4&internacional=0&externo=N&usr=null&pas=null"                                                                                   

@@ -64,6 +64,10 @@ class StockPicking(models.Model):
                     'state_code': 2,
                     'ir_attachment_id': ir_attachment_obj.id                
                 }
+                #url_info
+                if '-' in shipping_expedition_vals['date']:
+                    date_split = shipping_expedition_vals['date'].split("-")
+                    shipping_expedition_vals['url_info'] = "http://tracking.txt.es/?EXPED=@33701@fx4iqq5kj101tks@R@"+str(shipping_expedition_vals['origin'])+"@"+str(date_split[0])+"@"
                 # order_id
                 if self.order_id.id > 0:
                     shipping_expedition_vals['order_id'] = self.order_id.id

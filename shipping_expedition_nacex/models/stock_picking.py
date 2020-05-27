@@ -56,6 +56,11 @@ class StockPicking(models.Model):
                     'state': 'generate',
                     'state_code': 2,                
                 }
+                #url_info
+                if '/' in shipping_expedition_vals['delivery_code']:
+                    delivery_code_split = shipping_expedition_vals['delivery_code'].split("/")
+                    if len(delivery_code_split) > 1:
+                        shipping_expedition_vals['url_info'] = "http://www.nacex.es/seguimientoDetalle.do?agencia_origen="+str(delivery_code_split[0])+"&numero_albaran="+str(delivery_code_split[1])+"&estado=4&internacional=0&externo=N&usr=null&pas=null"
                 # order_id
                 if self.order_id.id > 0:
                     shipping_expedition_vals['order_id'] = self.order_id.id

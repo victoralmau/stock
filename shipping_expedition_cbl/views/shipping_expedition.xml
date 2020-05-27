@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <record id="shipping_expedition_cbl_shipping_expedition_form_view" model="ir.ui.view">
-        <field name="model">shipping.expedition</field>
-        <field name="inherit_id" ref="shipping_expedition.shipping_expedition_form_view"/>
-        <field name="arch" type="xml">
-            <field name="exps_rels" position="after">   
-                <field name="cbl_url" widget="url" attrs="{'invisible': [('carrier_type','!=', 'cbl')]}"/>
-            </field>
-        </field>
-    </record>
     <record id="shipping_expedition_cbl_view_shipping_expedition_search" model="ir.ui.view">
         <field name="name">shipping_expedition_cbl_view_shipping_expedition_search</field>
         <field name="model">shipping.expedition</field>

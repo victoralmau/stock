@@ -99,6 +99,9 @@ class ShippingExpedition(models.Model):
     delegation_phone = fields.Char(
         string='Telefono delegacion'
     )
+    url_info = fields.Char(
+        string='Url info'
+    )
     ir_attachment_id = fields.Many2one(
         comodel_name='ir.attachment',
         string='Adjunto'
