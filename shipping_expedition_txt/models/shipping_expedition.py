@@ -11,13 +11,7 @@ from bs4 import BeautifulSoup
 import requests
 
 class ShippingExpedition(models.Model):
-    _inherit = 'shipping.expedition'        
-    
-    txt_url = fields.Char(
-        compute='_get_txt_url',
-        store=False,
-        string='TXT Url'
-    )
+    _inherit = 'shipping.expedition'
             
     @api.one
     def define_delegation_phone_txt(self):
@@ -127,17 +121,7 @@ class ShippingExpedition(models.Model):
                     'res_id': self.id,
                     'channel': self.env['ir.config_parameter'].sudo().get_param('slack_arelux_log_almacen_channel'),                                                         
                 }                        
-                slack_message_obj = self.env['slack.message'].sudo().create(slack_message_vals)                                                            
-    
-    @api.one        
-    def _get_txt_url(self):
-        self.ensure_one()
-                
-        if self.carrier_type=="txt":
-            if self.date!=False:
-                if '-' in self.date:
-                    date_split = self.date.split("-")                                
-                    self.txt_url = "http://tracking.txt.es/?EXPED=@33701@fx4iqq5kj101tks@R@"+self.origin+"@"+date_split[0]+"@"                                
+                slack_message_obj = self.env['slack.message'].sudo().create(slack_message_vals)
     
     @api.one
     def action_update_state(self):

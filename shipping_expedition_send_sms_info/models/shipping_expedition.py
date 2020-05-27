@@ -12,10 +12,6 @@ class ShippingExpedition(models.Model):
     def action_send_sms_info(self):
         return super(ShippingExpedition, self).action_send_sms_info()
     
-    @api.one 
-    def cron_shipping_expeditionsend_sms_info_item(self):
-        return super(ShippingExpedition, self).cron_shipping_expeditionsend_sms_info_item()
-    
     @api.model
     def cron_shipping_expeditionsend_sms_info(self):
         # not nacex
@@ -34,7 +30,7 @@ class ShippingExpedition(models.Model):
         )
         if len(shipping_expedition_ids) > 0:
             for shipping_expedition_id in shipping_expedition_ids:
-                shipping_expedition_id.cron_shipping_expeditionsend_sms_info_item()
+                shipping_expedition_id.action_send_sms_info()
         # nacex
         shipping_expedition_ids = self.env['shipping.expedition'].search(
             [
@@ -49,4 +45,4 @@ class ShippingExpedition(models.Model):
         )
         if len(shipping_expedition_ids) > 0:
             for shipping_expedition_id in shipping_expedition_ids:
-                shipping_expedition_id.cron_shipping_expeditionsend_sms_info_item()
+                shipping_expedition_id.action_send_sms_info()

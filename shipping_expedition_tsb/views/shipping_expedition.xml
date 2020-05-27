@@ -8,7 +8,6 @@
             <field name="exps_rels" position="after">   
                 <field name="tsb_identiticket" readonly="1" attrs="{'invisible': [('carrier_type','!=', 'tsb')]}"/>
                 <field name="tsb_localizator" readonly="1" attrs="{'invisible': [('carrier_type','!=', 'tsb')]}"/>
-                <field name="tsb_url" widget="url" attrs="{'invisible': [('carrier_type','!=', 'tsb')]}"/>
             </field>
         </field>
     </record>   

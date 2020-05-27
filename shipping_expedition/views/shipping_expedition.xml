@@ -31,7 +31,8 @@
                             <field name="carrier_type"/>
                             <field name="exps_rels" attrs="{'invisible': [('exps_rels', '==', False)]}"/>
                             <field name="delegation_name"/>
-                            <field name="delegation_phone"/>                         
+                            <field name="delegation_phone"/>
+                            <field name="url_info" readonly="1" widget="url"/>
                         </group>
                     </sheet>
                     <div class="oe_chatter">

@@ -13,11 +13,7 @@ import unidecode
 from bs4 import BeautifulSoup
 
 class ShippingExpedition(models.Model):
-    _inherit = 'shipping.expedition'        
-    
-    cbl_url = fields.Char(
-        string='CBL Url'
-    )
+    _inherit = 'shipping.expedition'
     
     @api.one
     def action_update_state(self):
