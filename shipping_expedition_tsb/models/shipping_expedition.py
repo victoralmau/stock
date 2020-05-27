@@ -16,9 +16,6 @@ class ShippingExpedition(models.Model):
     tsb_localizator = fields.Char(
         string='Tsb Localizador'
     )
-    tsb_url = fields.Char(
-        string='Tsb Url'
-    )
     
     @api.one
     def action_update_state(self):
@@ -88,7 +85,7 @@ class ShippingExpedition(models.Model):
                                 self.tsb_identiticket = ctrl_identiticket_line
                                 self.date = estd_fecha_llegada_line_real
                                 self.tsb_localizator = ctrl_localizator_line
-                                self.tsb_url = ctrl_link_line
+                                self.url_info = ctrl_link_line
                                 #codigo_situacion
                                 if estd_codigo_situacion_line!="00000001":
                                     #state_new
