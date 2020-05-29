@@ -30,7 +30,7 @@ class StockPicking(models.Model):
     partner_state_id = fields.Char(
         compute='_get_partner_state_id',
         string='Provincia',
-        store=True
+        store=False
     )
     user_id_done = fields.Many2one(
         comodel_name='res.users',
