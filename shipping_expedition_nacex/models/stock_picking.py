@@ -97,7 +97,7 @@ class StockPicking(models.Model):
                 obs1 = self.partner_id.street2
             else:
                 obs1 = self.partner_id.street2[0:38]
-                obs2 = self.partner_id.street2[37:75]
+                obs2 = self.partner_id.street2[37:75].replace('&', '')
         #notes
         obs3 = ''
         obs4 = ''        
