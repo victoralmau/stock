@@ -170,15 +170,13 @@ class ShippingExpedition(models.Model):
     
     @api.one
     def action_update_state_txt_real(self):
-        url_tracking = self.txt_url        
-        
         response = {
             'errors': True, 
             'error': "Pendiente de realizar", 
             'return': "",
         }            
         
-        page = requests.get(url_tracking)
+        page = requests.get(self.url_info)
         soup = BeautifulSoup(page.content, 'html.parser')                        
         estado_expedicion_input = soup.find('input', {'id': 'TxtEstadoExpedicion'})
         if estado_expedicion_input!=None:
