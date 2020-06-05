@@ -20,6 +20,10 @@ class StockPicking(models.Model):
         string='Palets',
         default=1
     )
+    number_of_minipallets = fields.Integer(
+        string='Minipalets',
+        default=0
+    )
     supplier_ref = fields.Char(
         string='Referencia del proveedor',
         size=30
