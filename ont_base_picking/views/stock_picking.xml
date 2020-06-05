@@ -25,6 +25,7 @@
             <field name="shipping_weight" position="after">
                 <field name="number_of_packages" />
                 <field name="number_of_pallets"/>
+                <field name="number_of_minipallets"/>
             </field>
             <field name="backorder_id" position="after">
                 <field name="sale_order_note" placeholder="Añadir una nota interna que se imprimirá en el vale de entrega" readonly="1" style="width:100%;float:none;margin-bottom: 20px;" />
