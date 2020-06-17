@@ -122,6 +122,9 @@ class StockPicking(models.Model):
         tip_ser = str(self.carrier_id.nacex_tip_ser)
         if self.partner_id.country_id.code not in ['ES', 'PT', 'AD']:
             tip_ser = str(self.carrier_id.nacex_tip_ser_int)
+        #tip_ser (Baleares) 20 - NACEX MALLORCA MARÍTIMO
+        if self.partner_id.country_id.code == 'ES' and self.partner_id.state_id.code == 'PM':
+            tip_ser = '20'
         #tip_env
         tip_env = str(self.carrier_id.nacex_tip_env)
         if self.partner_id.country_id.code not in ['ES', 'PT', 'AD']:
