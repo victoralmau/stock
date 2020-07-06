@@ -29,7 +29,11 @@ class ShippingExpedition(models.Model):
     order_id = fields.Many2one(
         comodel_name='sale.order',        
         string='Pedido',
-    )    
+    )
+    lead_id = fields.Many2one(
+        comodel_name='crm.lead',
+        string='Lead',
+    )
     user_id = fields.Many2one(
         comodel_name='res.users',        
         string='Comercial',
@@ -111,6 +115,10 @@ class ShippingExpedition(models.Model):
     @api.model
     def create(self, values):
         record = super(ShippingExpedition, self).create(values)
+        #add lead_id
+        if record.order_id.id>0:
+            if record.order_id.opportunity_id.id>0:
+                record.lead_id = record.order_id.opportunity_id.id
         #add partner_id follower
         if record.partner_id.id>0:
             reg = {

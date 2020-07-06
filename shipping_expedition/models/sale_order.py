@@ -11,6 +11,14 @@ class SaleOrder(models.Model):
     shipping_expedition_note = fields.Char(
         string='Nota expedicion',
     )
+    shipping_expedition_count = fields.Integer(
+        compute='_compute_shipping_expedition_count',
+        string="Expediciones",
+    )
+
+    def _compute_shipping_expedition_count(self):
+        for item in self:
+            item.shipping_expedition_count = len(self.env['shipping.expedition'].search([('order_id', '=', self.id)]))
 
     @api.multi
     def action_confirm(self):

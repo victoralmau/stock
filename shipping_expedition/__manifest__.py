@@ -12,6 +12,7 @@
         'data/ir_cron.xml',
         'views/delivery_carrier.xml',
         'views/res_partner.xml',
+        'views/crm_lead.xml',
         'views/sale_order.xml',
         'views/shipping_expedition.xml',
         'views/stock_picking.xml',                                
