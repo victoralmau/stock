@@ -12,7 +12,8 @@
         'data/ir_cron.xml',
         'views/delivery_carrier.xml',
         'views/shipping_expedition.xml',#prevent error action res_partner
-        'views/res_partner.xml',        
+        'views/res_partner.xml',
+        'views/crm_lead.xml',
         'views/sale_order.xml',
         'views/stock_picking.xml',
         'security/ir.model.access.csv',

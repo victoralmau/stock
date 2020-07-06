@@ -27,6 +27,7 @@
                             <field name="origin"/>
                             <field name="delivery_note" attrs="{'invisible': [('delivery_note', '==', False)]}"/>
                             <field name="order_id" options='{"no_create": True, "no_create_edit": True}'/>
+                            <field name="lead_id" options='{"no_create": True, "no_create_edit": True}'/>
                             <field name="user_id" options='{"no_create": True, "no_create_edit": True}'/>
                             <field name="carrier_type"/>
                             <field name="exps_rels" attrs="{'invisible': [('exps_rels', '==', False)]}"/>
@@ -48,6 +49,8 @@
             <field name="arch" type="xml">
                 <search string="Expediciones">
                     <field name="partner_id" operator="child_of"/>
+                    <field name="order_id"/>
+                    <field name="lead_id"/>
                     <field name="user_id"/>
                     <filter string="Mis expediciones" domain="[('user_id','=',uid)]" name="my_shipping_expeditions_filter"/>
                     <group expand="0" name="group_by" string="Agrupar por">
@@ -65,6 +68,7 @@
                 <tree string="Expediciones">
                     <field name="picking_id"/>
                     <field name="order_id"/>
+                    <field name="lead_id"/>
                     <field name="carrier_id"/>
                     <field name="partner_id"/>
                     <field name="date"/>                    
