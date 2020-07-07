@@ -11,5 +11,5 @@ class ResPartner(models.Model):
     )
 
     def _compute_shipping_expedition_count(self):
-        for partner in self:
-            partner.shipping_expedition_count = len(self.env['shipping.expedition'].search([('partner_id', 'child_of', partner.ids)]))
+        for item in self:
+            item.shipping_expedition_count = len(self.env['shipping.expedition'].search([('partner_id', 'child_of', item.ids)]))
