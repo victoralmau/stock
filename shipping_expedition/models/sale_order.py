@@ -19,7 +19,7 @@ class SaleOrder(models.Model):
 
     def _compute_shipping_expedition_count(self):
         for item in self:
-            item.shipping_expedition_count = len(self.env['shipping.expedition'].search([('order_id', '=', self.id)]))
+            item.shipping_expedition_count = len(self.env['shipping.expedition'].search([('order_id', '=', item.id)]))
 
     @api.multi
     def action_confirm(self):

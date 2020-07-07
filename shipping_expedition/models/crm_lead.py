@@ -15,4 +15,4 @@ class CrmLead(models.Model):
 
     def _compute_shipping_expedition_count(self):
         for item in self:
-            item.shipping_expedition_count = len(self.env['shipping.expedition'].search([('order_id', 'in', self.order_ids.ids)]))
+            item.shipping_expedition_count = len(self.env['shipping.expedition'].search([('order_id', 'in', item.order_ids.ids)]))
