@@ -1,11 +1,11 @@
-El módulo contiene el desarrollo que permite crear el apartado de expediciones para su posterior uso.
+The module contains the development that allows creating the expeditions section for later use.
 
-En Inventario > Operaciones se añade el apartado del menú "Expediciones"
+In Inventory> Operations the "Expeditions" menu section is added
 
 ## Crones
 
 ## Shipping Expedition Update State
-Frecuencia: 1 vez cada hora
+Frequency: 1 time every hour
 
-Descripción:
-Respecto a todas las expediciones que no estén en estados: delivered o canceled se actualizan los estados de las mismas para que los addons de cada tipo de transporte (shipping_expedition_nacex, shipping_expedition_cbl, shipping_expedition_txt) incluya la función para actualizar la expedición correspondiente.
+Description:
+Regarding all shipments that are not in states: delivered or canceled, their states are updated so that the addons of each type of transport (shipping_expedition_nacex, shipping_expedition_cbl, shipping_expedition_txt) include the function to update the corresponding expedition.
