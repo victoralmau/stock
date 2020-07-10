@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 from odoo import api, fields, models
 
@@ -15,23 +14,23 @@ class StockPicking(models.Model):
 
     carrier_id = fields.Many2one(
         comodel_name='delivery.carrier',
-        string='Transportista',
+        string='Carrier',
         states={'done': [('readonly', True)]},
     )
     carrier_type = fields.Selection(
         related='carrier_id.carrier_type',
-        string='Tipo de transportista',
+        string='Carrier type',
         readonly=True,
     )
     shipping_expedition_id = fields.Many2one(
         comodel_name='shipping.expedition',
         inverse_name='picking_id',
-        string='Expedicion',
+        string='Expedition',
         readonly=True,
         copy=False
     )
-    shipping_expedition_note = fields.Char(
-        string='Nota pedido de venta expedicion',
+    shipping_expedition_note = fields.Text(
+        string='Expedition note',
     )
     
     @api.multi

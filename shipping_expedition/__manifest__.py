@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 {
     'name': 'Shipping expedition',
@@ -11,7 +10,7 @@
     'data': [
         'data/ir_cron.xml',
         'views/delivery_carrier.xml',
-        'views/shipping_expedition.xml',#prevent error action res_partner
+        'views/shipping_expedition.xml',
         'views/res_partner.xml',
         'views/crm_lead.xml',
         'views/sale_order.xml',

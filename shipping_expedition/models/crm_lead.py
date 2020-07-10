@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 from odoo import api, models, fields
 
@@ -10,7 +9,7 @@ class CrmLead(models.Model):
 
     shipping_expedition_count = fields.Integer(
         compute='_compute_shipping_expedition_count',
-        string="Expediciones",
+        string="Expeditions",
     )
 
     def _compute_shipping_expedition_count(self):

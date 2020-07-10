@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 from odoo import api, fields, models
 from datetime import datetime
@@ -13,7 +12,7 @@ class ShippingExpedition(models.Model):
     
     name = fields.Char(        
         compute='_get_name',
-        string='Nombre',
+        string='Name',
         store=False
     )
     
@@ -24,11 +23,11 @@ class ShippingExpedition(models.Model):
     
     picking_id = fields.Many2one(
         comodel_name='stock.picking',
-        string='Albaran'
+        string='Picking'
     )
     order_id = fields.Many2one(
         comodel_name='sale.order',        
-        string='Pedido',
+        string='Order',
     )
     lead_id = fields.Many2one(
         comodel_name='crm.lead',
@@ -36,14 +35,14 @@ class ShippingExpedition(models.Model):
     )
     user_id = fields.Many2one(
         comodel_name='res.users',        
-        string='Comercial',
+        string='User',
     )    
     carrier_id = fields.Many2one(
         comodel_name='delivery.carrier',        
-        string='Transportista',
+        string='Carrier',
     )        
     carrier_type = fields.Char(
-        string='Tipo de transportista',
+        string='Carrier type',
         compute='_get_carrier_type',
         readonly=True,
         store=False
@@ -56,60 +55,60 @@ class ShippingExpedition(models.Model):
     
     partner_id = fields.Many2one(
         comodel_name='res.partner',
-        string='Contacto'
+        string='Partner'
     )    
     code = fields.Char(
-        string='Codigo expedicion'
+        string='Code'
     )
     delivery_code = fields.Char(
-        string='Codigo albaran'
+        string='Delivery code'
     )             
     date = fields.Date(
-        string='Fecha'
+        string='Date'
     )    
     hour = fields.Char(
-        string='Hora'
+        string='Hour'
     )
     observations = fields.Text(
-        string='Observaciones'
+        string='Observations'
     )
     state = fields.Selection(
         selection=[
             ('error','Error'), 
-            ('generate','Generado'), 
-            ('shipped','Enviado'), 
-            ('in_delegation','En delegacion'), 
-            ('incidence','Incidencia'), 
-            ('in_transit','En reparto'), 
-            ('delivered','Entregado'),
-            ('canceled','Anulada'),
+            ('generate','Generate'),
+            ('shipped','Shipped'),
+            ('in_delegation','In delegation'),
+            ('incidence','Incidence'),
+            ('in_transit','In transit'),
+            ('delivered','Delivered'),
+            ('canceled','Canceled'),
         ],
-        string='Estado'
+        string='State'
     )
     state_code = fields.Char(
-        string='Codigo estado'
+        string='State code'
     )
     origin = fields.Char(
-        string='Origen'
+        string='Origin'
     )
     delivery_note = fields.Char(
-        string='Nota de entrega'
+        string='Delivery note'
     )
     exps_rels = fields.Char(
-        string='Expediciones relacionadas'
+        string='Exps_rels'
     )
     delegation_name = fields.Char(
-        string='Nombre delegacion'
+        string='Delegation name'
     )
     delegation_phone = fields.Char(
-        string='Telefono delegacion'
+        string='Delegation phone'
     )
     url_info = fields.Char(
         string='Url info'
     )
     ir_attachment_id = fields.Many2one(
         comodel_name='ir.attachment',
-        string='Adjunto'
+        string='Attachment'
     )            
     
     @api.model
@@ -158,7 +157,7 @@ class ShippingExpedition(models.Model):
                     for mail_follower_id in mail_followers_ids:
                         if mail_follower_id.partner_id.id==record.create_uid.partner_id.id:
                             mail_follower_id.sudo().unlink()
-        #record                                                                
+        #record
         return record
     
     @api.model    

@@ -7,7 +7,7 @@
         <field name="priority" eval="20"/>
         <field name="arch" type="xml">
             <field name="state" position="before">
-                <button name="action_generate_shipping_expedition" attrs="{'invisible': [('shipping_expedition_id', '!=', False)]}" string="Crear expedición" type="object"/>            
+                <button name="action_generate_shipping_expedition" attrs="{'invisible': [('shipping_expedition_id', '!=', False)]}" string="Create expedition" type="object"/>
             </field>
             <field name="partner_id" position="after">
                 <field name="shipping_expedition_id" options='{"no_create": True, "no_create_edit": True}'/>
@@ -16,7 +16,7 @@
                 <field name="carrier_type"/>
             </xpath>
             <field name="backorder_id" position="after">
-                <field name="shipping_expedition_note" placeholder="Añadir una nota para la expedicion (transportista)" readonly="1" style="width:100%;float:none;margin-bottom: 20px;" />
+                <field name="shipping_expedition_note" class="oe_inline" placeholder="Set notes for the carrier" readonly="1" />
             </field>
         </field>
     </record>
@@ -39,8 +39,8 @@
         <field name="arch" type="xml">
             <filter name="done" position="after">
                 <separator/>
-                <filter string="Con expedicion" name="with_expedition" domain="[('shipping_expedition_id','!=',False)]"/>
-                <filter string="Sin expedicion" name="without_expedition" domain="[('shipping_expedition_id','=',False)]"/>
+                <filter string="With expedition" name="with_expedition" domain="[('shipping_expedition_id','!=',False)]"/>
+                <filter string="Without expedition" name="without_expedition" domain="[('shipping_expedition_id','=',False)]"/>
                 <separator/>                
             </filter>                                                                                                                
         </field>

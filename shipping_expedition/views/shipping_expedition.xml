@@ -2,17 +2,17 @@
 <openerp>
     <data>
         <record id="shipping_expedition_form_view" model="ir.ui.view">
-            <field name="name">Expediciones</field>
+            <field name="name">Expeditions</field>
             <field name="model">shipping.expedition</field>
             <field name="arch" type="xml">
                 <form string="Expedicion">
                     <header>                                                
                         <field name="state" widget="statusbar" statusbar_colors='{}'/>
-                        <button name="action_cancell" string="Cancelar expedición" type="object" attrs="{'invisible': [('state','=','delivered')]}" />
+                        <button name="action_cancell" string="Cancell expedition" type="object" attrs="{'invisible': [('state','=','delivered')]}" />
                     </header>
                     <sheet string="child">
                         <div class="oe_right oe_button_box" name="buttons">
-                            <button name="action_update_state" type="object" string="Actualizar estado" class="oe_highlight" attrs="{'invisible': [('state','=','delivered')]}" />
+                            <button name="action_update_state" type="object" string="Update state" class="oe_highlight" attrs="{'invisible': [('state','=','delivered')]}" />
                         </div>
                         <group>
                             <field name="picking_id" options='{"no_create": True, "no_create_edit": True}'/>
@@ -47,25 +47,25 @@
             <field name="name">view_shipping_expedition_search</field>
             <field name="model">shipping.expedition</field>
             <field name="arch" type="xml">
-                <search string="Expediciones">
+                <search string="Expeditions">
                     <field name="partner_id" operator="child_of"/>
                     <field name="order_id"/>
                     <field name="lead_id"/>
                     <field name="user_id"/>
-                    <filter string="Mis expediciones" domain="[('user_id','=',uid)]" name="my_shipping_expeditions_filter"/>
-                    <group expand="0" name="group_by" string="Agrupar por">
-                        <filter name="group_by_carrier_id" string="Transportista" domain="[]" context="{'group_by' : 'carrier_id'}"/>
-                        <filter name="group_by_state" string="Estado" domain="[]" context="{'group_by' : 'state'}"/>
-                        <filter name="group_by_user_id" string="Comercial" domain="[]" context="{'group_by' : 'user_id'}"/>                       
+                    <filter string="My expeditions" domain="[('user_id','=',uid)]" name="my_shipping_expeditions_filter"/>
+                    <group expand="0" name="group_by" string="Group by">
+                        <filter name="group_by_carrier_id" string="Carrier" domain="[]" context="{'group_by' : 'carrier_id'}"/>
+                        <filter name="group_by_state" string="State" domain="[]" context="{'group_by' : 'state'}"/>
+                        <filter name="group_by_user_id" string="User id" domain="[]" context="{'group_by' : 'user_id'}"/>
                    </group>                    
                 </search>
             </field>
         </record>                           
         <record id="shipping_expedition_tree" model="ir.ui.view">
-            <field name="name">Expediciones</field>
+            <field name="name">Expeditions</field>
             <field name="model">shipping.expedition</field>            
             <field name="arch" type="xml">
-                <tree string="Expediciones">
+                <tree string="Expeditions">
                     <field name="picking_id"/>
                     <field name="order_id"/>
                     <field name="lead_id"/>
@@ -80,7 +80,7 @@
             </field>            
         </record>                
         <record model="ir.actions.act_window" id="shipping_expedition_action">
-            <field name="name">Expediciones</field>
+            <field name="name">Expeditions</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">shipping.expedition</field>
             <field name="view_type">form</field>
@@ -90,8 +90,8 @@
         </record>
         <menuitem 
             action="shipping_expedition_action" 
-            name="Expediciones"
-            id="menuitem_shipping_expedition" 
+            name="Expeditions"
+            id="menuitem_shipping_expedition"
             parent="stock.menu_stock_warehouse_mgmt"
         />
     </data>
