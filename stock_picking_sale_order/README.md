@@ -1,1 +1,1 @@
-Añade los campos de order_id y confirmation_date_order en los albaranes (stock.picking) que se definen al confirmar el presupuesto si este ha definido (creado) albaranes.
+Add the order_id and confirmation_date_order fields in the picking that are defined when confirming the sale order.
