@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 import logging
 _logger = logging.getLogger(__name__)
@@ -21,14 +20,6 @@ class ShippingExpedition(models.Model):
             return_object.action_generate_shipping_expedition_link_tracker()
         # return
         return return_object
-
-    @api.one
-    def cron_shipping_expeditionsend_sms_info_item(self):
-        # Fix link_tracker_id
-        if self.link_tracker_id.id == 0:
-            self.action_generate_shipping_expedition_link_tracker()
-        # action_send_sms_info
-        self.action_send_sms_info()
 
     @api.one
     def action_generate_shipping_expedition_link_tracker(self):

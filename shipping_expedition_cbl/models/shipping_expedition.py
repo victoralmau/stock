@@ -93,9 +93,8 @@ class ShippingExpedition(models.Model):
         if response['errors']==True:
             _logger.info(response)
             self.action_error_update_state_expedition(response)#Fix error
-            #raise exceptions.Warning(response['error'])
         else:                
-            #fecha_entrega                                        
+            #fecha_entrega
             if 'fecha_entrega' in response['return']:
                 if '/' in response['return']['fecha_entrega']:
                     fecha_split = response['return']['fecha_entrega'].split('/')

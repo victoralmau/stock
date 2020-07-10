@@ -257,7 +257,6 @@ class StockPicking(models.Model):
             },
             {
                 'type': 'tk_mail',
-                'value': '',
                 'value': str(partner_email),
                 'size': 250,
             },
@@ -294,7 +293,7 @@ class StockPicking(models.Model):
         if os.path.isfile(file_name_real):
             line_exist_in_file=True                        
         #continue line_exist_in_file
-        if line_exist_in_file==False:            
+        if line_exist_in_file==False:
             #fh = open(file_name,'a')# if file does not exist, create it
             fh = codecs.open(file_name_real, "a", "utf-8-sig")                            
             fh.write(txt_line)
