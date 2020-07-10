@@ -2,7 +2,7 @@ The module contains the development that allows creating the expeditions section
 
 In Inventory> Operations the "Expeditions" menu section is added
 
-## Crones
+## Crons
 
 ## Shipping Expedition Update State
 Frequency: 1 time every hour
