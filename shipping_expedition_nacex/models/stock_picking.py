@@ -43,7 +43,7 @@ class StockPicking(models.Model):
                 #raise
                 raise exceptions.Warning(res['error'])
             else:                             
-                #create            
+                #create
                 shipping_expedition_vals = {
                     'picking_id': self.id,
                     'carrier_id': self.carrier_id.id,
@@ -62,12 +62,12 @@ class StockPicking(models.Model):
                     delivery_code_split = shipping_expedition_vals['delivery_code'].split("/")
                     if len(delivery_code_split) > 1:
                         shipping_expedition_vals['url_info'] = "http://www.nacex.es/seguimientoDetalle.do?agencia_origen="+str(delivery_code_split[0])+"&numero_albaran="+str(delivery_code_split[1])+"&estado=4&internacional=0&externo=N&usr=null&pas=null"
-                # order_id
-                if self.order_id.id > 0:
-                    shipping_expedition_vals['order_id'] = self.order_id.id
+                # sale_id
+                if self.sale_id.id > 0:
+                    shipping_expedition_vals['order_id'] = self.sale_id.id
                     # user_id
-                    if self.order_id.user_id.id > 0:
-                        shipping_expedition_vals['user_id'] = self.order_id.user_id.id
+                    if self.sale_id.user_id.id > 0:
+                        shipping_expedition_vals['user_id'] = self.sale_id.user_id.id
                 # create
                 if 'user_id' in shipping_expedition_vals:
                     shipping_expedition_obj = self.env['shipping.expedition'].sudo(shipping_expedition_vals['user_id']).create(shipping_expedition_vals)

@@ -50,7 +50,7 @@ class StockPicking(models.Model):
                     'res_id': self.id
                 }
                 ir_attachment_obj = self.env['ir.attachment'].sudo().create(ir_attachment_vals)                             
-                #create            
+                #create
                 shipping_expedition_vals = {
                     'picking_id': self.id,
                     'carrier_id': self.carrier_id.id,
@@ -69,12 +69,12 @@ class StockPicking(models.Model):
                 if '-' in shipping_expedition_vals['date']:
                     date_split = shipping_expedition_vals['date'].split("-")
                     shipping_expedition_vals['url_info'] = "http://tracking.txt.es/?EXPED=@33701@fx4iqq5kj101tks@R@"+str(shipping_expedition_vals['origin'])+"@"+str(date_split[0])+"@"
-                # order_id
-                if self.order_id.id > 0:
-                    shipping_expedition_vals['order_id'] = self.order_id.id
+                # sale_id
+                if self.sale_id.id > 0:
+                    shipping_expedition_vals['order_id'] = self.sale_id.id
                     # user_id
-                    if self.order_id.user_id.id > 0:
-                        shipping_expedition_vals['user_id'] = self.order_id.user_id.id
+                    if self.sale_id.user_id.id > 0:
+                        shipping_expedition_vals['user_id'] = self.sale_id.user_id.id
                 # create
                 if 'user_id' in shipping_expedition_vals:
                     shipping_expedition_obj = self.env['shipping.expedition'].sudo(shipping_expedition_vals['user_id']).create(shipping_expedition_vals)
