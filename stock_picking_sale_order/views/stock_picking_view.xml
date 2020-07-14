@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+
     <record id="stock_picking_sale_order_vpicktree" model="ir.ui.view">
-        <field name="name">ont_base_picking_vpicktree</field>
+        <field name="name">stock.picking.sale.order.vpicktree</field>
         <field name="model">stock.picking</field>
         <field name="inherit_id" ref="stock.vpicktree"/>
         <field name="arch" type="xml">
@@ -10,8 +11,9 @@
 	       </field>
         </field>
     </record>
-    <record id="stock_picking_sale_order_view_picking_form" model="ir.ui.view">
-        <field name="name">ont_base_picking_view_picking_form</field>
+
+    <record id="stock_picking_sale_order_form" model="ir.ui.view">
+        <field name="name">stock.picking.sale.order.form</field>
         <field name="model">stock.picking</field>
         <field name="inherit_id" ref="stock.view_picking_form" />
         <field name="priority" eval="20"/>
@@ -21,4 +23,5 @@
 	       </field>
         </field>
     </record>
+
 </odoo>
