@@ -19,14 +19,3 @@ class SaleOrder(models.Model):
     def _compute_shipping_expedition_count(self):
         for item in self:
             item.shipping_expedition_count = len(self.env['shipping.expedition'].search([('order_id', '=', item.id)]))
-
-    @api.multi
-    def action_confirm(self):
-        return_data = super(SaleOrder, self).action_confirm()
-        # operations
-        for item in self:
-            if item.state == 'sale':
-                for picking_id in item.picking_ids:
-                    picking_id.shipping_expedition_note = item.shipping_expedition_note
-        # return
-        return return_data

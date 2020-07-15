@@ -31,6 +31,8 @@ class StockPicking(models.Model):
     )
     shipping_expedition_note = fields.Text(
         string='Expedition note',
+        related='sale_id.shipping_expedition_note',
+        store=False
     )
     
     @api.multi
@@ -38,7 +40,7 @@ class StockPicking(models.Model):
         return_action_cancel = super(StockPicking, self).action_cancel()
         #operations
         for obj in self:
-            if obj.shipping_expedition_id.id>0:
+            if obj.shipping_expedition_id.id > 0:
                 obj.shipping_expedition_id.state = 'canceled'
         #return
         return return_action_cancel
@@ -65,7 +67,7 @@ class StockPicking(models.Model):
     @api.multi
     def action_generate_shipping_expedition(self):
         for obj in self:
-            if obj.shipping_expedition_id.id==0:
+            if obj.shipping_expedition_id.id == 0:
                 obj.generate_shipping_expedition()
                 
     @api.one    
