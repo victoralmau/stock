@@ -7,7 +7,7 @@
     'website': 'https://nodrizatech.com/',
     'category': 'Delivery',
     'license': 'AGPL-3',
-    'depends': ['shipping_expedition', 'sale'],
+    'depends': ['shipping_expedition', 'sale', 'sale_stock'],
     'external_dependencies': {
         'python' : ['suds', 'pycurl', 'boto'],
     },

@@ -24,39 +24,50 @@ class ShippingExpedition(models.Model):
     
     picking_id = fields.Many2one(
         comodel_name='stock.picking',
-        string='Albaran'
+        string='Albaran',
+        required=True
     )
     order_id = fields.Many2one(
-        comodel_name='sale.order',        
+        comodel_name='sale.order',
         string='Pedido',
+        related='picking_id.sale_id',
+        store=False,
+        readonly=True
     )
     lead_id = fields.Many2one(
         comodel_name='crm.lead',
         string='Lead',
+        related='picking_id.sale_id.opportunity_id',
+        store=False,
+        readonly=True
     )
     user_id = fields.Many2one(
         comodel_name='res.users',        
         string='Comercial',
+        related='picking_id.sale_id.user_id',
+        store=False,
+        readonly=True
     )    
     carrier_id = fields.Many2one(
         comodel_name='delivery.carrier',        
         string='Transportista',
+        related='picking_id.carrier_id',
+        store=False,
+        readonly=True
     )        
-    carrier_type = fields.Char(
+    carrier_type = fields.Selection(
         string='Tipo de transportista',
-        compute='_get_carrier_type',
-        readonly=True,
-        store=False
-    )    
-    
-    @api.multi        
-    def _get_carrier_type(self):         
-        for obj in self:           
-            obj.carrier_type = obj.carrier_id.carrier_type
+        related='picking_id.carrier_id.carrier_type',
+        store=False,
+        readonly=True
+    )
     
     partner_id = fields.Many2one(
         comodel_name='res.partner',
-        string='Contacto'
+        string='Contacto',
+        related='picking_id.partner_id',
+        store=False,
+        readonly=True
     )    
     code = fields.Char(
         string='Codigo expedicion'
@@ -115,12 +126,8 @@ class ShippingExpedition(models.Model):
     @api.model
     def create(self, values):
         record = super(ShippingExpedition, self).create(values)
-        #add lead_id
-        if record.order_id.id>0:
-            if record.order_id.opportunity_id.id>0:
-                record.lead_id = record.order_id.opportunity_id.id
-        #add partner_id follower
-        if record.partner_id.id>0:
+        # add partner_id follower
+        if record.partner_id.id > 0:
             reg = {
                 'res_id': record.id,
                 'res_model': 'shipping.expedition',
@@ -128,8 +135,8 @@ class ShippingExpedition(models.Model):
                 'subtype_ids': [(6, 0, [1])],
             }
             self.env['mail.followers'].create(reg)
-        #add user_id follower
-        if record.user_id.id>0:
+        # add user_id follower
+        if record.user_id.id > 0:
             mail_followers_ids_check = self.env['mail.followers'].search(
                 [
                     ('res_model', '=', 'shipping.expedition'),
@@ -137,7 +144,7 @@ class ShippingExpedition(models.Model):
                     ('partner_id', '=', record.user_id.partner_id.id)
                 ]
             )
-            if len(mail_followers_ids_check)==0:
+            if len(mail_followers_ids_check) == 0:
                 reg = {
                     'res_id': record.id,
                     'res_model': 'shipping.expedition',
@@ -145,8 +152,8 @@ class ShippingExpedition(models.Model):
                     'subtype_ids': [(6, 0, [1])],                                              
                 }
                 self.env['mail.followers'].create(reg)
-        #check remove create uid
-        if record.user_id.id>0:
+        # check remove create uid
+        if record.user_id.id > 0:
             if record.user_id.id!=record.create_uid.id:
                 mail_followers_ids = self.env['mail.followers'].search(
                     [
@@ -154,11 +161,11 @@ class ShippingExpedition(models.Model):
                         ('res_id', '=', record.id)
                     ]
                 )
-                if mail_followers_ids!=False:
+                if mail_followers_ids != False:
                     for mail_follower_id in mail_followers_ids:
                         if mail_follower_id.partner_id.id==record.create_uid.partner_id.id:
                             mail_follower_id.sudo().unlink()
-        #record                                                                
+        # record
         return record
     
     @api.multi    

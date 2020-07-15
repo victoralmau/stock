@@ -46,8 +46,6 @@ class StockPicking(models.Model):
                 #create
                 shipping_expedition_vals = {
                     'picking_id': self.id,
-                    'carrier_id': self.carrier_id.id,
-                    'partner_id': self.partner_id.id,
                     'code': res['return']['result']['expe_codigo'],
                     'delivery_code': res['return']['result']['ag_cod_num_exp'],
                     'date': res['return']['result']['fecha_objetivo'],
@@ -62,15 +60,9 @@ class StockPicking(models.Model):
                     delivery_code_split = shipping_expedition_vals['delivery_code'].split("/")
                     if len(delivery_code_split) > 1:
                         shipping_expedition_vals['url_info'] = "http://www.nacex.es/seguimientoDetalle.do?agencia_origen="+str(delivery_code_split[0])+"&numero_albaran="+str(delivery_code_split[1])+"&estado=4&internacional=0&externo=N&usr=null&pas=null"
-                # sale_id
-                if self.sale_id.id > 0:
-                    shipping_expedition_vals['order_id'] = self.sale_id.id
-                    # user_id
-                    if self.sale_id.user_id.id > 0:
-                        shipping_expedition_vals['user_id'] = self.sale_id.user_id.id
                 # create
-                if 'user_id' in shipping_expedition_vals:
-                    shipping_expedition_obj = self.env['shipping.expedition'].sudo(shipping_expedition_vals['user_id']).create(shipping_expedition_vals)
+                if self.sale_id.user_id.id > 0:
+                    shipping_expedition_obj = self.env['shipping.expedition'].sudo(self.sale_id.user_id.id).create(shipping_expedition_vals)
                 else:
                     shipping_expedition_obj = self.env['shipping.expedition'].sudo().create(shipping_expedition_vals)
                 #update
@@ -173,13 +165,10 @@ class StockPicking(models.Model):
             for pack_operation_product_id in self.pack_operation_product_ids:
                 if pack_operation_product_id.product_id.id>0:
                    con += str(pack_operation_product_id.product_id.name)+','
-            #val_dec            
+            #val_dec
             val_dec = "0.0"
-            if self.origin!=False:
-                sale_order_ids = self.env['sale.order'].sudo().search([('name', '=', self.origin)])
-                if len(sale_order_ids)>0:
-                    sale_order_id = sale_order_ids[0]
-                    val_dec = sale_order_id.amount_total
+            if self.sale_id.id > 0:
+                val_dec = self.sale_id.amount_total
             #body
             body += """
                         <arrayOfString_3>con="""+str(con[0:80])+"""</arrayOfString_3>
