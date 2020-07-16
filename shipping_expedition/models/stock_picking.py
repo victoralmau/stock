@@ -32,6 +32,7 @@ class StockPicking(models.Model):
     shipping_expedition_note = fields.Text(
         string='Expedition note',
         related='sale_id.shipping_expedition_note',
+        readonly=True,
         store=False
     )
     

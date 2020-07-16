@@ -16,7 +16,8 @@
                 <field name="carrier_type"/>
             </xpath>
             <field name="backorder_id" position="after">
-                <field name="shipping_expedition_note" class="oe_inline" placeholder="Set notes for the carrier" readonly="1" />
+                <separator string="Expedition note" />
+                <field name="shipping_expedition_note"  />
             </field>
         </field>
     </record>
