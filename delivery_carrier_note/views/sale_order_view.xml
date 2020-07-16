@@ -6,7 +6,7 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form" />
         <field name="priority" eval="18"/>
-        <group name="arch" type="xml">
+        <field name="arch" type="xml">
             <group name="sale_shipping" position="inside">
                 <field name="carrier_note"
                        placeholder="Set notes to carrier"
