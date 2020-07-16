@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 12.0-20200601\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-07-10 11:26+0000\n"
-"PO-Revision-Date: 2020-07-10 11:26+0000\n"
+"POT-Creation-Date: 2020-07-16 07:30+0000\n"
+"PO-Revision-Date: 2020-07-16 07:30+0000\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -67,6 +67,11 @@ msgstr "Código"
 #: model:ir.model,name:shipping_expedition.model_res_partner
 msgid "Contact"
 msgstr "Contacto"
+
+#. module: shipping_expedition
+#: model:ir.model.fields,field_description:shipping_expedition.field_shipping_expedition__partner_id
+msgid "Contacto"
+msgstr ""
 
 #. module: shipping_expedition
 #: model_terms:ir.ui.view,arch_db:shipping_expedition.shipping_expedition_view_picking_form
@@ -145,8 +150,9 @@ msgstr ""
 
 #. module: shipping_expedition
 #: model:ir.model.fields,field_description:shipping_expedition.field_stock_picking__shipping_expedition_note
+#: model_terms:ir.ui.view,arch_db:shipping_expedition.shipping_expedition_view_picking_form
 msgid "Expedition note"
-msgstr ""
+msgstr "Notas para el transportista"
 
 #. module: shipping_expedition
 #: model:ir.actions.act_window,name:shipping_expedition.shipping_expedition_action
@@ -334,19 +340,14 @@ msgid "Observations"
 msgstr ""
 
 #. module: shipping_expedition
-#: model:ir.model.fields,field_description:shipping_expedition.field_shipping_expedition__order_id
-msgid "Order"
-msgstr "Orden"
-
-#. module: shipping_expedition
 #: model:ir.model.fields,field_description:shipping_expedition.field_shipping_expedition__origin
 msgid "Origin"
 msgstr "Origen"
 
 #. module: shipping_expedition
-#: model:ir.model.fields,field_description:shipping_expedition.field_shipping_expedition__partner_id
-msgid "Partner"
-msgstr "Empresa"
+#: model:ir.model.fields,field_description:shipping_expedition.field_shipping_expedition__order_id
+msgid "Pedido"
+msgstr "Pedido de venta"
 
 #. module: shipping_expedition
 #: model:ir.model.fields,field_description:shipping_expedition.field_shipping_expedition__picking_id
@@ -360,7 +361,6 @@ msgstr "Pedido de venta"
 
 #. module: shipping_expedition
 #: model_terms:ir.ui.view,arch_db:shipping_expedition.shipping_expedition_view_order_form
-#: model_terms:ir.ui.view,arch_db:shipping_expedition.shipping_expedition_view_picking_form
 msgid "Set notes for the carrier"
 msgstr "Define notas para el transportista"
 
