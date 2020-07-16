@@ -15,7 +15,7 @@
             <xpath expr="//page//field[@name='carrier_id']" position="after">
                 <field name="carrier_type"/>
             </xpath>
-            <field name="backorder_id" position="after">
+            <field name="package_level_ids" position="after">
                 <separator string="Expedition note" />
                 <field name="shipping_expedition_note"  />
             </field>
