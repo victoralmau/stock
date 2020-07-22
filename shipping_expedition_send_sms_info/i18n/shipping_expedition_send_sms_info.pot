@@ -1,0 +1,44 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* shipping_expedition_send_sms_info
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 12.0-20200601\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-07-22 10:45+0000\n"
+"PO-Revision-Date: 2020-07-22 10:45+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: shipping_expedition_send_sms_info
+#: model:ir.model,name:shipping_expedition_send_sms_info.model_delivery_carrier
+msgid "Delivery Methods"
+msgstr ""
+
+#. module: shipping_expedition_send_sms_info
+#: model:ir.model.fields,field_description:shipping_expedition_send_sms_info.field_delivery_carrier__send_sms_info
+msgid "Send sms info"
+msgstr ""
+
+#. module: shipping_expedition_send_sms_info
+#: model:ir.model,name:shipping_expedition_send_sms_info.model_shipping_expedition
+msgid "Shipping Expedicion"
+msgstr ""
+
+#. module: shipping_expedition_send_sms_info
+#: model:ir.actions.server,name:shipping_expedition_send_sms_info.cron_shipping_expeditionsend_sms_info_ir_actions_server
+#: model:ir.cron,cron_name:shipping_expedition_send_sms_info.cron_shipping_expeditionsend_sms_info
+#: model:ir.cron,name:shipping_expedition_send_sms_info.cron_shipping_expeditionsend_sms_info
+msgid "Shipping Expedition Sms Info"
+msgstr ""
+
+#. module: shipping_expedition_send_sms_info
+#: model:ir.model.fields,field_description:shipping_expedition_send_sms_info.field_delivery_carrier__sms_info_sms_template_id
+msgid "Sms template"
+msgstr ""
+
