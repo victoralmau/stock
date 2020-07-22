@@ -1,0 +1,88 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* shipping_expedition_tsb
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 12.0-20200601\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-07-22 10:47+0000\n"
+"PO-Revision-Date: 2020-07-22 10:47+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: shipping_expedition_tsb
+#: model:ir.model,name:shipping_expedition_tsb.model_delivery_carrier
+msgid "Delivery Methods"
+msgstr "Método de envío"
+
+#. module: shipping_expedition_tsb
+#: model:ir.model,name:shipping_expedition_tsb.model_product_template
+msgid "Product Template"
+msgstr "Plantilla de producto"
+
+#. module: shipping_expedition_tsb
+#: model:ir.model,name:shipping_expedition_tsb.model_shipping_expedition
+msgid "Shipping Expedicion"
+msgstr ""
+
+#. module: shipping_expedition_tsb
+#: model:ir.model.fields,field_description:shipping_expedition_tsb.field_product_product__tsb_sender_center
+#: model:ir.model.fields,field_description:shipping_expedition_tsb.field_product_template__tsb_sender_center
+msgid "TSB Center"
+msgstr "TSB Centro"
+
+#. module: shipping_expedition_tsb
+#: model:ir.model,name:shipping_expedition_tsb.model_stock_picking
+msgid "Transfer"
+msgstr "Albarán"
+
+#. module: shipping_expedition_tsb
+#: model:ir.model.fields,field_description:shipping_expedition_tsb.field_delivery_carrier__tsb_ftp_directory_download
+msgid "Tsb Ftp directory download"
+msgstr "TSB FTP directorio descarga"
+
+#. module: shipping_expedition_tsb
+#: model:ir.model.fields,field_description:shipping_expedition_tsb.field_delivery_carrier__tsb_ftp_directory_upload
+msgid "Tsb Ftp directory upload"
+msgstr "TSB FTP directorio subida"
+
+#. module: shipping_expedition_tsb
+#: model:ir.model.fields,field_description:shipping_expedition_tsb.field_delivery_carrier__tsb_ftp_host
+msgid "Tsb Ftp host"
+msgstr "TSB FTP Host"
+
+#. module: shipping_expedition_tsb
+#: model:ir.model.fields,field_description:shipping_expedition_tsb.field_delivery_carrier__tsb_ftp_password
+msgid "Tsb Ftp password"
+msgstr "TSB FTP Contraseña"
+
+#. module: shipping_expedition_tsb
+#: model:ir.model.fields,field_description:shipping_expedition_tsb.field_delivery_carrier__tsb_ftp_user
+msgid "Tsb Ftp user"
+msgstr "TSB FTP Usuario"
+
+#. module: shipping_expedition_tsb
+#: model:ir.model.fields,field_description:shipping_expedition_tsb.field_shipping_expedition__tsb_identiticket
+msgid "Tsb Identiticket"
+msgstr ""
+
+#. module: shipping_expedition_tsb
+#: model:ir.model.fields,field_description:shipping_expedition_tsb.field_shipping_expedition__tsb_localizator
+msgid "Tsb Localizator"
+msgstr "Tsb Localizador"
+
+#. module: shipping_expedition_tsb
+#: model:ir.model.fields,field_description:shipping_expedition_tsb.field_delivery_carrier__tsb_sender_center
+msgid "Tsb sender center"
+msgstr "TSB centro de envío"
+
+#. module: shipping_expedition_tsb
+#: model:ir.model.fields,field_description:shipping_expedition_tsb.field_delivery_carrier__tsb_sender_customer
+msgid "Tsb sender customer"
+msgstr "TSB cliente de envío"
+
