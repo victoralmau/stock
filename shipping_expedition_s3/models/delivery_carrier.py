@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import api, exceptions, fields, models
 
-import logging
-_logger = logging.getLogger(__name__)
+from odoo import fields, models
+
 
 class DeliveryCarrier(models.Model):
     _inherit = 'delivery.carrier'        
@@ -17,4 +15,3 @@ class DeliveryCarrier(models.Model):
     s3_folder = fields.Char(
         string='S3 Folder'
     )
-                                                                                               

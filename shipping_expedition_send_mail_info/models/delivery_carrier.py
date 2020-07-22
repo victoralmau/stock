@@ -1,10 +1,7 @@
-# -*- coding: utf-8 -*-
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import api, exceptions, fields, models
-from datetime import datetime
 
-import logging
-_logger = logging.getLogger(__name__)
+from odoo import fields, models
+
 
 class DeliveryCarrier(models.Model):
     _inherit = 'delivery.carrier'
@@ -14,5 +11,5 @@ class DeliveryCarrier(models.Model):
     )    
     mail_info_mail_template_id = fields.Many2one(
         comodel_name='mail.template',
-        string='Mail Info Plantilla'
+        string='Mail template'
     )

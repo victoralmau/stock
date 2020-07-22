@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="shipping_expedition_txt_view_delivery_carrier_tree" model="ir.ui.view">
+        <field name="name">shipping_expedition_txt_view_delivery_carrier_tree.tree</field>
+        <field name="model">delivery.carrier</field>
+        <field name="inherit_id" ref="shipping_expedition.shipping_expedition_view_delivery_carrier_form"/>
+        <field name="arch" type="xml">
+            <field name="carrier_type" position="after">
+                <field name="txt_sender_customer" attrs="{'invisible': [('carrier_type', '!=', 'txt')]}" groups="base.group_no_one"/>                
+            </field>
+        </field>
+    </record>
+
+</odoo>

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 from odoo import api, exceptions, fields, models, tools
 from odoo.exceptions import Warning
@@ -20,29 +19,29 @@ class StockPicking(models.Model):
     
     @api.one
     def generate_shipping_expedition(self):
-        #operations
-        if self.carrier_id.carrier_type=='nacex':
+        # operations
+        if self.carrier_id.carrier_type == 'nacex':
             self.generate_shipping_expedition_nacex()
-        #return
+        # return
         return super(StockPicking, self).generate_shipping_expedition()
         
     @api.one
     def generate_shipping_expedition_nacex(self):
-        if self.shipping_expedition_id.id==0 and self.carrier_id.carrier_type=='nacex' and self.partner_id.id>0:
+        if self.shipping_expedition_id.id ==0 and self.carrier_id.carrier_type == 'nacex' and self.partner_id:
             res = self.nacex_ws_putExpedicion()[0]
-            #operations
-            if res['errors']==True:
+            # operations
+            if res['errors']:
                 #logger
                 _logger.info(res)
-                #action_error_create_shipping_expedition_message_slack
+                # action_error_create_shipping_expedition_message_slack
                 self.action_error_create_shipping_expedition_message_slack({
                     'error': res['error']
                 })  
-                #raise
+                # raise
                 raise exceptions.Warning(res['error'])
             else:                             
-                #create
-                shipping_expedition_vals = {
+                # create
+                vals = {
                     'picking_id': self.id,
                     'code': res['return']['result']['expe_codigo'],
                     'delivery_code': res['return']['result']['ag_cod_num_exp'],
@@ -54,74 +53,77 @@ class StockPicking(models.Model):
                     'state_code': 2,                
                 }
                 # url_info
-                if '/' in shipping_expedition_vals['delivery_code']:
-                    delivery_code_split = shipping_expedition_vals['delivery_code'].split("/")
+                if '/' in vals['delivery_code']:
+                    delivery_code_split = vals['delivery_code'].split("/")
                     if len(delivery_code_split) > 1:
-                        shipping_expedition_vals['url_info'] = "http://www.nacex.es/seguimientoDetalle.do?agencia_origen=" + str(delivery_code_split[0]) + "&numero_albaran=" + str(delivery_code_split[1]) + "&estado=4&internacional=0&externo=N&usr=null&pas=null"
+                        vals['url_info'] = "http://www.nacex.es/seguimientoDetalle.do?agencia_origen=%s&numero_albaran=%s&estado=4&internacional=0&externo=N&usr=null&pas=null" % (
+                            delivery_code_split[0],
+                            delivery_code_split[1]
+                        )
                 # create
-                if self.sale_id.user_id.id > 0:
-                    shipping_expedition_obj = self.env['shipping.expedition'].sudo(self.sale_id.user_id.id).create(shipping_expedition_vals)
+                if self.sale_id.user_id:
+                    shipping_expedition_obj = self.env['shipping.expedition'].sudo(self.sale_id.user_id.id).create(vals)
                 else:
                     shipping_expedition_obj = self.env['shipping.expedition'].sudo().create(shipping_expedition_vals)
-                #update
+                # update
                 self.shipping_expedition_id = shipping_expedition_obj.id
-                #Fix
+                # Fix
                 self.action_view_etiqueta_item()
     
     @api.one
     def nacex_ws_putExpedicion(self):
-        #define        
+        # define
         today = datetime.today()
         datetime_body = today.strftime('%d/%m/%Y')
-        #partner_name        
-        if self.partner_id.name==False:
-            partner_name = self.partner_id.parent_id.name 
-        else:
+        # partner_name
+        if self.partner_id.name:
             partner_name = self.partner_id.name
-        # Fix solicitud mal formada
+        else:
+            partner_name = self.partner_id.parent_id.name
+        #  Fix solicitud mal formada
         partner_name = partner_name.replace('&', '')
-        #street2
+        # street2
         obs1 = ''
         obs2 = ''
-        if self.partner_id.street2!=False:
+        if self.partner_id.street2:
             street2_len = len(str(self.partner_id.street2))
-            if(street2_len<=38):
+            if street2_len <= 38:
                 obs1 = self.partner_id.street2
             else:
                 obs1 = self.partner_id.street2[0:38]
                 obs2 = self.partner_id.street2[37:75].replace('&', '')
-        #notes
+        # notes
         obs3 = ''
         obs4 = ''        
-        if self.shipping_expedition_note!=False:
+        if self.shipping_expedition_note:
             shipping_expedition_note_len = len(str(self.shipping_expedition_note))
-            if(shipping_expedition_note_len>1):
-                if(shipping_expedition_note_len<=38):
+            if shipping_expedition_note_len > 1:
+                if shipping_expedition_note_len <= 38:
                     obs3 = self.shipping_expedition_note                                
                 else:
                     obs3 = self.shipping_expedition_note[0:38]
                     obs4 = self.shipping_expedition_note[37:75]
-        #phone        
+        # phone
         partner_picking_phone = ''        
-        if self.partner_id.mobile!=False:
+        if self.partner_id.mobile:
             partner_picking_phone = self.partner_id.mobile
-        elif self.partner_id.phone!=False:
+        elif self.partner_id.phone:
             partner_picking_phone = self.partner_id.phone
-        #tools
+        # tools
         nacex_username = tools.config.get('nacex_username')
         nacex_password = tools.config.get('nacex_password')
-        #tip_ser
+        # tip_ser
         tip_ser = str(self.carrier_id.nacex_tip_ser)
         if self.partner_id.country_id.code not in ['ES', 'PT', 'AD']:
             tip_ser = str(self.carrier_id.nacex_tip_ser_int)
-        #tip_ser (Baleares) 20 - NACEX MALLORCA MARÍTIMO
+        # tip_ser (Baleares) 20 - NACEX MALLORCA MARÍTIMO
         if self.partner_id.country_id.code == 'ES' and self.partner_id.state_id.code == 'PM':
             tip_ser = '20'
-        #tip_env
+        # tip_env
         tip_env = str(self.carrier_id.nacex_tip_env)
         if self.partner_id.country_id.code not in ['ES', 'PT', 'AD']:
             tip_env = str(self.carrier_id.nacex_tip_env_int)
-        #create
+        # create
         url="http://gprs.nacex.com/nacex_ws/soap"
         body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:typ="urn:soap/types">
         		<soapenv:Header/>
@@ -156,37 +158,34 @@ class StockPicking(models.Model):
         				<arrayOfString_3>pob_ent="""+str(self.partner_id.city[0:39])+"""</arrayOfString_3>
         				<arrayOfString_3>tel_ent="""+str(partner_picking_phone)+"""</arrayOfString_3>        				        				
         			"""
-        #con
+        # con
         if self.partner_id.country_id.code not in ['ES', 'PT', 'AD']:
-            #con
+            # con
             con = '' 
             for pack_operation_product_id in self.pack_operation_product_ids:
-                if pack_operation_product_id.product_id.id>0:
+                if pack_operation_product_id.product_id:
                    con += str(pack_operation_product_id.product_id.name)+','
-            #val_dec            
+            # val_dec
             val_dec = "0.0"
-            if self.origin!=False:
-                sale_order_ids = self.env['sale.order'].sudo().search([('name', '=', self.origin)])
-                if len(sale_order_ids)>0:
-                    sale_order_id = sale_order_ids[0]
-                    val_dec = sale_order_id.amount_total
-            #body
+            if self.sale_id:
+                val_dec = sale_id.amount_total
+            # body
             body += """
                         <arrayOfString_3>con="""+str(con[0:80])+"""</arrayOfString_3>
         				<arrayOfString_3>val_dec="""+str(val_dec)+"""</arrayOfString_3>"""
-        #prealerta
-        if self.partner_id.mobile!= False:
+        # prealerta
+        if self.partner_id.mobile:
             body += """
                         <arrayOfString_3>tip_pre1=S</arrayOfString_3>
         				<arrayOfString_3>mod_pre1=S</arrayOfString_3>
         				<arrayOfString_3>pre1="""+str(self.partner_id.mobile)+"""</arrayOfString_3>"""
-        #final
+        # final
         body += """
                     </typ:putExpedicion>
         		</soapenv:Body>
         	</soapenv:Envelope>"""
         b = StringIO.StringIO()
-        #continue
+        # continue
         curl = pycurl.Curl()
         curl.setopt(pycurl.WRITEFUNCTION, b.write)    
         curl.setopt(pycurl.FORBID_REUSE, 1)
@@ -219,7 +218,7 @@ class StockPicking(models.Model):
                     for result in item2.findall('result'):
                         response['return']['results'].append(result.text)
             
-            if response['return']['results'][0]=="ERROR":
+            if response['return']['results'][0] == "ERROR":
                 response['errors'] = True
                 response['error'] = response['return']['results'][1]
             else:                                                                            
@@ -271,13 +270,15 @@ class StockPicking(models.Model):
     
     @api.one
     def view_etiqueta_nacex(self):
-        #tools
-        nacex_username = tools.config.get('nacex_username')
-        nacex_password = tools.config.get('nacex_password')
-        #define        
+        # define
         delivery_code_split = self.shipping_expedition_id.delivery_code.split('/')
-        #url
-        url = "http://gprs.nacex.com/nacex_ws/ws?method=getEtiqueta&user="+str(nacex_username)+"&pass="+str(nacex_password)+"&data=ag="+str(delivery_code_split[0])+"%7Cnumero="+str(delivery_code_split[1])+"%7Cmodelo=IMAGEN_B"                
+        # url
+        url = "http://gprs.nacex.com/nacex_ws/ws?method=getEtiqueta&user=%s&pass=%s&data=ag=%s%7Cnumero=%s%7Cmodelo=IMAGEN_B" % (
+            tools.config.get('nacex_username'),
+            tools.config.get('nacex_password'),
+            delivery_code_split[0],
+            delivery_code_split[1]
+        )
         
         b = StringIO.StringIO()
                     
@@ -301,7 +302,7 @@ class StockPicking(models.Model):
             
             response_curl_split = response_curl.split('|')
             
-            if response_curl_split[0]!="ERROR":
+            if response_curl_split[0] != "ERROR":
                 response['return_real'] = response_curl
                             
                 edits = [('-', '+'), ('_', '/'), ('*', '=')] # etc.
@@ -318,53 +319,54 @@ class StockPicking(models.Model):
                 'error': "No se puede generar la etiqueta de una expedicion que no esta creada todavia",
                 'return_real': "",
             }
-        #return
+        # return
         return response;
     
     @api.one
     def action_view_etiqueta_item(self):
-        if self.shipping_expedition_id.id>0:
+        if self.shipping_expedition_id:
             res = self.view_etiqueta_nacex()[0]
-            if res['errors']==True:
+            if res['errors']:
                 raise exceptions.Warning(res['error'])
             else:
                 delivery_code_split = self.shipping_expedition_id.delivery_code.split('/')
-                #vals
-                ir_attachment_vals = {
+                # vals
+                vals = {
                     'name': delivery_code_split[0]+"-"+delivery_code_split[1]+'.png',
                     'datas': base64.encodestring(res['return']),
                     'datas_fname': delivery_code_split[0]+"-"+delivery_code_split[1]+'.png',
                     'res_model': 'stock.picking',
                     'res_id': self.id
                 }
-                ir_attachment_obj = self.env['ir.attachment'].sudo().create(ir_attachment_vals)
-                #update ir_attachment_id
+                ir_attachment_obj = self.env['ir.attachment'].sudo().create(vals)
+                # update ir_attachment_id
                 self.ir_attachment_id = ir_attachment_obj.id                 
                        
     @api.multi
     def action_view_etiqueta(self, package_ids=None):
         for obj in self:
-            if obj.shipping_expedition_id.id>0:
+            if obj.shipping_expedition_id:
                 obj.action_view_etiqueta_item()                                                                              
     
     @api.multi
     def _get_expedition_image(self):
-        #tools
-        nacex_username = tools.config.get('nacex_username')
-        nacex_password = tools.config.get('nacex_password')
-        #operations
+        # operations
         self.ensure_one()
-        if self.shipping_expedition_id.id>0:                
+        if self.shipping_expedition_id:
             if self.carrier_id.carrier_type == 'nacex':
-                url_image_expedition = 'http://gprs.nacex.com/nacex_ws/ws?method=getEtiqueta&user='+str(nacex_username)+'&pass='+str(nacex_password)+'&data=codexp='+str(self.shipping_expedition_id.code)+'|modelo=IMAGEN'
-                #return url_image_expedition
+                url_image_expedition = 'http://gprs.nacex.com/nacex_ws/ws?method=getEtiqueta&user=%s&pass=%s&data=codexp=%s|modelo=IMAGEN' % (
+                    tools.config.get('nacex_username'),
+                    tools.config.get('nacex_password'),
+                    self.shipping_expedition_id.code
+                )
+                # return url_image_expedition
                 file = cStringIO.StringIO(urllib.urlopen(url_image_expedition).read())
                 img = Image.open(file)
                 return img
                 
     @api.one
     def _get_expedition_image_url_ir_attachment(self):
-        if self.shipping_expedition_id.id>0:                
+        if self.shipping_expedition_id:
             if self.carrier_id.carrier_type == 'nacex':
                 ir_attachment_ids = self.env['ir.attachment'].search(
                     [ 
@@ -374,6 +376,6 @@ class StockPicking(models.Model):
                 )
                 return_url = ''
                 for ir_attachment_id in ir_attachment_ids:
-                    return_url = '/web/image/'+str(ir_attachment_id.id)
+                    return_url = '/web/image/%s' % ir_attachment_id.id
                     
                 return return_url                                                                                        

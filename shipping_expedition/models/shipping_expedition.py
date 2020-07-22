@@ -1,26 +1,14 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+
 from odoo import api, fields, models
 from datetime import datetime
-
-import logging
-_logger = logging.getLogger(__name__)
 
 class ShippingExpedition(models.Model):
     _name = 'shipping.expedition'
     _description = 'Shipping Expedicion'
     _inherit = ['mail.thread']
-    
-    name = fields.Char(        
-        compute='_get_name',
-        string='Name',
-        store=False
-    )
-    
-    @api.one        
-    def _get_name(self):            
-        for obj in self:
-            obj.name = obj.delivery_code
-    
+    _rec_name = 'delivery_code'
+
     picking_id = fields.Many2one(
         comodel_name='stock.picking',
         string='Picking',
@@ -28,7 +16,7 @@ class ShippingExpedition(models.Model):
     )
     order_id = fields.Many2one(
         comodel_name='sale.order',
-        string='Pedido',
+        string='Order',
         related='picking_id.sale_id',
         store=False,
         readonly=True
@@ -62,7 +50,7 @@ class ShippingExpedition(models.Model):
     )
     partner_id = fields.Many2one(
         comodel_name='res.partner',
-        string='Contacto',
+        string='Partner',
         related='picking_id.partner_id',
         store=False,
         readonly=True
@@ -125,7 +113,7 @@ class ShippingExpedition(models.Model):
     def create(self, values):
         record = super(ShippingExpedition, self).create(values)
         # add partner_id follower
-        if record.partner_id.id > 0:
+        if record.partner_id:
             reg = {
                 'res_id': record.id,
                 'res_model': 'shipping.expedition',
@@ -134,7 +122,7 @@ class ShippingExpedition(models.Model):
             }
             self.env['mail.followers'].create(reg)
         # add user_id follower
-        if record.user_id.id > 0:
+        if record.user_id:
             mail_followers_ids_check = self.env['mail.followers'].search(
                 [
                     ('res_model', '=', 'shipping.expedition'),
@@ -151,17 +139,17 @@ class ShippingExpedition(models.Model):
                 }
                 self.env['mail.followers'].create(reg)
         # check remove create uid
-        if record.user_id.id > 0:
-            if record.user_id.id!=record.create_uid.id:
+        if record.user_id:
+            if record.user_id.id != record.create_uid.id:
                 mail_followers_ids = self.env['mail.followers'].search(
                     [
                         ('res_model', '=', 'shipping.expedition'),
                         ('res_id', '=', record.id)
                     ]
                 )
-                if len(mail_followers_ids) > 0:
+                if mail_followers_ids:
                     for mail_follower_id in mail_followers_ids:
-                        if mail_follower_id.partner_id.id==record.create_uid.partner_id.id:
+                        if mail_follower_id.partner_id.id == record.create_uid.partner_id.id:
                             mail_follower_id.sudo().unlink()
         # record
         return record
@@ -177,7 +165,7 @@ class ShippingExpedition(models.Model):
                 ('date', '<', current_date.strftime("%Y-%m-%d"))
             ]
         )
-        if len(shipping_expedition_ids)>0:                
+        if shipping_expedition_ids:
             for shipping_expedition_id in shipping_expedition_ids:
                 shipping_expedition_id.action_update_state()
                 

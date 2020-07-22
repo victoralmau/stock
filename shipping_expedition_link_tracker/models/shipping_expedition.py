@@ -16,7 +16,7 @@ class ShippingExpedition(models.Model):
     def create(self, values):
         return_object = super(ShippingExpedition, self).create(values)
         # operations
-        if return_object.url_info != False:
+        if return_object.url_info:
             return_object.action_generate_shipping_expedition_link_tracker()
         # return
         return return_object
@@ -24,12 +24,12 @@ class ShippingExpedition(models.Model):
     @api.one
     def action_generate_shipping_expedition_link_tracker(self):
         if self.link_tracker_id.id == 0:
-            if self.url_info != False:
-                link_tracker_vals = {
+            if self.url_info:
+                vals = {
                     'title': self.code,
                     'url': self.url_info
                 }
-                link_tracker_obj = self.env['link.tracker'].sudo().create(link_tracker_vals)
+                link_tracker_obj = self.env['link.tracker'].sudo().create(vals)
                 self.link_tracker_id = link_tracker_obj.id
         # return
         return True

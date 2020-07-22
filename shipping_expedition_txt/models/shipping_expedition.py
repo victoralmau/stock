@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 from odoo import api, exceptions, fields, models
 
@@ -84,9 +83,9 @@ class ShippingExpedition(models.Model):
             'ZAMORA': {'phone': '980045035'},
             'ZARAGOZA': {'phone': '976144588'},                                                                                                                                                                                                                                                                                                                                                                                                                       
         }
-        if self.delegation_name!=False and self.delegation_name!="":
+        if self.delegation_name and self.delegation_name != "":
             delegation_name_search = str(self.delegation_name)
-            #stranger_things
+            # stranger_things
             if 'TORRIJOS' in delegation_name_search: 
                 delegation_name_search = 'TORRIJOS'
             elif 'CIUDAD REAL' in delegation_name_search: 
@@ -94,79 +93,79 @@ class ShippingExpedition(models.Model):
             elif 'LEON' in delegation_name_search: 
                 delegation_name_search = 'LEON'
                             
-            if delegation_name_search=='TENERIFE MARITIMO':
+            if delegation_name_search == 'TENERIFE MARITIMO':
                 delegation_name_search = 'SANTA CRUZ DE TENERIFE'                                                                          
                 
             if delegation_name_search in delegations_txt:
                 self.delegation_phone = delegations_txt[delegation_name_search]['phone']
             else:
-                #slack.message
+                # slack.message
                 web_base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')                
                 attachments = [
-                    {                    
-                        "title": 'No se ha encontrado el telefono de TXT para la delegacion *'+str(delegation_name_search)+'*',                        
-                        "color": "#ff0000",                                             
-                        "fallback": "Ver expedicion "+str(web_base_url)+"/web?#id="+str(self.id)+"&view_type=form&model=shipping.expedition",                                    
+                    {
+                        "title": 'No se ha encontrado el telefono de TXT para la delegacion *%s*' % delegation_name_search,
+                        "color": "#ff0000",
+                        "fallback": "Ver expedicion %s/web?#id=%s&view_type=form&model=shipping.expedition" % (web_base_url, self.id),
                         "actions": [
                             {
                                 "type": "button",
                                 "text": "Ver expedicion",
-                                "url": str(web_base_url)+"/web?#id="+str(self.id)+"&view_type=form&model=shipping.expedition"
+                                "url": "%s/web?#id=%s&view_type=form&model=shipping.expedition" % (web_base_url, self.id)
                             }
                         ]                    
                     }
                 ]                
-                slack_message_vals = {
+                vals = {
                     'attachments': attachments,
                     'model': self._inherit,
                     'res_id': self.id,
                     'channel': self.env['ir.config_parameter'].sudo().get_param('slack_arelux_log_almacen_channel'),                                                         
                 }                        
-                slack_message_obj = self.env['slack.message'].sudo().create(slack_message_vals)
+                self.env['slack.message'].sudo().create(vals)
     
     @api.one
     def action_update_state(self):
-        #operations
-        if self.carrier_id.carrier_type=='txt':
+        # operations
+        if self.carrier_id.carrier_type == 'txt':
             self.action_update_state_txt()
-        #return
+        # return
         return super(ShippingExpedition, self).action_update_state()
         
     @api.one
     def action_update_state_txt(self):
         res = self.action_update_state_txt_real()[0]
-        #operations
-        if res['errors']==True:
+        # operations
+        if res['errors']:
             _logger.info(res)  
-            self.action_error_update_state_expedition(res)#Fix error
+            self.action_error_update_state_expedition(res)# Fix error
         else:
-            #fecha_entrega
+            # fecha_entrega
             if 'fecha_entrega' in res['return']:
                 if '/' in res['return']['fecha_entrega']: 
                     fecha_split = res['return']['fecha_entrega'].split('/')
                     self.date = fecha_split[2]+'-'+fecha_split[1]+'-'+fecha_split[0]
-            #num_albaran
+            # num_albaran
             if 'num_albaran' in res['return']:                                 
                 self.code = res['return']['num_albaran']
-            #observaciones
+            # observaciones
             if 'observaciones' in res['return']:                 
                 self.observations = res['return']['observaciones']
-            #destino_expedicion1
+            # destino_expedicion1
             if 'destino_expedicion1' in res['return']:                 
                 self.delegation_name = res['return']['destino_expedicion1']                
                 self.define_delegation_phone_txt()                                
-            #state
+            # state
             state_old = self.state
             state_new = False
             
-            if res['return']['estado_expedicion']=="ENTREGADO":
+            if res['return']['estado_expedicion'] == "ENTREGADO":
                 state_new = "delivered"
-            elif res['return']['estado_expedicion']=="EN REPARTO" or res['return']['estado_expedicion']=="EN TRANSITO":
+            elif res['return']['estado_expedicion'] in ["EN REPARTO", "EN TRANSITO"]:
                 state_new = "in_transit"
-            elif res['return']['estado_expedicion']=="INCIDENCIA" or res['return']['estado_expedicion']=="EN INCIDENCIA":
+            elif res['return']['estado_expedicion'] in ["INCIDENCIA", "EN INCIDENCIA"]:
                 state_new = "incidence"
-            #state update                
-            if state_new!=False and state_new!=state_old:
+            # state update
+            if state_new and state_new != state_old:
                 self.state = state_new
     
     @api.one
@@ -180,7 +179,7 @@ class ShippingExpedition(models.Model):
         page = requests.get(self.url_info)
         soup = BeautifulSoup(page.content, 'html.parser')                        
         estado_expedicion_input = soup.find('input', {'id': 'TxtEstadoExpedicion'})
-        if estado_expedicion_input!=None:
+        if estado_expedicion_input != None:
             response['errors'] = False
             response['return'] = {}            
             response['return']['estado_expedicion'] = estado_expedicion_input.get('value')#Fix
@@ -203,5 +202,5 @@ class ShippingExpedition(models.Model):
         
             if 'num_albaran' not in response['return']:
                 response['errors'] = True
-        #return                                                                                                    
+        # return
         return response                                                                    

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
+
     <record id="cron_shipping_expeditions_update_state" forcecreate="True" model="ir.cron">
         <field name="name">Shipping Expedition Update State</field>
         <field name="active" eval="True"/>
@@ -12,4 +13,5 @@
         <field name="state">code</field>
         <field name="code">model.cron_shipping_expeditions_update_state()</field>
     </record>
+
 </odoo>

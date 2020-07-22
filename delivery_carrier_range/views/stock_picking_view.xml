@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_picking_withcarrier_arelux" model="ir.ui.view">
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="delivery.view_picking_withcarrier_out_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page//field[@name='carrier_id']" position="after">
+                <field name="estimated_cost" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="delivery_carrier_range_action" model="ir.actions.act_window">
+        <field name="name">Ranges</field>
+        <field name="res_model">delivery.carrier.range</field>
+        <field name="view_mode">tree,form</field>                
+    </record>
+
+    <record id="view_delivery_carrier_range_search" model="ir.ui.view">
+        <field name="name">view_delivery_carrier_range_search</field>
+        <field name="model">delivery.carrier.range</field>
+        <field name="arch" type="xml">
+            <search string="Ranges">
+                <group expand="0" name="group_by" string="Agrupar por">
+                    <filter name="group_by_carrier_id" string="Transportista" domain="[]" context="{'group_by' : 'carrier_id'}"/>
+                    <filter name="group_by_country" string="Pais" domain="[]" context="{'group_by' : 'country_id'}"/>
+                    <filter name="group_by_state" string="Provincia" domain="[]" context="{'group_by' : 'state_id'}"/>                       
+               </group>                    
+            </search>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="delivery_carrier_range_tree_view">
+        <field name="name">Delivery Carrier Range Tree</field>
+        <field name="model">delivery.carrier.range</field>
+        <field name="arch" type="xml">
+            <tree string="Ranges">
+                <field name="carrier_id"/>
+                <field name="country_id"/>                    
+                <field name="state_id"/>
+                <field name="weight_range_start"/>
+                <field name="weight_range_end"/>
+                <field name="price"/>                
+            </tree>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="delivery_carrier_range_form_view">
+        <field name="name">Delivery Carrier Range - Form</field>
+        <field name="model">delivery.carrier.range</field>
+        <field name="arch" type="xml">
+            <form string="Ranges">
+                <group>
+                    <field name="carrier_id"/>
+                    <field name="country_id"/>
+                    <field name="state_id" domain="[('country_id', '=', country_id)]"/>
+                    <field name="weight_range_start"/>
+                    <field name="weight_range_end"/>
+                    <field name="price"/>
+                </group>                
+            </form>
+        </field>
+    </record>
+
+    <menuitem id="menuitem_delivery_carrier_range" 
+        name="Price ranges"
+        parent="stock.menu_stock_config_settings"
+        sequence="30" 
+        action="delivery_carrier_range_action"/>      
+</odoo>

@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import api, exceptions, fields, models
+from odoo import api, exceptions, fields, models, _
 from datetime import datetime
 
 import logging
@@ -10,18 +9,23 @@ class ShippingExpedition(models.Model):
     _inherit = 'shipping.expedition'
     
     date_send_mail_info = fields.Datetime(
-        string='Fecha email info' 
+        string='Date send mail info'
     )
     
     @api.one
     def action_send_mail_info_real(self):
-        _logger.info('Enviamos el email respecto a la expedicion ' + str(self.id))
-        mail_compose_message_vals = {                    
+        _logger.info(_('Send email related to shipping_expedition %s') % self.id)
+        vals = {
             'author_id': self.user_id.partner_id.id,
             'record_name': self.name,                                                                                                                                                                                           
         }
-        mail_compose_message_obj = self.env['mail.compose.message'].with_context().sudo().create(mail_compose_message_vals)
-        return_onchange_template_id = mail_compose_message_obj.onchange_template_id(self.carrier_id.mail_info_mail_template_id.id, 'comment', 'shipping.expedition', self.id)                                
+        mail_compose_message_obj = self.env['mail.compose.message'].with_context().sudo().create(vals)
+        res = mail_compose_message_obj.onchange_template_id(
+            self.carrier_id.mail_info_mail_template_id.id,
+            'comment',
+            'shipping.expedition',
+            self.id
+        )
         
         mail_compose_message_obj.update({
             'author_id': mail_compose_message_vals['author_id'],
@@ -29,11 +33,11 @@ class ShippingExpedition(models.Model):
             'composition_mode': 'comment',
             'model': 'shipping.expedition',
             'res_id': self.id,
-            'body': return_onchange_template_id['value']['body'],
-            'subject': return_onchange_template_id['value']['subject'],
-            'email_from': return_onchange_template_id['value']['email_from'],
-            'partner_ids': return_onchange_template_id['value']['partner_ids'],
-            #'attachment_ids': return_onchange_template_id['value']['attachment_ids'],
+            'body': res['value']['body'],
+            'subject': res['value']['subject'],
+            'email_from': res['value']['email_from'],
+            'partner_ids': res['value']['partner_ids'],
+            #'attachment_ids': res['value']['attachment_ids'],
             'record_name': mail_compose_message_vals['record_name'],
             'no_auto_thread': False,                     
         })                                         
@@ -43,18 +47,18 @@ class ShippingExpedition(models.Model):
     @api.one
     def action_send_mail_info(self):
         allow_send = False
-        if self.carrier_id.send_mail_info == True:
-            if self.carrier_id.mail_info_mail_template_id.id > 0:
+        if self.carrier_id.send_mail_info:
+            if self.carrier_id.mail_info_mail_template_id:
                 if self.date_send_mail_info == False:
                     if self.state not in ['error', 'generate', 'canceled', 'delivered', 'incidence']:
-                        if self.partner_id.email != False:
+                        if self.partner_id.email:
                             if self.carrier_id.carrier_type == 'nacex':
                                 allow_send = True
                             else:
-                                if self.delegation_name != False and self.delegation_phone != False:
+                                if self.delegation_name and self.delegation_phone:
                                     allow_send = True
                             # allow_send
-                            if allow_send == True:
+                            if allow_send:
                                 self.action_send_mail_info_real()
             
     @api.model    
@@ -74,7 +78,7 @@ class ShippingExpedition(models.Model):
                 ('picking_id.date_done', '!=', False)
             ]
         )
-        if len(shipping_expedition_ids) > 0:
+        if shipping_expedition_ids:
             for shipping_expedition_id in shipping_expedition_ids:
                 shipping_expedition_id.action_send_mail_info()
         # nacex
@@ -90,6 +94,6 @@ class ShippingExpedition(models.Model):
                 ('picking_id.date_done', '!=', False)
             ]
         )
-        if len(shipping_expedition_ids) > 0:
+        if shipping_expedition_ids:
             for shipping_expedition_id in shipping_expedition_ids:
                 shipping_expedition_id.action_send_mail_info()

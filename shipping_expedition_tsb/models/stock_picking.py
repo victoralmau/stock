@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 from odoo import api, exceptions, fields, models
 
@@ -19,40 +18,40 @@ class StockPicking(models.Model):
     
     @api.one
     def generate_shipping_expedition(self):
-        #operations
-        if self.carrier_id.carrier_type=='tsb':
+        # operations
+        if self.carrier_id.carrier_type == 'tsb':
             self.generate_shipping_expedition_tsb()
-        #return
+        # return
         return super(StockPicking, self).generate_shipping_expedition()
         
     @api.one
     def generate_shipping_expedition_tsb(self):
-        if self.shipping_expedition_id.id==0 and self.carrier_id.carrier_type=='tsb' and self.partner_id.id>0:
+        if self.shipping_expedition_id.id == 0 and self.carrier_id.carrier_type == 'tsb' and self.partner_id:
             res = self.generate_shipping_expedition_tsb_real()[0]
-            #operations
-            if res['errors']==True:
-                #logger
+            # operations
+            if res['errors']:
+                # logger
                 _logger.info(res)
-                #action_error_create_shipping_expedition_message_slack
+                # action_error_create_shipping_expedition_message_slack
                 self.action_error_create_shipping_expedition_message_slack({
                     'error': res['error']
                 })  
-                #raise
+                # raise
                 raise exceptions.Warning(res['error'])
             else:
-                #file_name
+                # file_name
                 file_name = self.name.replace('/','-')+'.txt'
-                #vals
-                ir_attachment_vals = {
+                # vals
+                vals = {
                     'name': file_name,
                     'datas': base64.encodestring(res['txt_line']),
                     'datas_fname': file_name,
                     'res_model': 'stock.picking',
                     'res_id': self.id
                 }
-                ir_attachment_obj = self.env['ir.attachment'].sudo().create(ir_attachment_vals)                             
-                #create
-                shipping_expedition_vals = {
+                ir_attachment_obj = self.env['ir.attachment'].sudo().create(vals)
+                # create
+                vals = {
                     'picking_id': self.id,
                     'code': '',
                     'delivery_code': 'Generado '+str(self.name),
@@ -65,45 +64,45 @@ class StockPicking(models.Model):
                     'ir_attachment_id': ir_attachment_obj.id                
                 }
                 # create
-                if self.sale_id.user_id.id > 0:
-                    shipping_expedition_obj = self.env['shipping.expedition'].sudo(self.sale_id.user_id.id).create(shipping_expedition_vals)
+                if self.sale_id.user_id:
+                    shipping_expedition_obj = self.env['shipping.expedition'].sudo(self.sale_id.user_id.id).create(vals)
                 else:
                     shipping_expedition_obj = self.env['shipping.expedition'].sudo().create(shipping_expedition_vals)
-                #update ir_attachment_id
+                # update ir_attachment_id
                 ir_attachment_obj.write({
                     'res_model': 'shipping.expedition',
                     'res_id': shipping_expedition_obj.id
                 })
-                #update
+                # update
                 self.shipping_expedition_id = shipping_expedition_obj.id
     
     @api.one
     def generate_shipping_expedition_tsb_real(self):
-        #define
+        # define
         today = datetime.today()
         datetime_body = today.strftime('%d/%m/%Y')
         separator_fields = '#'        
-        #partner_name
-        if self.partner_id.name==False:
-            partner_name = self.partner_id.parent_id.name 
-        else:
+        # partner_name
+        if self.partner_id.name:
             partner_name = self.partner_id.name
+        else:
+            partner_name = self.partner_id.parent_id.name
         #partner_phone        
-        if self.partner_id.phone==False:
+        if self.partner_id.phone:
+            partner_phone = self.partner_id.phone
+        else:
             partner_phone = ''
-        else:
-            partner_phone = self.partner_id.phone    
         #email
-        if self.partner_id.email==False:
-            partner_email = ''
-        else:
+        if self.partner_id.email:
             partner_email = self.partner_id.email
-        #shipping_expedition_note    
-        if self.shipping_expedition_note==False:
-            observations = ''
         else:
+            partner_email = ''
+        #shipping_expedition_note    
+        if self.shipping_expedition_note:
             observations = self.shipping_expedition_note
-        #txt_fields    
+        else:
+            observations = ''
+        # txt_fields
         txt_fields = [
             {
                 'type': 'customer_reference',
@@ -288,7 +287,6 @@ class StockPicking(models.Model):
             },
             {
                 'type': 'tk_mail',
-                'value': '',
                 'value': str(partner_email),
                 'size': 250,
             },
@@ -308,29 +306,29 @@ class StockPicking(models.Model):
         for txt_field in txt_fields:                    
             txt_line = txt_line + str(txt_field['value'])+separator_fields
                 
-        txt_line = txt_line[:-1]#fix remove last character
-        txt_line = txt_line + '\r\n'#fix new line
-        #error prev
+        txt_line = txt_line[:-1]# fix remove last character
+        txt_line = txt_line + '\r\n'# fix new line
+        # error prev
         response = {
             'errors': True, 
             'error': "", 
             'return': "",
             'txt_line': txt_line
         }                                
-        #open file for reading
+        # open file for reading
         picking_name_replace = self.name.replace("/", "-")
         file_name_real = str(picking_name_replace)+'.txt'
         file_name = os.path.dirname(os.path.abspath(__file__))+'/'+str(self.carrier_id.type)+'/'+file_name_real
-        #folder_name
+        # folder_name
         folder_name = str(os.path.abspath(__file__))
         folder_name = folder_name.replace('/models/stock_picking.py', '/'+str(self.carrier_id.carrier_type))
         file_name_real = str(folder_name)+'/'+str(file_name_real)                     
-        #check if exists line
+        # check if exists line
         line_exist_in_file = False
         if os.path.isfile(file_name_real):
             line_exist_in_file=True                        
         #continue line_exist_in_file
-        if line_exist_in_file==False:
+        if line_exist_in_file == False:
             fh = open(file_name,'a')# if file does not exist, create it                            
             fh.write(txt_line)
             fh.close()
@@ -349,12 +347,12 @@ class StockPicking(models.Model):
                     'return': "",
                 }
                 return response
-            #remove              
+            # remove
             ftp.cwd(self.carrier_id.tsb_ftp_directory_upload)
             f_h = open(file_name,'rb')
             ftp.storbinary('STOR ' + file_name_real, f_h)  
             ftp.quit()
-            #change return and generate shipping_expedition
+            # change return and generate shipping_expedition
             response['errors'] = False                      
         else:
             response = {

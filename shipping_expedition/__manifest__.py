@@ -1,22 +1,28 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+
 {
-    'name': 'Shipping expedition',
-    'version': '12.0.1.0.0',    
-    'author': 'Odoo Nodriza Tech (ONT)',
-    'website': 'https://nodrizatech.com/',
-    'category': 'Delivery',
-    'license': 'AGPL-3',
-    'depends': ['base', 'delivery', 'stock', 'cashondelivery', 'sale_stock'],
-    'data': [
-        'data/ir_cron.xml',
-        'views/delivery_carrier.xml',
-        'views/shipping_expedition.xml',
-        'views/res_partner.xml',
-        'views/crm_lead.xml',
-        'views/sale_order.xml',
-        'views/stock_picking.xml',
-        'security/ir.model.access.csv',
+    "name": "Shipping expedition",
+    "version": "12.0.1.0.0",
+    "author": "Odoo Nodriza Tech (ONT)",
+    "website": "https://nodrizatech.com/",
+    "category": "Delivery",
+    "license": "AGPL-3",
+    "depends": [
+        "base",
+        "delivery",
+        "stock",
+        "cashondelivery",
+        "sale_stock"
     ],
-    'installable': True,
-    'auto_install': False,
+    "data": [
+        "data/ir_cron.xml",
+        "views/delivery_carrier_view.xml",
+        "views/shipping_expedition_view.xml",
+        "views/res_partner_view.xml",
+        "views/crm_lead_view.xml",
+        "views/sale_order_view.xml",
+        "views/stock_picking_view.xml",
+        "security/ir.model.access.csv",
+    ],
+    "installable": True
 }

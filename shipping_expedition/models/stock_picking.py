@@ -1,8 +1,7 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+
 from odoo import api, fields, models
 
-import logging
-_logger = logging.getLogger(__name__)
                     
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
@@ -39,11 +38,11 @@ class StockPicking(models.Model):
     @api.multi
     def action_cancel(self):
         return_action_cancel = super(StockPicking, self).action_cancel()
-        #operations
+        # operations
         for obj in self:
-            if obj.shipping_expedition_id.id > 0:
+            if obj.shipping_expedition_id:
                 obj.shipping_expedition_id.state = 'canceled'
-        #return
+        # return
         return return_action_cancel
 
     @api.multi

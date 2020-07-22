@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="shipping_expedition_s3_view_delivery_carrier_tree" model="ir.ui.view">
+        <field name="name">shipping_expedition_s3_view_delivery_carrier_tree.tree</field>
+        <field name="model">delivery.carrier</field>
+        <field name="inherit_id" ref="shipping_expedition.shipping_expedition_view_delivery_carrier_form"/>
+        <field name="arch" type="xml">
+            <field name="carrier_type" position="after">
+                <field name="s3_upload" attrs="{'invisible': [('carrier_type', 'not in', ('cbl', 'nacex', 'tsb', 'txt'))]}" groups="base.group_no_one"/>
+                <field name="s3_bucket" attrs="{'invisible': [('s3_upload', '=', False)]}"/>
+                <field name="s3_folder" attrs="{'invisible': [('s3_upload', '=', False)]}"/>                
+            </field>
+        </field>
+    </record>
+
+</odoo>

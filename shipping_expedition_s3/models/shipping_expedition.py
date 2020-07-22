@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import api, exceptions, fields, models
+from odoo import api, exceptions, fields, models, _
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -14,17 +13,17 @@ class ShippingExpedition(models.Model):
             
     @api.model
     def create(self, values):                            
-        #create            
+        # create
         return_object = super(ShippingExpedition, self).create(values)
-        #operations
-        if return_object.carrier_id.s3_upload==True:            
+        # operations
+        if return_object.carrier_id.s3_upload:
             return_object.upload_file_to_s3()
-        #return                      
+        # return
         return return_object
         
     @api.one
     def upload_file_to_s3(self):
-        if self.carrier_id.s3_upload == True:
+        if self.carrier_id.s3_upload:
             # open file for reading
             picking_name_replace = self.picking_id.name.replace("/", "-")
             file_name_real = str(picking_name_replace) + '.txt'
@@ -61,9 +60,12 @@ class ShippingExpedition(models.Model):
                 if upload_to_s3 == True:
                     os.remove(source_path)
                     # return_url_s3
-                    url_s3 = "https://s3-" + str(AWS_REGION_NAME) + ".amazonaws.com/%s/%s" % (
-                    AWS_BUCKET_NAME, destination_filename)
+                    url_s3 = "https://s3-%s.amazonaws.com/%s/%s" % (
+                        AWS_REGION_NAME,
+                        AWS_BUCKET_NAME,
+                        destination_filename
+                    )
                 else:
-                    _logger.info("Error al copiar el archivo en S3")
+                    _logger.info(_('Error copying file to S3'))
             else:
-                _logger.info("MUY RARO, el archivo no existe ("+str(file_name_final)+')')
+                _logger.info(_('VERY STRANGE, file does not exist (%s)') % file_name_final)

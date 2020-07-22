@@ -1,10 +1,7 @@
-# -*- coding: utf-8 -*-
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import api, exceptions, fields, models
-from datetime import datetime
 
-import logging
-_logger = logging.getLogger(__name__)
+from odoo import api, models
+
 
 class ShippingExpedition(models.Model):
     _inherit = 'shipping.expedition'
@@ -29,7 +26,7 @@ class ShippingExpedition(models.Model):
                 ('partner_id.mobile_code_res_country_id', '!=', False),
             ]
         )
-        if len(shipping_expedition_ids) > 0:
+        if shipping_expedition_ids:
             for shipping_expedition_id in shipping_expedition_ids:
                 shipping_expedition_id.action_send_sms_info()
         # nacex
@@ -44,6 +41,6 @@ class ShippingExpedition(models.Model):
                 ('partner_id.mobile_code_res_country_id', '!=', False),
             ]
         )
-        if len(shipping_expedition_ids) > 0:
+        if shipping_expedition_ids:
             for shipping_expedition_id in shipping_expedition_ids:
                 shipping_expedition_id.action_send_sms_info()

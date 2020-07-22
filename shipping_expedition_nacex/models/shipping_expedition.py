@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 from odoo import api, exceptions, fields, models, tools
 from odoo.exceptions import Warning
@@ -18,59 +17,63 @@ class ShippingExpedition(models.Model):
     
     @api.one
     def action_update_state(self):
-        #operations
-        if self.carrier_id.carrier_type=='nacex':
+        # operations
+        if self.carrier_id.carrier_type == 'nacex':
             self.action_update_state_nacex()
-        #return
+        # return
         return super(ShippingExpedition, self).action_update_state()
         
     @api.one
     def action_update_state_nacex(self):
-        if self.delivery_code!=False:
+        if self.delivery_code:
             res = self.nacex_ws_getEstadoExpedicion()[0]
-            #operations
-            if res['errors']==True:
+            # operations
+            if res['errors']:
                 _logger.info(res)
-                self.action_error_update_state_expedition(res)#Fix error
+                self.action_error_update_state_expedition(res)# Fix error
             else:
-                #other_fields
+                # other_fields
                 fecha_split = res['return']['result']['fecha'].split('/')
                 self.date = fecha_split[2]+'-'+fecha_split[1]+'-'+fecha_split[0]
                 self.hour = res['return']['result']['hora']
                 self.observations = res['return']['result']['observaciones']
                 self.state_code = res['return']['result']['estado_code']
-                #state
+                # state
                 state_old = self.state
                 state_new = False
                                                           
-                if res['return']['result']['estado']=="ERROR" or res['return']['result']['estado_code']==18:
+                if res['return']['result']['estado'] == "ERROR" or res['return']['result']['estado_code'] == 18:
                     state_new = "error"                         
-                elif res['return']['result']['estado']=="INCIDENCIA" or res['return']['result']['estado_code']==9 or res['return']['result']['estado_code']==17 or res['return']['result']['estado_code']==13:
+                elif res['return']['result']['estado'] == "INCIDENCIA" or res['return']['result']['estado_code'] in [9,13,17]:
                     state_new = "incidence"                
-                elif res['return']['result']['estado_code']==1 or res['return']['result']['estado_code']==11 or res['return']['result']['estado_code']==12 or res['return']['result']['estado_code']==15:
+                elif res['return']['result']['estado_code'] in [1, 11, 12, 15]:
                     state_new = "shipped"                
-                elif res['return']['result']['estado_code']==2 or res['return']['result']['estado_code']==3 or res['return']['result']['estado']=="REPARTO" or res['return']['result']['estado']=="TRANSITO":
+                elif res['return']['result']['estado_code'] in [2, 3] or res['return']['result']['estado'] in ["REPARTO", "TRANSITO"]:
                     state_new = "in_transit"                
-                elif res['return']['result']['estado']=="DELEGACION" or res['return']['result']['estado_code']==16:
+                elif res['return']['result']['estado'] == "DELEGACION" or res['return']['result']['estado_code'] == 16:
                     state_new = "in_delegation"                                                
-                elif res['return']['result']['estado_code']==4 or res['return']['result']['estado']=="ENTREGADO" or res['return']['result']['estado']=="OK" or res['return']['result']['estado']=="SOL SIN OK":
+                elif res['return']['result']['estado_code'] == 4 or res['return']['result']['estado'] in ["ENTREGADO", "OK", "SOL SIN OK"]:
                     state_new = "delivered"                   
-                elif res['return']['result']['estado']=="ANULADA":
+                elif res['return']['result']['estado'] == "ANULADA":
                     state_new = "canceled"
                         
-                if state_new!=False and state_new!=state_old:
+                if state_new and state_new != state_old:
                     self.state = state_new                    
     
     @api.one
     def nacex_ws_getEstadoExpedicion(self):
-        
-        #tools
+        # tools
         nacex_username = tools.config.get('nacex_username')
         nacex_password = tools.config.get('nacex_password')
-        #define
+        # define
         delivery_code_split = self.delivery_code.split('/')
-        #url
-        url = "http://gprs.nacex.com/nacex_ws/ws?method=getEstadoExpedicion&&user="+str(nacex_username)+"&pass="+str(nacex_password)+"&data=origen="+str(delivery_code_split[0])+"%7Calbaran="+str(delivery_code_split[1])                
+        # url
+        url = "http://gprs.nacex.com/nacex_ws/ws?method=getEstadoExpedicion&&user=%s&pass=%s&data=origen=%s%7Calbaran=%s" % (
+            nacex_username,
+            nacex_password,
+            delivery_code_split[0],
+            delivery_code_split[1]
+        )
         
         b = StringIO.StringIO()
                     
@@ -95,7 +98,7 @@ class ShippingExpedition(models.Model):
             response_curl = b.getvalue()
             response_curl_split = response_curl.split('|')
             
-            if response_curl_split[0]=="ERROR":
+            if response_curl_split[0] == "ERROR":
                 response['errors'] = True                
             else:                
                 response['return'] = {
@@ -115,5 +118,5 @@ class ShippingExpedition(models.Model):
             response['error'] = b.getvalue()
             _logger.info('Response KO')            
             _logger.info(pycurl.RESPONSE_CODE)        
-        #return                                            
+        # return
         return response

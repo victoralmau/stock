@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="shipping_expedition_tsb_view_delivery_carrier_tree" model="ir.ui.view">
+        <field name="name">shipping_expedition_tsb_view_delivery_carrier_tree.tree</field>
+        <field name="model">delivery.carrier</field>
+        <field name="inherit_id" ref="shipping_expedition.shipping_expedition_view_delivery_carrier_form"/>
+        <field name="arch" type="xml">
+            <field name="carrier_type" position="after">
+                <field name="tsb_sender_customer" attrs="{'invisible': [('carrier_type', '!=', 'tsb')]}" groups="base.group_no_one"/>
+                <field name="tsb_ftp_host" attrs="{'invisible': [('carrier_type', '!=', 'tsb')]}" groups="base.group_no_one"/>
+                <field name="tsb_ftp_user" attrs="{'invisible': [('carrier_type', '!=', 'tsb')]}" groups="base.group_no_one"/>
+                <field name="tsb_ftp_password" attrs="{'invisible': [('carrier_type', '!=', 'tsb')]}" groups="base.group_no_one"/>
+                <field name="tsb_ftp_directory_upload" attrs="{'invisible': [('carrier_type', '!=', 'tsb')]}" groups="base.group_no_one"/>
+                <field name="tsb_ftp_directory_download" attrs="{'invisible': [('carrier_type', '!=', 'tsb')]}" groups="base.group_no_one"/>                
+            </field>
+        </field>
+    </record>
+
+</odoo>
