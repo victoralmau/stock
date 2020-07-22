@@ -1,0 +1,29 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* stock_pickings_do_new_transfer
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 12.0-20200601\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-07-22 10:49+0000\n"
+"PO-Revision-Date: 2020-07-22 10:49+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: stock_pickings_do_new_transfer
+#: model:ir.actions.server,name:stock_pickings_do_new_transfer.cron_stock_pickings_do_new_transfer_ir_actions_server
+#: model:ir.cron,cron_name:stock_pickings_do_new_transfer.cron_stock_pickings_do_new_transfer
+#: model:ir.cron,name:stock_pickings_do_new_transfer.cron_stock_pickings_do_new_transfer
+msgid "Stock Pickings Do New Transfer"
+msgstr ""
+
+#. module: stock_pickings_do_new_transfer
+#: model:ir.model,name:stock_pickings_do_new_transfer.model_stock_picking
+msgid "Transfer"
+msgstr ""
+
