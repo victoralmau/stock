@@ -45,7 +45,7 @@ class ShippingExpedition(models.Model):
                 values[input_field['id']] = ''
         
         if 'WebCUI_usuario' in values:
-            values['WebCUI_usuario'] = '500506010'
+            values['WebCUI_usuario'] = self.carrier_id.cbl_sender_customer
             response['errors'] = False
             response['error'] = ''
             response['return'] = {}
