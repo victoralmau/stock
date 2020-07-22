@@ -1,0 +1,56 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* shipping_expedition_s3
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 12.0-20200601\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-07-22 10:41+0000\n"
+"PO-Revision-Date: 2020-07-22 10:41+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: shipping_expedition_s3
+#: model:ir.model,name:shipping_expedition_s3.model_delivery_carrier
+msgid "Delivery Methods"
+msgstr ""
+
+#. module: shipping_expedition_s3
+#: code:addons/shipping_expedition_s3/models/shipping_expedition.py:69
+#: code:addonsOdooNodrizaTech/stock/12.0/shipping_expedition_s3/models/shipping_expedition.py:69
+#, python-format
+msgid "Error copying file to S3"
+msgstr ""
+
+#. module: shipping_expedition_s3
+#: model:ir.model.fields,field_description:shipping_expedition_s3.field_delivery_carrier__s3_bucket
+msgid "S3 Bucket"
+msgstr ""
+
+#. module: shipping_expedition_s3
+#: model:ir.model.fields,field_description:shipping_expedition_s3.field_delivery_carrier__s3_folder
+msgid "S3 Folder"
+msgstr ""
+
+#. module: shipping_expedition_s3
+#: model:ir.model.fields,field_description:shipping_expedition_s3.field_delivery_carrier__s3_upload
+msgid "S3 Upload"
+msgstr ""
+
+#. module: shipping_expedition_s3
+#: model:ir.model,name:shipping_expedition_s3.model_shipping_expedition
+msgid "Shipping Expedicion"
+msgstr ""
+
+#. module: shipping_expedition_s3
+#: code:addons/shipping_expedition_s3/models/shipping_expedition.py:71
+#: code:addonsOdooNodrizaTech/stock/12.0/shipping_expedition_s3/models/shipping_expedition.py:71
+#, python-format
+msgid "VERY STRANGE, file does not exist (%s)"
+msgstr ""
+
