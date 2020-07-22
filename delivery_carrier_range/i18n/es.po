@@ -1,0 +1,137 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* delivery_carrier_range
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 12.0-20200601\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-07-22 10:37+0000\n"
+"PO-Revision-Date: 2020-07-22 10:37+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: delivery_carrier_range
+#: model_terms:ir.ui.view,arch_db:delivery_carrier_range.view_delivery_carrier_range_search
+msgid "Agrupar por"
+msgstr ""
+
+#. module: delivery_carrier_range
+#: model:ir.model.fields,field_description:delivery_carrier_range.field_delivery_carrier_range__carrier_id
+#: model:ir.model.fields,field_description:delivery_carrier_range.field_product_product__carrier_id
+#: model:ir.model.fields,field_description:delivery_carrier_range.field_product_template__carrier_id
+msgid "Carrier"
+msgstr "Transportista"
+
+#. module: delivery_carrier_range
+#: model:ir.model.fields,field_description:delivery_carrier_range.field_delivery_carrier_range__country_id
+msgid "Country"
+msgstr "País"
+
+#. module: delivery_carrier_range
+#: model:ir.model.fields,field_description:delivery_carrier_range.field_delivery_carrier_range__state_id
+msgid "Country state"
+msgstr "Provincia"
+
+#. module: delivery_carrier_range
+#: model:ir.model.fields,field_description:delivery_carrier_range.field_delivery_carrier_range__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: delivery_carrier_range
+#: model:ir.model.fields,field_description:delivery_carrier_range.field_delivery_carrier_range__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: delivery_carrier_range
+#: model:ir.model,name:delivery_carrier_range.model_delivery_carrier_range
+msgid "Delivery Carrier Range"
+msgstr ""
+
+#. module: delivery_carrier_range
+#: model:ir.model.fields,field_description:delivery_carrier_range.field_delivery_carrier_range__display_name
+msgid "Display Name"
+msgstr "Nombre mostrado"
+
+#. module: delivery_carrier_range
+#: model:ir.model.fields,field_description:delivery_carrier_range.field_stock_picking__estimated_cost
+msgid "Estimated cost"
+msgstr "Coste estimado"
+
+#. module: delivery_carrier_range
+#: model:ir.model.fields,field_description:delivery_carrier_range.field_delivery_carrier_range__id
+msgid "ID"
+msgstr ""
+
+#. module: delivery_carrier_range
+#: model:ir.model.fields,field_description:delivery_carrier_range.field_delivery_carrier_range____last_update
+msgid "Last Modified on"
+msgstr "Última modificación en"
+
+#. module: delivery_carrier_range
+#: model:ir.model.fields,field_description:delivery_carrier_range.field_delivery_carrier_range__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: delivery_carrier_range
+#: model:ir.model.fields,field_description:delivery_carrier_range.field_delivery_carrier_range__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: delivery_carrier_range
+#: model_terms:ir.ui.view,arch_db:delivery_carrier_range.view_delivery_carrier_range_search
+msgid "Pais"
+msgstr "País"
+
+#. module: delivery_carrier_range
+#: model:ir.model.fields,field_description:delivery_carrier_range.field_delivery_carrier_range__price
+msgid "Price"
+msgstr "Precio"
+
+#. module: delivery_carrier_range
+#: model:ir.ui.menu,name:delivery_carrier_range.menuitem_delivery_carrier_range
+msgid "Price ranges"
+msgstr "Rango de precios"
+
+#. module: delivery_carrier_range
+#: model:ir.model,name:delivery_carrier_range.model_product_template
+msgid "Product Template"
+msgstr "Plantilla de producto"
+
+#. module: delivery_carrier_range
+#: model_terms:ir.ui.view,arch_db:delivery_carrier_range.view_delivery_carrier_range_search
+msgid "Provincia"
+msgstr ""
+
+#. module: delivery_carrier_range
+#: model:ir.model.fields,field_description:delivery_carrier_range.field_delivery_carrier_range__weight_range_end
+msgid "Range end"
+msgstr "Rango final"
+
+#. module: delivery_carrier_range
+#: model:ir.model.fields,field_description:delivery_carrier_range.field_delivery_carrier_range__weight_range_start
+msgid "Range start"
+msgstr "Rango inicial"
+
+#. module: delivery_carrier_range
+#: model:ir.actions.act_window,name:delivery_carrier_range.delivery_carrier_range_action
+#: model_terms:ir.ui.view,arch_db:delivery_carrier_range.delivery_carrier_range_form_view
+#: model_terms:ir.ui.view,arch_db:delivery_carrier_range.delivery_carrier_range_tree_view
+#: model_terms:ir.ui.view,arch_db:delivery_carrier_range.view_delivery_carrier_range_search
+msgid "Ranges"
+msgstr "Rangos"
+
+#. module: delivery_carrier_range
+#: model:ir.model,name:delivery_carrier_range.model_stock_picking
+msgid "Transfer"
+msgstr "Albarán"
+
+#. module: delivery_carrier_range
+#: model_terms:ir.ui.view,arch_db:delivery_carrier_range.view_delivery_carrier_range_search
+msgid "Transportista"
+msgstr ""
+
