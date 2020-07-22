@@ -1,0 +1,223 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* shipping_expedition_nacex
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 12.0-20200601\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-07-22 10:55+0000\n"
+"PO-Revision-Date: 2020-07-22 10:55+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: shipping_expedition_nacex
+#: selection:delivery.carrier,nacex_tip_env:0
+msgid "0 - DOCS"
+msgstr ""
+
+#. module: shipping_expedition_nacex
+#: selection:delivery.carrier,nacex_tip_ser:0
+msgid "02 - NACEX 12:00H"
+msgstr ""
+
+#. module: shipping_expedition_nacex
+#: selection:delivery.carrier,nacex_tip_ser:0
+msgid "04 - PLUS BAG"
+msgstr ""
+
+#. module: shipping_expedition_nacex
+#: selection:delivery.carrier,nacex_tip_ser:0
+msgid "08 - NACEX 19:00H"
+msgstr ""
+
+#. module: shipping_expedition_nacex
+#: selection:delivery.carrier,nacex_tip_ser:0
+msgid "09 - PUENTE URBANO"
+msgstr ""
+
+#. module: shipping_expedition_nacex
+#: selection:delivery.carrier,nacex_tip_env:0
+msgid "1 - BAG"
+msgstr ""
+
+#. module: shipping_expedition_nacex
+#: selection:delivery.carrier,nacex_tip_ser:0
+msgid "11 - NACEX 08:30H"
+msgstr ""
+
+#. module: shipping_expedition_nacex
+#: selection:delivery.carrier,nacex_tip_env:0
+msgid "2 - PAQ"
+msgstr ""
+
+#. module: shipping_expedition_nacex
+#: selection:delivery.carrier,nacex_tip_ser:0
+msgid "20 - NACEX MALLORCA MARÍTIMO"
+msgstr ""
+
+#. module: shipping_expedition_nacex
+#: selection:delivery.carrier,nacex_tip_ser:0
+msgid "21 - NACEX SABADO"
+msgstr ""
+
+#. module: shipping_expedition_nacex
+#: selection:delivery.carrier,nacex_tip_ser:0
+msgid "26 - PLUS PACK"
+msgstr ""
+
+#. module: shipping_expedition_nacex
+#: selection:delivery.carrier,nacex_tip_ser:0
+msgid "27 - E-NACEX"
+msgstr ""
+
+#. module: shipping_expedition_nacex
+#: selection:delivery.carrier,nacex_tip_cob:0
+msgid "D -  Destino"
+msgstr ""
+
+#. module: shipping_expedition_nacex
+#: selection:delivery.carrier,nacex_tip_env_int:0
+msgid "D - Documentos"
+msgstr ""
+
+#. module: shipping_expedition_nacex
+#: model:ir.model.fields,field_description:shipping_expedition_nacex.field_delivery_carrier__nacex_del_cli
+msgid "Delegacion cliente"
+msgstr "Delegación cliente"
+
+#. module: shipping_expedition_nacex
+#: model:ir.model,name:shipping_expedition_nacex.model_delivery_carrier
+msgid "Delivery Methods"
+msgstr "Método de envío"
+
+#. module: shipping_expedition_nacex
+#: model:ir.model.fields,field_description:shipping_expedition_nacex.field_delivery_carrier__nacex_dep_cli
+msgid "Departamento cliente"
+msgstr ""
+
+#. module: shipping_expedition_nacex
+#: selection:delivery.carrier,nacex_tip_ser_int:0
+msgid "E - EURONACEX TERRESTRE"
+msgstr ""
+
+#. module: shipping_expedition_nacex
+#: model:ir.actions.report,name:shipping_expedition_nacex.action_shipping_expedition_nacex
+msgid "Expedicion Nacex"
+msgstr "Expedición Nacex"
+
+#. module: shipping_expedition_nacex
+#: selection:delivery.carrier,nacex_tip_ser_int:0
+msgid "F - SERVICIO AEREO"
+msgstr ""
+
+#. module: shipping_expedition_nacex
+#: selection:delivery.carrier,nacex_tip_ser_int:0
+msgid "G - EURONACEX ECONOMY"
+msgstr ""
+
+#. module: shipping_expedition_nacex
+#: selection:delivery.carrier,nacex_tip_ser_int:0
+msgid "H - PLUSPACK EUROPA"
+msgstr ""
+
+#. module: shipping_expedition_nacex
+#: selection:delivery.carrier,nacex_tip_env_int:0
+msgid "M - Muestras"
+msgstr ""
+
+#. module: shipping_expedition_nacex
+#: model:ir.model.fields,field_description:shipping_expedition_nacex.field_delivery_carrier__nacex_print_et
+msgid "Modelo etiquetadora"
+msgstr ""
+
+#. module: shipping_expedition_nacex
+#: model:ir.model.fields,field_description:shipping_expedition_nacex.field_delivery_carrier__nacex_print_model
+msgid "Modelo impresora"
+msgstr ""
+
+#. module: shipping_expedition_nacex
+#: model_terms:ir.ui.view,arch_db:shipping_expedition_nacex.shipping_expedition_nacex_view_picking_internal_search
+#: model_terms:ir.ui.view,arch_db:shipping_expedition_nacex.shipping_expedition_nacex_view_shipping_expedition_search
+msgid "NACEX"
+msgstr ""
+
+#. module: shipping_expedition_nacex
+#: model:ir.model.fields,field_description:shipping_expedition_nacex.field_delivery_carrier__nacex_num_cli
+msgid "Numero cliente"
+msgstr "Número cliente"
+
+#. module: shipping_expedition_nacex
+#: selection:delivery.carrier,nacex_tip_cob:0
+msgid "O - Origen"
+msgstr ""
+
+#. module: shipping_expedition_nacex
+#: model:ir.model,name:shipping_expedition_nacex.model_shipping_expedition
+msgid "Shipping Expedicion"
+msgstr ""
+
+#. module: shipping_expedition_nacex
+#: selection:delivery.carrier,nacex_tip_cob:0
+msgid "T - Tercera"
+msgstr ""
+
+#. module: shipping_expedition_nacex
+#: model:ir.model.fields,field_description:shipping_expedition_nacex.field_delivery_carrier__nacex_tip_cob
+msgid "Tipo cobro"
+msgstr ""
+
+#. module: shipping_expedition_nacex
+#: model:ir.model.fields,help:shipping_expedition_nacex.field_delivery_carrier__nacex_tip_env
+msgid "Tipo de envio que se aplica para: España, Portugal y Andorra"
+msgstr "Tipo de envío que se aplica para: España, Portugal y Andorra"
+
+#. module: shipping_expedition_nacex
+#: model:ir.model.fields,help:shipping_expedition_nacex.field_delivery_carrier__nacex_tip_env_int
+msgid "Tipo de envio que se aplicara para el resto de paises salvo: España, Portugal y Andorra"
+msgstr "Tipo de envío que se aplicara para el resto de países salvo: España, Portugal y Andorra"
+
+#. module: shipping_expedition_nacex
+#: model:ir.model.fields,help:shipping_expedition_nacex.field_delivery_carrier__nacex_tip_ser
+msgid "Tipo de servicio que se aplica para: España, Portugal y Andorra"
+msgstr ""
+
+#. module: shipping_expedition_nacex
+#: model:ir.model.fields,help:shipping_expedition_nacex.field_delivery_carrier__nacex_tip_ser_int
+msgid "Tipo de servicio que se aplicara para el resto de paises salvo: España, Portugal y Andorra"
+msgstr "Tipo de servicio que se aplicara para el resto de países salvo: España, Portugal y Andorra"
+
+#. module: shipping_expedition_nacex
+#: model:ir.model.fields,field_description:shipping_expedition_nacex.field_delivery_carrier__nacex_tip_env
+msgid "Tipo envio"
+msgstr "Tipo envío"
+
+#. module: shipping_expedition_nacex
+#: model:ir.model.fields,field_description:shipping_expedition_nacex.field_delivery_carrier__nacex_tip_env_int
+msgid "Tipo envio internacional"
+msgstr "Tipo envío internacional"
+
+#. module: shipping_expedition_nacex
+#: model:ir.model.fields,field_description:shipping_expedition_nacex.field_delivery_carrier__nacex_tip_ser
+msgid "Tipo servicio"
+msgstr ""
+
+#. module: shipping_expedition_nacex
+#: model:ir.model.fields,field_description:shipping_expedition_nacex.field_delivery_carrier__nacex_tip_ser_int
+msgid "Tipo servicio internacional"
+msgstr ""
+
+#. module: shipping_expedition_nacex
+#: model:ir.model,name:shipping_expedition_nacex.model_stock_picking
+msgid "Transfer"
+msgstr "Albarán"
+
+#. module: shipping_expedition_nacex
+#: model_terms:ir.ui.view,arch_db:shipping_expedition_nacex.shipping_expedition_nacex_view_picking_withcarrier_out_form
+msgid "Ver etiqueta"
+msgstr ""
+
