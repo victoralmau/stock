@@ -1,5 +1,4 @@
 [![Build Status](https://travis-ci.org/OdooNodrizaTech/stock.svg?branch=12.0)](https://travis-ci.org/OdooNodrizaTech/stock)
-[![Coverage Status](https://coveralls.io/repos/OdooNodrizaTech/stock/badge.svg?branch=12.0)](https://coveralls.io/r/OdooNodrizaTech/stock?branch=12.0)
 
 picking
 =========
