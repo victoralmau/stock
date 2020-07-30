@@ -6,7 +6,7 @@ from odoo import api, models
 class ShippingExpedition(models.Model):
     _inherit = 'shipping.expedition'
 
-    @api.one
+    @api.multi
     def action_send_sms_info(self):
         return super(ShippingExpedition, self).action_send_sms_info()
     

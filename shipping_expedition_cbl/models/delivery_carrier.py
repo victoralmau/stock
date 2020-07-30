@@ -8,4 +8,4 @@ class DeliveryCarrier(models.Model):
 
     cbl_sender_customer = fields.Char(
         string='Cbl sender customer'
-    )                                                                                               
+    )

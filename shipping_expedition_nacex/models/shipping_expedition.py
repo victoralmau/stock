@@ -7,34 +7,40 @@ from io import StringIO
 import xml.etree.ElementTree as ET
 
 import logging
-_logger = logging.getLogger(__name__)
-
 import base64
 import sys
+_logger = logging.getLogger(__name__)
+
 
 class ShippingExpedition(models.Model):
     _inherit = 'shipping.expedition'
-    
-    @api.one
+
+    @api.multi
     def action_update_state(self):
         # operations
-        if self.carrier_id.carrier_type == 'nacex':
-            self.action_update_state_nacex()
+        for item in self:
+            if item.carrier_id.carrier_type == 'nacex':
+                item.action_update_state_nacex()
         # return
         return super(ShippingExpedition, self).action_update_state()
         
-    @api.one
+    @api.multi
     def action_update_state_nacex(self):
+        self.ensure_one()
         if self.delivery_code:
             res = self.nacex_ws_getEstadoExpedicion()[0]
             # operations
             if res['errors']:
                 _logger.info(res)
-                self.action_error_update_state_expedition(res)# Fix error
+                self.action_error_update_state_expedition(res)
             else:
                 # other_fields
                 fecha_split = res['return']['result']['fecha'].split('/')
-                self.date = fecha_split[2]+'-'+fecha_split[1]+'-'+fecha_split[0]
+                self.date = '%s-%s-%s' % (
+                    fecha_split[2],
+                    fecha_split[1],
+                    fecha_split[0]
+                )
                 self.hour = res['return']['result']['hora']
                 self.observations = res['return']['result']['observaciones']
                 self.state_code = res['return']['result']['estado_code']
@@ -42,17 +48,22 @@ class ShippingExpedition(models.Model):
                 state_old = self.state
                 state_new = False
                                                           
-                if res['return']['result']['estado'] == "ERROR" or res['return']['result']['estado_code'] == 18:
+                if res['return']['result']['estado'] == "ERROR" \
+                        or res['return']['result']['estado_code'] == 18:
                     state_new = "error"                         
-                elif res['return']['result']['estado'] == "INCIDENCIA" or res['return']['result']['estado_code'] in [9,13,17]:
+                elif res['return']['result']['estado'] == "INCIDENCIA" \
+                        or res['return']['result']['estado_code'] in [9,13,17]:
                     state_new = "incidence"                
                 elif res['return']['result']['estado_code'] in [1, 11, 12, 15]:
                     state_new = "shipped"                
-                elif res['return']['result']['estado_code'] in [2, 3] or res['return']['result']['estado'] in ["REPARTO", "TRANSITO"]:
+                elif res['return']['result']['estado_code'] in [2, 3]\
+                        or res['return']['result']['estado'] in ["REPARTO", "TRANSITO"]:
                     state_new = "in_transit"                
-                elif res['return']['result']['estado'] == "DELEGACION" or res['return']['result']['estado_code'] == 16:
+                elif res['return']['result']['estado'] == "DELEGACION" \
+                        or res['return']['result']['estado_code'] == 16:
                     state_new = "in_delegation"                                                
-                elif res['return']['result']['estado_code'] == 4 or res['return']['result']['estado'] in ["ENTREGADO", "OK", "SOL SIN OK"]:
+                elif res['return']['result']['estado_code'] == 4 \
+                        or res['return']['result']['estado'] in ["ENTREGADO", "OK", "SOL SIN OK"]:
                     state_new = "delivered"                   
                 elif res['return']['result']['estado'] == "ANULADA":
                     state_new = "canceled"
@@ -60,7 +71,7 @@ class ShippingExpedition(models.Model):
                 if state_new and state_new != state_old:
                     self.state = state_new                    
     
-    @api.one
+    @api.multi
     def nacex_ws_getEstadoExpedicion(self):
         # tools
         nacex_username = tools.config.get('nacex_username')

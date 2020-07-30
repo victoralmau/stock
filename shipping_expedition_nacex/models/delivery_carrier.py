@@ -28,7 +28,8 @@ class DeliveryCarrier(models.Model):
             ('27','27 - E-NACEX')
         ],
         string='Tipo servicio',
-        help='Tipo de servicio que se aplica para: España, Portugal y Andorra'
+        help='Tipo de servicio que se aplica para: España, '
+             'Portugal y Andorra'
     )
     nacex_tip_ser_int = fields.Selection(
         selection=[
@@ -38,7 +39,8 @@ class DeliveryCarrier(models.Model):
             ('H','H - PLUSPACK EUROPA')            
         ],
         string='Tipo servicio internacional',
-        help='Tipo de servicio que se aplicara para el resto de paises salvo: España, Portugal y Andorra'
+        help='Tipo de servicio que se aplicara para el '
+             'resto de paises salvo: España, Portugal y Andorra'
     )    
     nacex_tip_cob = fields.Selection(
         selection=[
@@ -55,7 +57,8 @@ class DeliveryCarrier(models.Model):
             ('2','2 - PAQ')             
         ],
         string='Tipo envio',
-        help='Tipo de envio que se aplica para: España, Portugal y Andorra'
+        help='Tipo de envio que se aplica para: España, '
+             'Portugal y Andorra'
     )
     nacex_tip_env_int = fields.Selection(
         selection=[
@@ -63,11 +66,12 @@ class DeliveryCarrier(models.Model):
             ('M','M - Muestras')             
         ],
         string='Tipo envio internacional',
-        help='Tipo de envio que se aplicara para el resto de paises salvo: España, Portugal y Andorra'
+        help='Tipo de envio que se aplicara para el resto de '
+             'paises salvo: España, Portugal y Andorra'
     )
     nacex_print_model = fields.Char(
         string='Modelo impresora'
     )
     nacex_print_et = fields.Char(
         string='Modelo etiquetadora'
-    )                                                                                       
+    )

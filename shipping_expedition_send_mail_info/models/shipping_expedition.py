@@ -5,6 +5,7 @@ from datetime import datetime
 import logging
 _logger = logging.getLogger(__name__)
 
+
 class ShippingExpedition(models.Model):
     _inherit = 'shipping.expedition'
     
@@ -12,22 +13,23 @@ class ShippingExpedition(models.Model):
         string='Date send mail info'
     )
     
-    @api.one
+    @api.multi
     def action_send_mail_info_real(self):
+        self.ensure_one()
         _logger.info(_('Send email related to shipping_expedition %s') % self.id)
         vals = {
             'author_id': self.user_id.partner_id.id,
             'record_name': self.name,                                                                                                                                                                                           
         }
-        mail_compose_message_obj = self.env['mail.compose.message'].with_context().sudo().create(vals)
-        res = mail_compose_message_obj.onchange_template_id(
+        message_obj = self.env['mail.compose.message'].with_context().sudo().create(vals)
+        res = message_obj.onchange_template_id(
             self.carrier_id.mail_info_mail_template_id.id,
             'comment',
             'shipping.expedition',
             self.id
         )
         
-        mail_compose_message_obj.update({
+        message_obj.update({
             'author_id': mail_compose_message_vals['author_id'],
             'template_id': self.carrier_id.mail_info_mail_template_id.id,
             'composition_mode': 'comment',
@@ -41,7 +43,7 @@ class ShippingExpedition(models.Model):
             'record_name': mail_compose_message_vals['record_name'],
             'no_auto_thread': False,                     
         })                                         
-        mail_compose_message_obj.send_mail_action()                                                        
+        message_obj.send_mail_action()
         self.date_send_mail_info = datetime.today()        
     
     @api.one
@@ -49,8 +51,10 @@ class ShippingExpedition(models.Model):
         allow_send = False
         if self.carrier_id.send_mail_info:
             if self.carrier_id.mail_info_mail_template_id:
-                if self.date_send_mail_info == False:
-                    if self.state not in ['error', 'generate', 'canceled', 'delivered', 'incidence']:
+                if not self.date_send_mail_info:
+                    if self.state not in [
+                        'error', 'generate', 'canceled', 'delivered', 'incidence'
+                    ]:
                         if self.partner_id.email:
                             if self.carrier_id.carrier_type == 'nacex':
                                 allow_send = True

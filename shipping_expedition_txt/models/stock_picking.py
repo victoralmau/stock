@@ -4,30 +4,34 @@ from odoo import api, exceptions, fields, models, tools
 import urllib
 
 import logging
-_logger = logging.getLogger(__name__)
 
 from datetime import datetime
 import base64
 import os
 import codecs
+_logger = logging.getLogger(__name__)
+
 
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
     
-    @api.one
+    @api.multi
     def generate_shipping_expedition(self):
         # operations
-        if self.carrier_id.carrier_type == 'txt':
-            self.generate_shipping_expedition_txt()
+        for item in self:
+            if itemcarrier_id.carrier_type == 'txt':
+                item.generate_shipping_expedition_txt()
         # return
         return super(StockPicking, self).generate_shipping_expedition()
         
-    @api.one
+    @api.multi
     def generate_shipping_expedition_txt(self):
-        if self.shipping_expedition_id.id == 0 and self.carrier_id.carrier_type == 'txt' and self.partner_id:
+        self.ensure_one()
+        if self.shipping_expedition_id.id == 0 and self.carrier_id.carrier_type == 'txt' \
+                and self.partner_id:
             res = self.generate_shipping_expedition_txt_real()[0]
             # operations
-            if res['errors'] == True:
+            if res['errors']:
                 #logger
                 _logger.info(res)
                 # action_error_create_shipping_expedition_message_slack
@@ -70,19 +74,22 @@ class StockPicking(models.Model):
                     )
                 # create
                 if self.sale_id.user_id.id > 0:
-                    shipping_expedition_obj = self.env['shipping.expedition'].sudo(self.sale_id.user_id.id).create(vals)
+                    expedition_obj = self.env['shipping.expedition'].sudo(
+                        self.sale_id.user_id.id
+                    ).create(vals)
                 else:
-                    shipping_expedition_obj = self.env['shipping.expedition'].sudo().create(vals)
+                    expedition_obj = self.env['shipping.expedition'].sudo().create(vals)
                 # update ir_attachment_id
                 ir_attachment_obj.write({
                     'res_model': 'shipping.expedition',
-                    'res_id': shipping_expedition_obj.id
+                    'res_id': expedition_obj.id
                 })
                 # update
-                self.shipping_expedition_id = shipping_expedition_obj.id
+                self.shipping_expedition_id = expedition_obj.id
                     
-    @api.one
+    @api.multi
     def generate_shipping_expedition_txt_real(self):
+        self.ensure_one()
         # define
         today = datetime.today()
         datetime_body = today.strftime('%d/%m/%Y')
@@ -274,8 +281,8 @@ class StockPicking(models.Model):
         for txt_field in txt_fields:                    
             txt_line = txt_line + str(txt_field['value'])+separator_fields
                 
-        txt_line = txt_line[:-1]# fix remove last character
-        txt_line = txt_line + '\r\n'# fix new line
+        txt_line = txt_line[:-1]
+        txt_line = txt_line + '\r\n'
         # error prev
         response = {
             'errors': True, 
@@ -288,16 +295,20 @@ class StockPicking(models.Model):
         file_name_real = str(picking_name_replace)+'.txt'
         # folder_name
         folder_name = str(os.path.abspath(__file__))
-        folder_name = folder_name.replace('/models/stock_picking.py', '/'+str(self.carrier_id.carrier_type))
-        file_name_real = str(folder_name)+'/'+str(file_name_real)
-        file_name = os.path.dirname(file_name_real)                    
+        item_replace = '/%s' % self.carrier_id.carrier_type
+        folder_name = folder_name.replace('/models/stock_picking.py', item_replace)
+        file_name_real = '%s/%s' % (
+            folder_name,
+            file_name_real
+        )
+        file_name = os.path.dirname(file_name_real)
         # check if exists line
         line_exist_in_file = False
         if os.path.isfile(file_name):
             line_exist_in_file=True                        
         # continue line_exist_in_file
-        if line_exist_in_file == False:
-            #fh = open(file_name,'a')# if file does not exist, create it
+        if not line_exist_in_file:
+            # fh = open(file_name,'a')# if file does not exist, create it
             fh = codecs.open(file_name_real, "a", "utf-8-sig")                            
             fh.write(txt_line)
             fh.close()                       
@@ -310,4 +321,4 @@ class StockPicking(models.Model):
                 'return': "",
             }
         # return
-        return response                                                            
+        return response

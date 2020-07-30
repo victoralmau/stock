@@ -1,6 +1,7 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 from odoo import api, fields, models
-                    
+
+
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
@@ -8,8 +9,9 @@ class ProductTemplate(models.Model):
         string='Allow negative stock'
     )
     
-    @api.one
+    @api.multi
     def get_quantity_by_lot_id(self, lot_id=0):
+        self.ensure_one()
         qty = 0
         
         if lot_id==0:

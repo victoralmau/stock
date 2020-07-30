@@ -3,7 +3,6 @@ from odoo import api, exceptions, fields, models
 from odoo.exceptions import Warning
 
 import logging
-_logger = logging.getLogger(__name__)
 
 import urllib
 import urllib.request as urllib2
@@ -11,20 +10,24 @@ import urllib.request as urllib2
 import requests
 import unidecode
 from bs4 import BeautifulSoup
+_logger = logging.getLogger(__name__)
+
 
 class ShippingExpedition(models.Model):
     _inherit = 'shipping.expedition'
     
-    @api.one
+    @api.multi
     def action_update_state(self):
         # operations
-        if self.carrier_id.carrier_type == 'cbl':
-            self.action_update_state_cbl()
+        for item in self:
+            if item.carrier_id.carrier_type == 'cbl':
+                item.action_update_state_cbl()
         # return
         return super(ShippingExpedition, self).action_update_state()
         
-    @api.one
+    @api.multi
     def action_update_state_cbl(self):
+        self.ensure_one()
         url = 'https://clientes.cbl-logistica.com/public/consultaenvios.aspx'
         values = {}
         
@@ -91,15 +94,19 @@ class ShippingExpedition(models.Model):
         # operations
         if response['errors']:
             _logger.info(response)
-            self.action_error_update_state_expedition(response)# Fix error
+            self.action_error_update_state_expedition(response)
         else:                
             # fecha_entrega
             if 'fecha_entrega' in response['return']:
                 if '/' in response['return']['fecha_entrega']:
                     fecha_split = response['return']['fecha_entrega'].split('/')
-                    self.date = fecha_split[2][0:4]+'-'+fecha_split[1]+'-'+fecha_split[0]
+                    self.date = '%s-%s-%s' % (
+                        fecha_split[2][0:4],
+                        fecha_split[1],
+                        fecha_split[0]
+                    )
             # detalle_del_envio
-            if 'detalle_del_envio_' in response['return']:                                 
+            if 'detalle_del_envio_' in response['return']:
                 self.code = response['return']['detalle_del_envio_']
             # ag_destino
             if 'ag_destino' in response['return']:
@@ -114,13 +121,13 @@ class ShippingExpedition(models.Model):
             state_old = self.state
             state_new = False
                                     
-            if response['return']['situacion'] == "entregada" or response['return']['situacion'] == "entregada_con_incidencia":
+            if response['return']['situacion'] in ['entregada', 'entregada_con_incidencia']:
                 state_new = "delivered"
             elif response['return']['situacion'] == "en_gestion":
                 state_new = "shipped"
             elif response['return']['situacion'] == "en_destino":
                 state_new = "in_delegation"
-            elif response['return']['situacion']=="en_reparto" or response['return']['situacion'] == "en_transito":
+            elif response['return']['situacion'] in ['en_reparto', 'en_transito']:
                 state_new = "in_transit"
             elif response['return']['situacion'] == "devuelta":
                 state_new = "canceled"
@@ -128,4 +135,4 @@ class ShippingExpedition(models.Model):
                 state_new = "incidence"                
             # update state
             if state_new and state_new != state_old:
-                self.state = state_new                                                                                                                                                                        
+                self.state = state_new

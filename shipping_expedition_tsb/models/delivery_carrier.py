@@ -26,4 +26,4 @@ class DeliveryCarrier(models.Model):
     )
     tsb_ftp_directory_download = fields.Char(
         string='Tsb Ftp directory download'
-    )                                                                             
+    )

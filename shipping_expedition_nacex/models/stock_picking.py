@@ -7,27 +7,30 @@ from io import StringIO
 import xml.etree.ElementTree as ET
 
 import logging
-_logger = logging.getLogger(__name__)
-
 import base64
 import sys
 
 from datetime import datetime
+_logger = logging.getLogger(__name__)
+
 
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
-    
-    @api.one
+
+    @api.multi
     def generate_shipping_expedition(self):
         # operations
-        if self.carrier_id.carrier_type == 'nacex':
-            self.generate_shipping_expedition_nacex()
+        for item in self:
+            if item.carrier_id.carrier_type == 'nacex':
+                item.generate_shipping_expedition_nacex()
         # return
         return super(StockPicking, self).generate_shipping_expedition()
         
-    @api.one
+    @api.multi
     def generate_shipping_expedition_nacex(self):
-        if self.shipping_expedition_id.id ==0 and self.carrier_id.carrier_type == 'nacex' and self.partner_id:
+        self.ensure_one()
+        if self.shipping_expedition_id.id ==0 and self.carrier_id.carrier_type == 'nacex' \
+                and self.partner_id:
             res = self.nacex_ws_putExpedicion()[0]
             # operations
             if res['errors']:
@@ -62,16 +65,21 @@ class StockPicking(models.Model):
                         )
                 # create
                 if self.sale_id.user_id:
-                    shipping_expedition_obj = self.env['shipping.expedition'].sudo(self.sale_id.user_id.id).create(vals)
+                    expedition_obj = self.env['shipping.expedition'].sudo(
+                        self.sale_id.user_id.id
+                    ).create(vals)
                 else:
-                    shipping_expedition_obj = self.env['shipping.expedition'].sudo().create(shipping_expedition_vals)
+                    expedition_obj = self.env['shipping.expedition'].sudo().create(
+                        shipping_expedition_vals
+                    )
                 # update
-                self.shipping_expedition_id = shipping_expedition_obj.id
+                self.shipping_expedition_id = expedition_obj.id
                 # Fix
                 self.action_view_etiqueta_item()
     
-    @api.one
+    @api.multi
     def nacex_ws_putExpedicion(self):
+        self.ensure_one()
         # define
         today = datetime.today()
         datetime_body = today.strftime('%d/%m/%Y')
@@ -142,7 +150,7 @@ class StockPicking(models.Model):
                         <arrayOfString_3>obs2="""+str(obs2)+"""</arrayOfString_3>
                         <arrayOfString_3>obs3="""+str(obs3)+"""</arrayOfString_3>
                         <arrayOfString_3>obs4="""+str(obs4)+"""</arrayOfString_3>        				        				
-        				<arrayOfString_3>ref_cli="""+str(self.name)+"""</arrayOfString_3>					
+        				<arrayOfString_3>ref_cli="""+str(self.name)+"""</arrayOfString_3>
         				<arrayOfString_3>bul=1</arrayOfString_3>
         				<arrayOfString_3>kil="""+str(self.weight)+"""</arrayOfString_3>
                         <arrayOfString_3>nom_rec="""+str(self.company_id.website)+"""</arrayOfString_3>
@@ -152,11 +160,11 @@ class StockPicking(models.Model):
                         <arrayOfString_3>tel_rec="""+str(self.company_id.phone)+"""</arrayOfString_3>
         				<arrayOfString_3>nom_ent="""+str(partner_name[0:50])+"""</arrayOfString_3>
                         <arrayOfString_3>per_ent="""+str(partner_name[0:35])+"""</arrayOfString_3>
-        				<arrayOfString_3>dir_ent="""+str(self.partner_id.street[0:60])+"""</arrayOfString_3>                    
-        				<arrayOfString_3>pais_ent="""+str(self.partner_id.country_id.code)+"""</arrayOfString_3>					
+        				<arrayOfString_3>dir_ent="""+str(self.partner_id.street[0:60])+"""</arrayOfString_3>
+        				<arrayOfString_3>pais_ent="""+str(self.partner_id.country_id.code)+"""</arrayOfString_3>
         				<arrayOfString_3>cp_ent="""+str(self.partner_id.zip)+"""</arrayOfString_3>
         				<arrayOfString_3>pob_ent="""+str(self.partner_id.city[0:39])+"""</arrayOfString_3>
-        				<arrayOfString_3>tel_ent="""+str(partner_picking_phone)+"""</arrayOfString_3>        				        				
+        				<arrayOfString_3>tel_ent="""+str(partner_picking_phone)+"""</arrayOfString_3>
         			"""
         # con
         if self.partner_id.country_id.code not in ['ES', 'PT', 'AD']:
@@ -236,8 +244,7 @@ class StockPicking(models.Model):
                     'fecha_objetivo': datetime.strptime(response['return']['results'][10], "%d/%m/%Y").date(),                   
                     'cambios': response['return']['results'][11],
                     'origin': self.name 
-                }                                                                                                                                                                                                                                                      
-            
+                }
         else:
             response['error'] = b.getvalue()
             _logger.info('Response KO')            
@@ -254,7 +261,6 @@ class StockPicking(models.Model):
                 'label': "",                    
                 'results': []
             }
-                                    
             for item in root.findall('{http://schemas.xmlsoap.org/soap/envelope/}Body'):                
                 for item2 in item.findall('{urn:soap/types}putExpedicionResponse'):                    
                     for result in item2.findall('result'):
@@ -268,8 +274,9 @@ class StockPicking(models.Model):
         # return
         return response
     
-    @api.one
+    @api.multi
     def view_etiqueta_nacex(self):
+        self.ensure_one()
         # define
         delivery_code_split = self.shipping_expedition_id.delivery_code.split('/')
         # url
@@ -322,8 +329,9 @@ class StockPicking(models.Model):
         # return
         return response;
     
-    @api.one
+    @api.multi
     def action_view_etiqueta_item(self):
+        self.ensure_one()
         if self.shipping_expedition_id:
             res = self.view_etiqueta_nacex()[0]
             if res['errors']:
@@ -364,8 +372,9 @@ class StockPicking(models.Model):
                 img = Image.open(file)
                 return img
                 
-    @api.one
+    @api.multi
     def _get_expedition_image_url_ir_attachment(self):
+        self.ensure_one()
         if self.shipping_expedition_id:
             if self.carrier_id.carrier_type == 'nacex':
                 ir_attachment_ids = self.env['ir.attachment'].search(
@@ -378,4 +387,4 @@ class StockPicking(models.Model):
                 for ir_attachment_id in ir_attachment_ids:
                     return_url = '/web/image/%s' % ir_attachment_id.id
                     
-                return return_url                                                                                        
+                return return_url

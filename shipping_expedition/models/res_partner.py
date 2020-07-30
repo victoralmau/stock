@@ -1,6 +1,7 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-from odoo import fields, models
+from odoo import api, fields, models
+
 
 class ResPartner(models.Model):
     _inherit = 'res.partner'
@@ -10,6 +11,13 @@ class ResPartner(models.Model):
         string="Expeditions",
     )
 
+    @api.multi
     def _compute_shipping_expedition_count(self):
         for item in self:
-            item.shipping_expedition_count = len(self.env['shipping.expedition'].search([('partner_id', 'child_of', item.ids)]))
+            item.shipping_expedition_count = len(
+                self.env['shipping.expedition'].search(
+                    [
+                        ('partner_id', 'child_of', item.ids)
+                    ]
+                )
+            )

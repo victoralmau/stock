@@ -8,4 +8,4 @@ class DeliveryCarrier(models.Model):
 
     txt_sender_customer = fields.Char(
         string='Txt sender customer'
-    )                                                                                               
+    )

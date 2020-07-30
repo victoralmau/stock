@@ -2,15 +2,15 @@
 from odoo import api, exceptions, fields, models, _
 
 import logging
-_logger = logging.getLogger(__name__)
-
 import os
 import boto3
 from botocore.exceptions import ClientError
+_logger = logging.getLogger(__name__)
+
 
 class ShippingExpedition(models.Model):
     _inherit = 'shipping.expedition'        
-            
+
     @api.model
     def create(self, values):                            
         # create
@@ -21,19 +21,30 @@ class ShippingExpedition(models.Model):
         # return
         return return_object
         
-    @api.one
+    @api.multi
     def upload_file_to_s3(self):
+        self.ensure_one()
         if self.carrier_id.s3_upload:
             # open file for reading
             picking_name_replace = self.picking_id.name.replace("/", "-")
             file_name_real = str(picking_name_replace) + '.txt'
             # folder_name
             folder_name = str(os.path.abspath(__file__))
-            folder_name = folder_name.replace('_s3/models/shipping_expedition.py','_' + str(self.carrier_id.carrier_type) + '/' + str(self.carrier_id.carrier_type))
-            file_name_final = str(folder_name) + '/' + str(file_name_real)
+            item_replace = '_%s/%s' % (
+                self.carrier_id.carrier_type,
+                self.carrier_id.carrier_type
+            )
+            folder_name = folder_name.replace('_s3/models/shipping_expedition.py', item_replace)
+            file_name_final = '%s/%s' % (
+                folder_name,
+                file_name_real
+            )
             # check if exists line
             if os.path.isfile(file_name_final):
-                destination_filename = str(self.carrier_id.s3_folder) + str(file_name_real)
+                destination_filename = '%s%s' % (
+                    self.carrier_id.s3_folder,
+                    file_name_real
+                )
                 # define S3
                 url_s3 = False
                 AWS_ACCESS_KEY_ID = tools.config.get('aws_access_key_id')

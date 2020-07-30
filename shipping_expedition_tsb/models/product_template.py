@@ -8,4 +8,4 @@ class ProductTemplate(models.Model):
 
     tsb_sender_center = fields.Char(
         string='TSB Center'
-    )        
+    )

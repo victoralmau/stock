@@ -5,7 +5,7 @@ from odoo import fields, models
 
 class DeliveryCarrier(models.Model):
     _inherit = 'delivery.carrier'
-    
+
     send_mail_info = fields.Boolean(
         string='Send mail info' 
     )    

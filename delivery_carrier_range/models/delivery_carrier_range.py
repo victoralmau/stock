@@ -6,7 +6,7 @@ from odoo import fields, models
 class DeliveryCarrierRange(models.Model):
     _name = 'delivery.carrier.range'
     _description = 'Delivery Carrier Range'
-            
+
     carrier_id = fields.Many2one(
         comodel_name='delivery.carrier',        
         string='Carrier',
@@ -27,4 +27,4 @@ class DeliveryCarrierRange(models.Model):
     )
     price = fields.Float(
         string='Price'
-    )                            
+    )

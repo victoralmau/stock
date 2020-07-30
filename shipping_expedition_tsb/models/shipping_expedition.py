@@ -2,14 +2,14 @@
 from odoo import api, exceptions, fields, models
 
 import logging
-_logger = logging.getLogger(__name__)
-
 import os
 import ftplib
+_logger = logging.getLogger(__name__)
+
 
 class ShippingExpedition(models.Model):
-    _inherit = 'shipping.expedition'        
-    
+    _inherit = 'shipping.expedition'
+
     tsb_identiticket = fields.Char(
         string='Tsb Identiticket'
     )
@@ -17,21 +17,24 @@ class ShippingExpedition(models.Model):
         string='Tsb Localizator'
     )
     
-    @api.one
+    @api.multi
     def action_update_state(self):
         # operations
-        if self.carrier_id.carrier_type == 'tsb':
-            self.action_update_state_tsb()
+        for item in self:
+            if item.carrier_id.carrier_type == 'tsb':
+                item.action_update_state_tsb()
         # return
         return super(ShippingExpedition, self).action_update_state()
         
-    @api.one
+    @api.multi
     def action_update_state_tsb(self):
-        self.update_state_tsb()
+        for item in self:
+            item.update_state_tsb()
         return False                
     
-    @api.one
-    def update_state_tsb(self):            
+    @api.multi
+    def update_state_tsb(self):
+        self.ensure_one()
         separator_fields = '|'
         # response
         response = {
@@ -41,7 +44,10 @@ class ShippingExpedition(models.Model):
         }                 
         # file_name ric
         file_name_real = "RIC_%s.txt" % self.carrier_id.tsb_sender_customer
-        file_name = os.path.dirname(os.path.abspath(__file__))+'/'+file_name_real
+        file_name = '%s/%s' % (
+            os.path.dirname(os.path.abspath(__file__)),
+            file_name_real
+        )
         # ftp + download
         ftp = ftplib.FTP(self.carrier_id.tsb_ftp_host)
         ftp.login(self.carrier_id.tsb_ftp_user, self.carrier_id.tsb_ftp_password)  
@@ -64,7 +70,7 @@ class ShippingExpedition(models.Model):
                     f = open(file_name, 'r')
                     for line in f:
                         if separator_fields in line:                           
-                            line_split = line.split(separator_fields)                        
+                            line_split = line.split(separator_fields)
                             
                             expedition_line = line_split[0]                    
                             reference_line = line_split[1]
@@ -75,11 +81,14 @@ class ShippingExpedition(models.Model):
                             estd_fecha_llegada_line = line_split[33]
                             estd_codigo_situacion_line = line_split[36]
                             
-                            if self.picking_id.name == reference_line and shipping_expedition_find == False:
+                            if self.picking_id.name == reference_line and not shipping_expedition_find:
                                 estd_fecha_llegada_line_split = estd_fecha_llegada_line.split(' ')
                                 estd_fecha_llegada_line2 = estd_fecha_llegada_line_split[0].split('/')
-                                estd_fecha_llegada_line_real = estd_fecha_llegada_line2[2]+'-'+estd_fecha_llegada_line2[1]+'-'+estd_fecha_llegada_line2[0] 
-                                
+                                estd_fecha_llegada_line_real = '%s-%s-%s' % (
+                                    estd_fecha_llegada_line2[2],
+                                    estd_fecha_llegada_line2[1],
+                                    estd_fecha_llegada_line2[0]
+                                )
                                 self.code = expedition_line
                                 self.delivery_code = reference_line                    
                                 self.tsb_identiticket = ctrl_identiticket_line
@@ -117,5 +126,5 @@ class ShippingExpedition(models.Model):
                                 shipping_expedition_find = True                                
         # response
         ftp.quit()
-        response['errors'] = False                                                                                   
-        return response                                
+        response['errors'] = False
+        return response

@@ -5,15 +5,15 @@ from datetime import datetime
 import datetime
 
 import logging
-_logger = logging.getLogger(__name__)
-
 from bs4 import BeautifulSoup
 import requests
+_logger = logging.getLogger(__name__)
+
 
 class ShippingExpedition(models.Model):
     _inherit = 'shipping.expedition'
             
-    @api.one
+    @api.multi
     def define_delegation_phone_txt(self):
         delegations_txt = {
             'A CORUÑA': {'phone': '981078907'},
@@ -83,69 +83,85 @@ class ShippingExpedition(models.Model):
             'ZAMORA': {'phone': '980045035'},
             'ZARAGOZA': {'phone': '976144588'},                                                                                                                                                                                                                                                                                                                                                                                                                       
         }
-        if self.delegation_name and self.delegation_name != "":
-            delegation_name_search = str(self.delegation_name)
-            # stranger_things
-            if 'TORRIJOS' in delegation_name_search: 
-                delegation_name_search = 'TORRIJOS'
-            elif 'CIUDAD REAL' in delegation_name_search: 
-                delegation_name_search = 'CIUDAD REAL'
-            elif 'LEON' in delegation_name_search: 
-                delegation_name_search = 'LEON'
-                            
-            if delegation_name_search == 'TENERIFE MARITIMO':
-                delegation_name_search = 'SANTA CRUZ DE TENERIFE'                                                                          
-                
-            if delegation_name_search in delegations_txt:
-                self.delegation_phone = delegations_txt[delegation_name_search]['phone']
-            else:
-                # slack.message
-                web_base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')                
-                attachments = [
-                    {
-                        "title": 'No se ha encontrado el telefono de TXT para la delegacion *%s*' % delegation_name_search,
-                        "color": "#ff0000",
-                        "fallback": "Ver expedicion %s/web?#id=%s&view_type=form&model=shipping.expedition" % (web_base_url, self.id),
-                        "actions": [
-                            {
-                                "type": "button",
-                                "text": "Ver expedicion",
-                                "url": "%s/web?#id=%s&view_type=form&model=shipping.expedition" % (web_base_url, self.id)
-                            }
-                        ]                    
+        for item in self:
+            if item.delegation_name and item.delegation_name != "":
+                delegation_name_search = str(item.delegation_name)
+                # stranger_things
+                if 'TORRIJOS' in delegation_name_search:
+                    delegation_name_search = 'TORRIJOS'
+                elif 'CIUDAD REAL' in delegation_name_search:
+                    delegation_name_search = 'CIUDAD REAL'
+                elif 'LEON' in delegation_name_search:
+                    delegation_name_search = 'LEON'
+
+                if delegation_name_search == 'TENERIFE MARITIMO':
+                    delegation_name_search = 'SANTA CRUZ DE TENERIFE'
+
+                if delegation_name_search in delegations_txt:
+                    item.delegation_phone = delegations_txt[delegation_name_search]['phone']
+                else:
+                    # slack.message
+                    web_base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+                    attachments = [
+                        {
+                            "title": 'No se ha encontrado el telefono de TXT para la delegacion *%s*'
+                                     % delegation_name_search,
+                            "color": "#ff0000",
+                            "fallback": "Ver expedicion %s/web?#id=%s&view_type=form&model=shipping.expedition" % (
+                                web_base_url,
+                                item.id
+                            ),
+                            "actions": [
+                                {
+                                    "type": "button",
+                                    "text": "Ver expedicion",
+                                    "url": "%s/web?#id=%s&view_type=form&model=shipping.expedition" % (
+                                        web_base_url,
+                                        item.id
+                                    )
+                                }
+                            ]
+                        }
+                    ]
+                    vals = {
+                        'attachments': attachments,
+                        'model': self._inherit,
+                        'res_id': self.id,
+                        'channel': self.env['ir.config_parameter'].sudo().get_param(
+                            'slack_arelux_log_almacen_channel'
+                        ),
                     }
-                ]                
-                vals = {
-                    'attachments': attachments,
-                    'model': self._inherit,
-                    'res_id': self.id,
-                    'channel': self.env['ir.config_parameter'].sudo().get_param('slack_arelux_log_almacen_channel'),                                                         
-                }                        
-                self.env['slack.message'].sudo().create(vals)
+                    self.env['slack.message'].sudo().create(vals)
     
-    @api.one
+    @api.multi
     def action_update_state(self):
         # operations
-        if self.carrier_id.carrier_type == 'txt':
-            self.action_update_state_txt()
+        for item in self:
+            if item.carrier_id.carrier_type == 'txt':
+                item.action_update_state_txt()
         # return
         return super(ShippingExpedition, self).action_update_state()
         
-    @api.one
+    @api.multi
     def action_update_state_txt(self):
+        self.ensure_one()
         res = self.action_update_state_txt_real()[0]
         # operations
         if res['errors']:
             _logger.info(res)  
-            self.action_error_update_state_expedition(res)# Fix error
+            self.action_error_update_state_expedition(res)
         else:
             # fecha_entrega
             if 'fecha_entrega' in res['return']:
                 if '/' in res['return']['fecha_entrega']: 
                     fecha_split = res['return']['fecha_entrega'].split('/')
-                    self.date = fecha_split[2]+'-'+fecha_split[1]+'-'+fecha_split[0]
+                    self.date = '%s-%s-%s' % (
+                        fecha_split[2],
+                        fecha_split[1],
+                        fecha_split[0]
+                    )
             # num_albaran
-            if 'num_albaran' in res['return']:                                 
+            if 'num_albaran' in res['return']:
                 self.code = res['return']['num_albaran']
             # observaciones
             if 'observaciones' in res['return']:                 
@@ -168,8 +184,9 @@ class ShippingExpedition(models.Model):
             if state_new and state_new != state_old:
                 self.state = state_new
     
-    @api.one
+    @api.multi
     def action_update_state_txt_real(self):
+        self.ensure_one()
         response = {
             'errors': True, 
             'error': "Pendiente de realizar", 
@@ -182,25 +199,25 @@ class ShippingExpedition(models.Model):
         if estado_expedicion_input != None:
             response['errors'] = False
             response['return'] = {}            
-            response['return']['estado_expedicion'] = estado_expedicion_input.get('value')#Fix
+            response['return']['estado_expedicion'] = estado_expedicion_input.get('value')
         
             inputs = soup.find_all('input')
             for input_field in inputs:                
-                if input_field['id']=='TxtDestinoExpedicion1':
+                if input_field['id'] == 'TxtDestinoExpedicion1':
                     response['return']['destino_expedicion1'] = input_field['value']
-                elif input_field['id']=="TxtNumalbaran":
+                elif input_field['id'] == "TxtNumalbaran":
                     response['return']['num_albaran'] = input_field['value']
-                elif input_field['id']=="TxtEstadoExpedicion":
+                elif input_field['id'] == "TxtEstadoExpedicion":
                     response['return']['estado_expedicion'] = input_field['value']
-                elif input_field['id']=="TxtFechaSalida":
+                elif input_field['id'] == "TxtFechaSalida":
                     response['return']['fecha_salida'] = input_field['value']
-                elif input_field['id']=="TxtFechaEntrega":
-                    if response['return']['estado_expedicion']=="ENTREGADO":
+                elif input_field['id'] == "TxtFechaEntrega":
+                    if response['return']['estado_expedicion'] == "ENTREGADO":
                         response['return']['fecha_entrega'] = input_field['value']                    
-                elif input_field['id']=="TxtObservaciones":
+                elif input_field['id'] == "TxtObservaciones":
                     response['return']['observaciones'] = input_field['value']                        
         
             if 'num_albaran' not in response['return']:
                 response['errors'] = True
         # return
-        return response                                                                    
+        return response
