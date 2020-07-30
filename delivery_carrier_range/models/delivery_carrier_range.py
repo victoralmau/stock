@@ -8,17 +8,17 @@ class DeliveryCarrierRange(models.Model):
     _description = 'Delivery Carrier Range'
 
     carrier_id = fields.Many2one(
-        comodel_name='delivery.carrier',        
+        comodel_name='delivery.carrier',
         string='Carrier',
     )
     country_id = fields.Many2one(
-        comodel_name='res.country',        
+        comodel_name='res.country',
         string='Country',
     )
     state_id = fields.Many2one(
-        comodel_name='res.country.state',        
+        comodel_name='res.country.state',
         string='Country state',
-    )        
+    )
     weight_range_start = fields.Float(
         string='Range start'
     )

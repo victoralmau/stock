@@ -67,7 +67,7 @@ class StockPicking(models.Model):
                     if self.partner_id.state_id:
                         range_ids = self.env['delivery.carrier.range'].search(
                             [
-                                ('country_id', '=', self.partner_id.country_id.id), 
+                                ('country_id', '=', self.partner_id.country_id.id),
                                 ('weight_range_start', '>=', self.weight),
                                 '|',
                                 ('state_id', '=', False),
