@@ -11,7 +11,7 @@
     "depends": [
         "delivery",
         "shipping_expedition",
-        "aws_sms_shipping_expedition"
+        "aws_sms_shipping_expedition"  # https://github.com/OdooNodrizaTech/sms
     ],
     "data": [
         "data/ir_cron.xml",
