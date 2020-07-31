@@ -14,6 +14,7 @@
     "external_dependencies": {
         "python": [
             "BeautifulSoup4",
+            "bs4"  # Only prevent travis errors
         ],
     },
     "data": [

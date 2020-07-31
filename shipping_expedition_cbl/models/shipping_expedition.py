@@ -8,7 +8,7 @@ import urllib.request as urllib2
 
 import requests
 import unidecode
-from BeautifulSoup4 import BeautifulSoup
+from bs4 import BeautifulSoup
 _logger = logging.getLogger(__name__)
 
 
