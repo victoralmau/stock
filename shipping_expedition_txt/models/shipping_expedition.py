@@ -1,7 +1,5 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import api, models
-
-from datetime import datetime
+from odoo import api, models, _
 
 import logging
 from bs4 import BeautifulSoup
@@ -100,27 +98,31 @@ class ShippingExpedition(models.Model):
                     item.delegation_phone = delegations_txt[dns]['phone']
                 else:
                     # slack.message
-                    web_base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+                    web_base_url = self.env[
+                        'ir.config_parameter'
+                    ].sudo().get_param('web.base.url')
                     attachments = [
                         {
                             "title":
-                                _('No se ha encontrado el telefono de TXT para la delegacion *%s*')
-                                % dns,
+                                _('No se ha encontrado el telefono de TXT '
+                                  'para la delegacion *%s*') % dns,
                             "color": "#ff0000",
                             "fallback": _(
-                                "Ver expedicion %s/web?#id=%s&view_type=form&model=shipping.expedition"
-                            ) % (
-                                web_base_url,
-                                item.id
-                            ),
+                                "Ver expedicion "
+                                "%s/web?#id=%s&view_type=form"
+                                "&model=shipping.expedition") % (
+                                    web_base_url,
+                                    item.id
+                                ),
                             "actions": [
                                 {
                                     "type": "button",
                                     "text": _("Ver expedicion"),
-                                    "url": "%s/web?#id=%s&view_type=form&model=shipping.expedition" % (
-                                        web_base_url,
-                                        item.id
-                                    )
+                                    "url": "%s/web?#id=%s&view_type=form"
+                                           "&model=shipping.expedition" % (
+                                                web_base_url,
+                                                item.id
+                                            )
                                 }
                             ]
                         }
@@ -134,7 +136,7 @@ class ShippingExpedition(models.Model):
                         ),
                     }
                     self.env['slack.message'].sudo().create(vals)
-    
+
     @api.multi
     def action_update_state(self):
         # operations
@@ -143,7 +145,7 @@ class ShippingExpedition(models.Model):
                 item.action_update_state_txt()
         # return
         return super(ShippingExpedition, self).action_update_state()
-        
+
     @api.multi
     def action_update_state_txt(self):
         self.ensure_one()
@@ -176,7 +178,6 @@ class ShippingExpedition(models.Model):
             state_old = self.state
             state_new = False
             res_ee = res['return']['estado_expedicion']
-            
             if res_ee == "ENTREGADO":
                 state_new = "delivered"
             elif res_ee in ["EN REPARTO", "EN TRANSITO"]:
@@ -186,7 +187,7 @@ class ShippingExpedition(models.Model):
             # state update
             if state_new and state_new != state_old:
                 self.state = state_new
-    
+
     @api.multi
     def action_update_state_txt_real(self):
         self.ensure_one()

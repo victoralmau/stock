@@ -1,5 +1,5 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import api, models, tools
+from odoo import api, models
 from odoo.exceptions import Warning as UserError
 
 import logging
@@ -68,7 +68,8 @@ class StockPicking(models.Model):
                 # url_info
                 if '-' in vals['date']:
                     date_split = vals['date'].split("-")
-                    ui = "http://tracking.txt.es/?EXPED=@33701@fx4iqq5kj101tks@R@%s@%s@" % (
+                    ui = "%s/?EXPED=@33701@fx4iqq5kj101tks@R@%s@%s@" % (
+                        'http://tracking.txt.es',
                         vals['origin'],
                         date_split[0]
                     )
@@ -243,7 +244,7 @@ class StockPicking(models.Model):
                 'type': 'refund_amount',
                 'value': '0000000.00',
                 'size': 10.2,
-            },            
+            },
             {
                 'type': 'type_commission_reimbursement_commission',
                 'value': 'P',
@@ -290,6 +291,7 @@ class StockPicking(models.Model):
         }
         # open file for reading
         picking_name_replace = self.name.replace("/", "-")
+        file_name_real = '%s.txt' % picking_name_replace
         # folder_name
         folder_name = str(os.path.abspath(__file__))
         item_replace = '/%s' % self.carrier_id.carrier_type
