@@ -13,7 +13,7 @@
     ],
     "external_dependencies": {
         "python": [
-            "beautifulsoup4",
+            "BeautifulSoup4",
             "unidecode"
         ],
     },

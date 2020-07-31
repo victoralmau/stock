@@ -1,4 +1,4 @@
 boto3
 botocore
-beautifulsoup4
+BeautifulSoup4
 Pillow
