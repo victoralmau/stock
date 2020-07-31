@@ -1,5 +1,6 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import api, exceptions, fields, models
+from odoo import api, fields, models
+from odoo.exceptions import Warning as UserError
 
 import urllib
 
@@ -36,12 +37,12 @@ class StockPicking(models.Model):
             if res['errors']:
                 # logger
                 _logger.info(res)
-                # action_error_create_shipping_expedition_message_slack
-                self.action_error_create_shipping_expedition_message_slack({
+                # action_error_create_expedition_message_slack
+                self.action_error_create_expedition_message_slack({
                     'error': res['error']
                 })  
                 # raise
-                raise exceptions.Warning(res['error'])
+                raise UserError(res['error'])
             else:
                 # file_name
                 file_name = self.name.replace('/','-')+'.txt'

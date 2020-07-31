@@ -9,7 +9,7 @@ class ShippingExpedition(models.Model):
     _inherit = 'shipping.expedition'
 
     link_tracker_id = fields.Many2one(
-        comodel_name='link.tracker', 
+        comodel_name='link.tracker',
         string='Link Tracker Id'
     )
 

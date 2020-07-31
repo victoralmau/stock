@@ -30,19 +30,19 @@ class ShippingExpedition(models.Model):
         readonly=True
     )
     user_id = fields.Many2one(
-        comodel_name='res.users',        
+        comodel_name='res.users',
         string='User',
         related='picking_id.sale_id.user_id',
         store=False,
         readonly=True
-    )    
+    )
     carrier_id = fields.Many2one(
-        comodel_name='delivery.carrier',        
+        comodel_name='delivery.carrier',
         string='Carrier',
         related='picking_id.carrier_id',
         store=False,
         readonly=True
-    )        
+    )
     carrier_type = fields.Selection(
         string='Carrier type',
         related='picking_id.carrier_id.carrier_type',
@@ -55,16 +55,16 @@ class ShippingExpedition(models.Model):
         related='picking_id.partner_id',
         store=False,
         readonly=True
-    )    
+    )
     code = fields.Char(
         string='Code'
     )
     delivery_code = fields.Char(
         string='Delivery code'
-    )             
+    )
     date = fields.Date(
         string='Date'
-    )    
+    )
     hour = fields.Char(
         string='Hour'
     )
@@ -136,7 +136,7 @@ class ShippingExpedition(models.Model):
                     'res_id': res.id,
                     'res_model': 'shipping.expedition',
                     'partner_id': res.user_id.partner_id.id,
-                    'subtype_ids': [(6, 0, [1])],                                              
+                    'subtype_ids': [(6, 0, [1])],
                 }
                 self.env['mail.followers'].create(reg)
         # check remove create uid
@@ -154,11 +154,11 @@ class ShippingExpedition(models.Model):
                             followers_id.sudo().unlink()
         # record
         return res
-    
-    @api.model    
+
+    @api.model
     def cron_shipping_expeditions_update_state(self):
         current_date = datetime.today()
-        
+
         expedition_ids = self.env['shipping.expedition'].search(
             [
                 ('state', 'not in', ('delivered', 'canceled')),
@@ -169,11 +169,11 @@ class ShippingExpedition(models.Model):
         if expedition_ids:
             for expedition_id in expedition_ids:
                 expedition_id.action_update_state()
-                
+
     @api.multi
     def action_update_state(self):
-        return False        
-    
+        return False
+
     @api.one
     def action_error_update_state_expedition(self, res):
         return False

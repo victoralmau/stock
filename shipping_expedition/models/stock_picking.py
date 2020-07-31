@@ -2,7 +2,7 @@
 
 from odoo import api, fields, models
 
-                    
+
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
@@ -34,7 +34,7 @@ class StockPicking(models.Model):
         readonly=True,
         store=False
     )
-    
+
     @api.multi
     def action_cancel(self):
         res = super(StockPicking, self).action_cancel()
@@ -48,7 +48,7 @@ class StockPicking(models.Model):
     @api.multi
     def get_shipping_expedition_values(self, expedition):
         self.ensure_one()
-        
+
         return {
             'code': None,
             'delivery_code': None,
@@ -69,7 +69,7 @@ class StockPicking(models.Model):
         for item in self:
             if item.shipping_expedition_id.id == 0:
                 item.generate_shipping_expedition()
-                
+
     @api.multi
-    def action_error_create_shipping_expedition_message_slack(self, res):
+    def action_error_create_expedition_message_slack(self, res):
         return False

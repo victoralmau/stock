@@ -1,14 +1,14 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import api, exceptions, fields, models, tools
-from odoo.exceptions import Warning
+from odoo import api, exceptions, models, tools
+from odoo.exceptions import Warning as UserError
 
-import urllib, pycurl
+import urllib
+import pycurl
 from io import StringIO
 import xml.etree.ElementTree as ET
 
 import logging
 import base64
-import sys
 
 from datetime import datetime
 _logger = logging.getLogger(__name__)
@@ -25,24 +25,25 @@ class StockPicking(models.Model):
                 item.generate_shipping_expedition_nacex()
         # return
         return super(StockPicking, self).generate_shipping_expedition()
-        
+
     @api.multi
     def generate_shipping_expedition_nacex(self):
         self.ensure_one()
-        if self.shipping_expedition_id.id ==0 and self.carrier_id.carrier_type == 'nacex' \
+        if self.shipping_expedition_id.id == 0 \
+                and self.carrier_id.carrier_type == 'nacex' \
                 and self.partner_id:
             res = self.nacex_ws_putExpedicion()[0]
             # operations
             if res['errors']:
-                #logger
+                # logger
                 _logger.info(res)
-                # action_error_create_shipping_expedition_message_slack
-                self.action_error_create_shipping_expedition_message_slack({
+                # action_error_create_expedition_message_slack
+                self.action_error_create_expedition_message_slack({
                     'error': res['error']
-                })  
+                })
                 # raise
-                raise exceptions.Warning(res['error'])
-            else:                             
+                raise UserError(res['error'])
+            else:
                 # create
                 vals = {
                     'picking_id': self.id,
@@ -53,16 +54,20 @@ class StockPicking(models.Model):
                     'origin': self.name,
                     'observations': res['return']['result']['cambios'],
                     'state': 'generate',
-                    'state_code': 2,                
+                    'state_code': 2
                 }
                 # url_info
                 if '/' in vals['delivery_code']:
                     delivery_code_split = vals['delivery_code'].split("/")
                     if len(delivery_code_split) > 1:
-                        vals['url_info'] = "http://www.nacex.es/seguimientoDetalle.do?agencia_origen=%s&numero_albaran=%s&estado=4&internacional=0&externo=N&usr=null&pas=null" % (
-                            delivery_code_split[0],
-                            delivery_code_split[1]
-                        )
+                        vals['url_info'] = "http://www.nacex.es/seguimientoDetalle.do?" \
+                                           "agencia_origen=%s&numero_albaran=%s" \
+                                           "&estado=4&internacional=0&externo=N" \
+                                           "&usr=null&pas=null" \
+                                           % (
+                                               delivery_code_split[0],
+                                               delivery_code_split[1]
+                                           )
                 # create
                 if self.sale_id.user_id:
                     expedition_obj = self.env['shipping.expedition'].sudo(
@@ -70,7 +75,7 @@ class StockPicking(models.Model):
                     ).create(vals)
                 else:
                     expedition_obj = self.env['shipping.expedition'].sudo().create(
-                        shipping_expedition_vals
+                        vals
                     )
                 # update
                 self.shipping_expedition_id = expedition_obj.id
@@ -104,9 +109,9 @@ class StockPicking(models.Model):
         obs3 = ''
         obs4 = ''        
         if self.shipping_expedition_note:
-            shipping_expedition_note_len = len(str(self.shipping_expedition_note))
-            if shipping_expedition_note_len > 1:
-                if shipping_expedition_note_len <= 38:
+            note_len = len(str(self.shipping_expedition_note))
+            if note_len > 1:
+                if note_len <= 38:
                     obs3 = self.shipping_expedition_note                                
                 else:
                     obs3 = self.shipping_expedition_note[0:38]
@@ -132,40 +137,68 @@ class StockPicking(models.Model):
         if self.partner_id.country_id.code not in ['ES', 'PT', 'AD']:
             tip_env = str(self.carrier_id.nacex_tip_env_int)
         # create
-        url="http://gprs.nacex.com/nacex_ws/soap"
+        url = "http://gprs.nacex.com/nacex_ws/soap"
         body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:typ="urn:soap/types">
-        		<soapenv:Header/>
-        		<soapenv:Body>
-        			<typ:putExpedicion>
-        				<String_1>"""+str(nacex_username)+"""</String_1>
-        				<String_2>"""+str(nacex_password)+"""</String_2>
-        				<arrayOfString_3>del_cli="""+str(self.carrier_id.nacex_del_cli)+"""</arrayOfString_3>
-        				<arrayOfString_3>num_cli="""+str(self.carrier_id.nacex_num_cli)+"""</arrayOfString_3>
-        				<arrayOfString_3>fec="""+str(datetime_body)+"""</arrayOfString_3>
-        				<arrayOfString_3>dep_cli="""+str(self.carrier_id.nacex_dep_cli)+"""</arrayOfString_3>
-        				<arrayOfString_3>tip_ser="""+str(tip_ser)+"""</arrayOfString_3>
-        				<arrayOfString_3>tip_cob="""+str(self.carrier_id.nacex_tip_cob)+"""</arrayOfString_3>
-        				<arrayOfString_3>tip_env="""+str(tip_env)+"""</arrayOfString_3>
-        				<arrayOfString_3>obs1="""+str(obs1)+"""</arrayOfString_3>
-                        <arrayOfString_3>obs2="""+str(obs2)+"""</arrayOfString_3>
-                        <arrayOfString_3>obs3="""+str(obs3)+"""</arrayOfString_3>
-                        <arrayOfString_3>obs4="""+str(obs4)+"""</arrayOfString_3>        				        				
-        				<arrayOfString_3>ref_cli="""+str(self.name)+"""</arrayOfString_3>
-        				<arrayOfString_3>bul=1</arrayOfString_3>
-        				<arrayOfString_3>kil="""+str(self.weight)+"""</arrayOfString_3>
-                        <arrayOfString_3>nom_rec="""+str(self.company_id.website)+"""</arrayOfString_3>
-                        <arrayOfString_3>dir_rec="""+str(self.company_id.street[0:60])+"""</arrayOfString_3>
-                        <arrayOfString_3>cp_rec="""+str(self.company_id.zip)+"""</arrayOfString_3>
-                        <arrayOfString_3>pob_rec="""+str(self.company_id.city[0:39])+"""</arrayOfString_3>
-                        <arrayOfString_3>tel_rec="""+str(self.company_id.phone)+"""</arrayOfString_3>
-        				<arrayOfString_3>nom_ent="""+str(partner_name[0:50])+"""</arrayOfString_3>
-                        <arrayOfString_3>per_ent="""+str(partner_name[0:35])+"""</arrayOfString_3>
-        				<arrayOfString_3>dir_ent="""+str(self.partner_id.street[0:60])+"""</arrayOfString_3>
-        				<arrayOfString_3>pais_ent="""+str(self.partner_id.country_id.code)+"""</arrayOfString_3>
-        				<arrayOfString_3>cp_ent="""+str(self.partner_id.zip)+"""</arrayOfString_3>
-        				<arrayOfString_3>pob_ent="""+str(self.partner_id.city[0:39])+"""</arrayOfString_3>
-        				<arrayOfString_3>tel_ent="""+str(partner_picking_phone)+"""</arrayOfString_3>
-        			"""
+        <soapenv:Header/>
+        <soapenv:Body>
+        <typ:putExpedicion>
+        <String_1>%s</String_1>
+        <String_2>"%s</String_2>
+        <arrayOfString_3>del_cli=%s</arrayOfString_3>
+        <arrayOfString_3>num_cli=%s</arrayOfString_3>
+        <arrayOfString_3>fec=%s</arrayOfString_3>
+        <arrayOfString_3>dep_cli=%s</arrayOfString_3>
+        <arrayOfString_3>tip_ser=%s</arrayOfString_3>
+        <arrayOfString_3>tip_cob=%s</arrayOfString_3>
+        <arrayOfString_3>tip_env=%s</arrayOfString_3>
+        <arrayOfString_3>obs1=%s</arrayOfString_3>
+        <arrayOfString_3>obs2=%s</arrayOfString_3>
+        <arrayOfString_3>obs3=%s</arrayOfString_3>
+        <arrayOfString_3>obs4=%s</arrayOfString_3>        				        				
+        <arrayOfString_3>ref_cli=%s</arrayOfString_3>
+        <arrayOfString_3>bul=%s</arrayOfString_3>
+        <arrayOfString_3>kil=%s</arrayOfString_3>
+        <arrayOfString_3>nom_rec=%s</arrayOfString_3>
+        <arrayOfString_3>dir_rec=%s</arrayOfString_3>
+        <arrayOfString_3>cp_rec=%s</arrayOfString_3>
+        <arrayOfString_3>pob_rec=%s</arrayOfString_3>
+        <arrayOfString_3>tel_rec=%s</arrayOfString_3>
+        <arrayOfString_3>nom_ent=%s</arrayOfString_3>
+        <arrayOfString_3>per_ent=%s</arrayOfString_3>
+        <arrayOfString_3>dir_ent=%s</arrayOfString_3>
+        <arrayOfString_3>pais_ent=%s</arrayOfString_3>
+        <arrayOfString_3>cp_ent=%s</arrayOfString_3>
+        <arrayOfString_3>pob_ent=%s</arrayOfString_3>
+        <arrayOfString_3>tel_ent=%s</arrayOfString_3>""" % (
+            nacex_username,  # String_1
+            nacex_password,  # String_2
+            self.carrier_id.nacex_del_cli,  # del_cli
+            self.carrier_id.nacex_num_cli,  # num_cli
+            datetime_body,  # fec
+            self.carrier_id.nacex_dep_cli,  # dep_cli
+            tip_ser,  # tip_ser
+            self.carrier_id.nacex_tip_cob,  # tip_cob
+            tip_env,  # tip_env
+            obs1,  # obs1
+            obs2,  # obs2
+            obs3,  # obs3
+            obs4,  # obs4
+            self.name,  # ref_cli
+            1,  # bul
+            self.weight,  # kil,
+            self.company_id.website,  # nom_rec
+            self.company_id.street[0:60],  # dir_rec
+            self.company_id.zip,  # cp_rec
+            self.company_id.city[0:39],  # pob_rec
+            self.company_id.phone,  # tel_rec
+            partner_name[0:50],  # nom_ent
+            partner_name[0:35],  # per_ent
+            self.partner_id.street[0:60],  # dir_ent
+            self.partner_id.country_id.code,  # pais_ent
+            self.partner_id.zip,  # cp_ent
+            self.partner_id.city[0:39],  # pob_ent
+            partner_picking_phone,  # tel_ent
+        )
         # con
         if self.partner_id.country_id.code not in ['ES', 'PT', 'AD']:
             # con
@@ -176,22 +209,25 @@ class StockPicking(models.Model):
             # val_dec
             val_dec = "0.0"
             if self.sale_id:
-                val_dec = sale_id.amount_total
+                val_dec = self.sale_id.amount_total
             # body
             body += """
-                        <arrayOfString_3>con="""+str(con[0:80])+"""</arrayOfString_3>
-        				<arrayOfString_3>val_dec="""+str(val_dec)+"""</arrayOfString_3>"""
+            <arrayOfString_3>con=%s</arrayOfString_3>
+            <arrayOfString_3>val_dec=%s</arrayOfString_3>""" % (
+                con[0:80],
+                val_dec
+            )
         # prealerta
         if self.partner_id.mobile:
             body += """
-                        <arrayOfString_3>tip_pre1=S</arrayOfString_3>
-        				<arrayOfString_3>mod_pre1=S</arrayOfString_3>
-        				<arrayOfString_3>pre1="""+str(self.partner_id.mobile)+"""</arrayOfString_3>"""
+            <arrayOfString_3>tip_pre1=S</arrayOfString_3>
+            <arrayOfString_3>mod_pre1=S</arrayOfString_3>
+            <arrayOfString_3>pre1=%s</arrayOfString_3>""" % self.partner_id.mobile
         # final
         body += """
-                    </typ:putExpedicion>
-        		</soapenv:Body>
-        	</soapenv:Envelope>"""
+        </typ:putExpedicion>
+        </soapenv:Body>
+        </soapenv:Envelope>"""
         b = StringIO.StringIO()
         # continue
         curl = pycurl.Curl()
@@ -277,18 +313,16 @@ class StockPicking(models.Model):
     @api.multi
     def view_etiqueta_nacex(self):
         self.ensure_one()
-        # define
-        delivery_code_split = self.shipping_expedition_id.delivery_code.split('/')
         # url
-        url = "http://gprs.nacex.com/nacex_ws/ws?method=getEtiqueta&user=%s&pass=%s&data=ag=%s%7Cnumero=%s%7Cmodelo=IMAGEN_B" % (
-            tools.config.get('nacex_username'),
-            tools.config.get('nacex_password'),
-            delivery_code_split[0],
-            delivery_code_split[1]
-        )
-        
+        url = "http://gprs.nacex.com/nacex_ws/ws?method=getEtiqueta" \
+              "&user=%s&pass=%s&data=ag=%s%7Cnumero=%s%7Cmodelo=IMAGEN_B" \
+              % (
+                  tools.config.get('nacex_username'),
+                  tools.config.get('nacex_password'),
+                  self.shipping_expedition_id.delivery_code.split('/')[0],
+                  self.shipping_expedition_id.delivery_code.split('/')[1]
+              )
         b = StringIO.StringIO()
-                    
         curl = pycurl.Curl()
         curl.setopt(pycurl.WRITEFUNCTION, b.write)    
         curl.setopt(pycurl.FORBID_REUSE, 1)
@@ -303,7 +337,6 @@ class StockPicking(models.Model):
             'return': "",
             'return_real': "",
         }
-        
         if curl.getinfo(pycurl.RESPONSE_CODE) == 200:                                
             response_curl = b.getvalue()
             
@@ -312,7 +345,7 @@ class StockPicking(models.Model):
             if response_curl_split[0] != "ERROR":
                 response['return_real'] = response_curl
                             
-                edits = [('-', '+'), ('_', '/'), ('*', '=')] # etc.
+                edits = [('-', '+'), ('_', '/'), ('*', '=')]
                 for search, replace in edits:
                     response_curl = response_curl.replace(search, replace)
                 
@@ -323,7 +356,8 @@ class StockPicking(models.Model):
         else:
             response = {
                 'errors': True,  
-                'error': "No se puede generar la etiqueta de una expedicion que no esta creada todavia",
+                'error':
+                    _("No se puede generar la etiqueta de una expedicion que no esta creada todavia"),
                 'return_real': "",
             }
         # return
@@ -340,9 +374,15 @@ class StockPicking(models.Model):
                 delivery_code_split = self.shipping_expedition_id.delivery_code.split('/')
                 # vals
                 vals = {
-                    'name': delivery_code_split[0]+"-"+delivery_code_split[1]+'.png',
+                    'name': "%s-%s.png" % (
+                        delivery_code_split[0],
+                        delivery_code_split[1]
+                    ),
                     'datas': base64.encodestring(res['return']),
-                    'datas_fname': delivery_code_split[0]+"-"+delivery_code_split[1]+'.png',
+                    'datas_fname': "%s-%s.png" % (
+                        delivery_code_split[0],
+                        delivery_code_split[1]
+                    ),
                     'res_model': 'stock.picking',
                     'res_id': self.id
                 }
@@ -362,7 +402,9 @@ class StockPicking(models.Model):
         self.ensure_one()
         if self.shipping_expedition_id:
             if self.carrier_id.carrier_type == 'nacex':
-                url_image_expedition = 'http://gprs.nacex.com/nacex_ws/ws?method=getEtiqueta&user=%s&pass=%s&data=codexp=%s|modelo=IMAGEN' % (
+                url_image_expedition = 'http://gprs.nacex.com/nacex_ws/ws?' \
+                                       'method=getEtiqueta&user=%s&pass=%s' \
+                                       '&data=codexp=%s|modelo=IMAGEN' % (
                     tools.config.get('nacex_username'),
                     tools.config.get('nacex_password'),
                     self.shipping_expedition_id.code

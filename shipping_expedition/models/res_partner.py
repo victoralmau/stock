@@ -5,7 +5,7 @@ from odoo import api, fields, models
 
 class ResPartner(models.Model):
     _inherit = 'res.partner'
-    
+
     shipping_expedition_count = fields.Integer(
         compute='_compute_shipping_expedition_count',
         string="Expeditions",
