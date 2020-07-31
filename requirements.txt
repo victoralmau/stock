@@ -1,4 +1,5 @@
 boto3
 botocore
 beautifulsoup4
+pycurl
 Pillow
