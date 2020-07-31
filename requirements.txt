@@ -1,4 +1,4 @@
 boto3
 botocore
-BeautifulSoup4
+python-beautifulsoup
 Pillow
