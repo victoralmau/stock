@@ -9,7 +9,7 @@ import xml.etree.ElementTree as ET
 
 import logging
 import base64
-import Image
+from PIL import Image
 
 from datetime import datetime
 _logger = logging.getLogger(__name__)

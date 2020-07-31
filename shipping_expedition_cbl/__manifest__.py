@@ -14,6 +14,7 @@
     "external_dependencies": {
         "python": [
             "beautifulsoup4",
+            "unidecode"
         ],
     },
     "data": [

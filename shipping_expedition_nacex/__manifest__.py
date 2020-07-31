@@ -16,7 +16,8 @@
     "external_dependencies": {
         "python": [
             "suds",
-            "pycurl"
+            "pycurl",
+            "PIL"
         ],
     },
     "data": [
