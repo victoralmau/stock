@@ -3,7 +3,7 @@ sudo: false
 cache: pip
 
 python:
-  - "3.6.9"
+  - "3.5"
 
 addons:
   postgresql: "9.6"
@@ -18,8 +18,8 @@ env:
 
   matrix:
   - LINT_CHECK="1"
-  - TESTS="1" ODOO_REPO="OCA/OCB"
-  - TESTS="1" ODOO_REPO="odoo/odoo" MAKEPOT="1"
+  - TESTS="1" ODOO_REPO="OCA/OCB" EXCLUDE="shipping_expedition_nacex"
+  - TESTS="1" ODOO_REPO="odoo/odoo" EXCLUDE="shipping_expedition_nacex" MAKEPOT="1"
 
 
 install:
