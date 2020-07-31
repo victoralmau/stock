@@ -83,7 +83,10 @@ class ShippingExpedition(models.Model):
         for item in self:
             if item.delegation_name and item.delegation_name != "":
                 dns = str(item.delegation_name)
-                #define
+                # define
+                web_base_url = self.env[
+                    'ir.config_parameter'
+                ].sudo().get_param('web.base.url')
                 model_item = "shipping.expedition"
                 url_item = "%s/web?#id=%s&view_type=form&model=%s" % (
                     web_base_url,
@@ -105,22 +108,13 @@ class ShippingExpedition(models.Model):
                     item.delegation_phone = delegations_txt[dns]['phone']
                 else:
                     # slack.message
-                    web_base_url = self.env[
-                        'ir.config_parameter'
-                    ].sudo().get_param('web.base.url')
                     attachments = [
                         {
                             "title":
                                 _('No se ha encontrado el telefono de TXT '
                                   'para la delegacion *%s*') % dns,
                             "color": "#ff0000",
-                            "fallback": _(
-                                "Ver expedicion "
-                                "%s/web?#id=%s&view_type=form"
-                                "&model=shipping.expedition") % (
-                                    web_base_url,
-                                    item.id
-                                ),
+                            "fallback": _("Ver expedicion %s") % url_item,
                             "actions": [
                                 {
                                     "type": "button",
