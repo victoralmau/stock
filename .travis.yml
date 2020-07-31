@@ -3,7 +3,7 @@ sudo: false
 cache: pip
 
 python:
-  - "3.5"
+  - "3.6.9"
 
 addons:
   postgresql: "9.6"
@@ -26,7 +26,6 @@ install:
   - git clone https://github.com/OCA/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools
   - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
   - pip install unidecode
-  - pip install python-pycurl
   - travis_install_nightly
 
 script:
