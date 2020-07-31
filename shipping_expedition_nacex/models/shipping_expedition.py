@@ -1,14 +1,10 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import api, exceptions, fields, models, tools
-from odoo.exceptions import Warning
+from odoo import api, exceptions, models, tools
 
-import urllib, pycurl
+import pycurl
 from io import StringIO
-import xml.etree.ElementTree as ET
 
 import logging
-import base64
-import sys
 _logger = logging.getLogger(__name__)
 
 
@@ -23,7 +19,7 @@ class ShippingExpedition(models.Model):
                 item.action_update_state_nacex()
         # return
         return super(ShippingExpedition, self).action_update_state()
-        
+
     @api.multi
     def action_update_state_nacex(self):
         self.ensure_one()
@@ -35,11 +31,10 @@ class ShippingExpedition(models.Model):
                 self.action_error_update_state_expedition(res)
             else:
                 # other_fields
-                fecha_split = res['return']['result']['fecha'].split('/')
                 self.date = '%s-%s-%s' % (
-                    fecha_split[2],
-                    fecha_split[1],
-                    fecha_split[0]
+                    res['return']['result']['fecha'].split('/')[2],
+                    res['return']['result']['fecha'].split('/')[1],
+                    res['return']['result']['fecha'].split('/')[0]
                 )
                 self.hour = res['return']['result']['hora']
                 self.observations = res['return']['result']['observaciones']
@@ -47,7 +42,6 @@ class ShippingExpedition(models.Model):
                 # state
                 state_old = self.state
                 state_new = False
-                                                          
                 if res['return']['result']['estado'] == "ERROR" \
                         or res['return']['result']['estado_code'] == 18:
                     state_new = "error"                         
@@ -57,13 +51,15 @@ class ShippingExpedition(models.Model):
                 elif res['return']['result']['estado_code'] in [1, 11, 12, 15]:
                     state_new = "shipped"                
                 elif res['return']['result']['estado_code'] in [2, 3]\
-                        or res['return']['result']['estado'] in ["REPARTO", "TRANSITO"]:
+                        or res['return']['result']['estado'] in \
+                        ["REPARTO", "TRANSITO"]:
                     state_new = "in_transit"                
                 elif res['return']['result']['estado'] == "DELEGACION" \
                         or res['return']['result']['estado_code'] == 16:
                     state_new = "in_delegation"                                                
                 elif res['return']['result']['estado_code'] == 4 \
-                        or res['return']['result']['estado'] in ["ENTREGADO", "OK", "SOL SIN OK"]:
+                        or res['return']['result']['estado'] in \
+                        ["ENTREGADO", "OK", "SOL SIN OK"]:
                     state_new = "delivered"                   
                 elif res['return']['result']['estado'] == "ANULADA":
                     state_new = "canceled"
@@ -79,36 +75,38 @@ class ShippingExpedition(models.Model):
         # define
         delivery_code_split = self.delivery_code.split('/')
         # url
-        url = "http://gprs.nacex.com/nacex_ws/ws?method=getEstadoExpedicion&&user=%s&pass=%s&data=origen=%s%7Calbaran=%s" % (
+        url = "http://gprs.nacex.com/nacex_ws/ws?" \
+              "method=getEstadoExpedicion&&user=%s&pass=%s" \
+              "&data=origen=%s%7Calbaran=%s" % (
             nacex_username,
             nacex_password,
             delivery_code_split[0],
             delivery_code_split[1]
         )
-        
         b = StringIO.StringIO()
-                    
         curl = pycurl.Curl()
         curl.setopt(pycurl.WRITEFUNCTION, b.write)    
         curl.setopt(pycurl.FORBID_REUSE, 1)
         curl.setopt(pycurl.FRESH_CONNECT, 1)                        
         curl.setopt(pycurl.URL, url)        
-        curl.setopt(pycurl.USERAGENT, "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)")
-        curl.setopt(pycurl.HTTPHEADER, ["Content-Type: text/xml; charset=utf-8"])
+        curl.setopt(
+            pycurl.USERAGENT,
+            "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)"
+        )
+        curl.setopt(
+            pycurl.HTTPHEADER,
+            ["Content-Type: text/xml; charset=utf-8"]
+        )
         curl.perform()
-        
         response = {
             'errors': True, 
             'error': "", 
             'return': "",
         }
-        
         if curl.getinfo(pycurl.RESPONSE_CODE) == 200:        
             response['errors'] = False
-            
             response_curl = b.getvalue()
             response_curl_split = response_curl.split('|')
-            
             if response_curl_split[0] == "ERROR":
                 response['errors'] = True                
             else:                

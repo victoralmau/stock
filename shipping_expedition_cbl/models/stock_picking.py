@@ -1,5 +1,5 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import api, exceptions, models
+from odoo import api, models
 from odoo.exceptions import Warning as UserError
 
 import logging
@@ -288,7 +288,7 @@ class StockPicking(models.Model):
         # check if exists line
         line_exist_in_file = False
         if os.path.isfile(file_name_real):
-            line_exist_in_file=True                        
+            line_exist_in_file = True
         # continue line_exist_in_file
         if not line_exist_in_file:
             # fh = open(file_name,'a')# if file does not exist, create it

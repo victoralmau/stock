@@ -1,5 +1,5 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import api, exceptions, fields, models, _
+from odoo import api, models, tools, _
 
 import logging
 import os
@@ -9,10 +9,10 @@ _logger = logging.getLogger(__name__)
 
 
 class ShippingExpedition(models.Model):
-    _inherit = 'shipping.expedition'        
+    _inherit = 'shipping.expedition'
 
     @api.model
-    def create(self, values):                            
+    def create(self, values):
         # create
         return_object = super(ShippingExpedition, self).create(values)
         # operations
@@ -20,7 +20,7 @@ class ShippingExpedition(models.Model):
             return_object.upload_file_to_s3()
         # return
         return return_object
-        
+
     @api.multi
     def upload_file_to_s3(self):
         self.ensure_one()
@@ -34,7 +34,10 @@ class ShippingExpedition(models.Model):
                 self.carrier_id.carrier_type,
                 self.carrier_id.carrier_type
             )
-            folder_name = folder_name.replace('_s3/models/shipping_expedition.py', item_replace)
+            folder_name = folder_name.replace(
+                '_s3/models/shipping_expedition.py',
+                item_replace
+            )
             file_name_final = '%s/%s' % (
                 folder_name,
                 file_name_real
@@ -62,16 +65,19 @@ class ShippingExpedition(models.Model):
                 )
                 try:
                     with open(file_name_final, "rb") as f:
-                        s3_client.upload_fileobj(f, AWS_BUCKET_NAME, destination_filename)
+                        s3_client.upload_fileobj(
+                            f,
+                            AWS_BUCKET_NAME,
+                            destination_filename
+                        )
                         upload_to_s3 = True
                 except ClientError as e:
                     _logger.info(e)
                     upload_to_s3 = False
                     # operatons
-                if upload_to_s3 == True:
-                    os.remove(source_path)
+                if upload_to_s3:
                     # return_url_s3
-                    url_s3 = "https://s3-%s.amazonaws.com/%s/%s" % (
+                    return "https://s3-%s.amazonaws.com/%s/%s" % (
                         AWS_REGION_NAME,
                         AWS_BUCKET_NAME,
                         destination_filename
@@ -79,4 +85,7 @@ class ShippingExpedition(models.Model):
                 else:
                     _logger.info(_('Error copying file to S3'))
             else:
-                _logger.info(_('VERY STRANGE, file does not exist (%s)') % file_name_final)
+                _logger.info(
+                    _('VERY STRANGE, file does not exist (%s)')
+                    % file_name_final
+                )

@@ -1,11 +1,11 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import api, exceptions, models, _
+from odoo import api, models, _
 from odoo.exceptions import Warning as UserError
 
 
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
-    
+
     @api.multi
     def do_transfer(self):
         allow_do_transfer = True
@@ -24,20 +24,22 @@ class StockPicking(models.Model):
                                     )[0]
                                     qty_item_final = qty_item-pack_lot_id.qty
                                     if qty_item_final < 0:
-                                        raise UserError(_('Product  %s - %s would keep stock %s') % (
-                                            product_id.product_id.name,
-                                            pack_lot_id.lot_id.name,
-                                            qty_item_final
-                                        ))
+                                        raise UserError(
+                                            _('Product  %s - %s would keep stock %s') % (
+                                                product_id.product_id.name,
+                                                pack_lot_id.lot_id.name,
+                                                qty_item_final
+                                            ))
                         else:
                             if product_id.qty_done > 0:
                                 qty_item = product_id_tmpl.get_quantity_by_lot_id(0)[0]
                                 qty_item_final = qty_item-product_id.qty_done
                                 if qty_item_final < 0:
-                                    raise UserError(_('Product  %s would keep stock %s') % (
-                                        product_id.product_id.name,
-                                        qty_item_final
-                                    ))
+                                    raise UserError(
+                                        _('Product  %s would keep stock %s') % (
+                                            product_id.product_id.name,
+                                            qty_item_final
+                                        ))
         # allow_do_transfer
         if allow_do_transfer:
             return super(StockPicking, self).do_transfer()

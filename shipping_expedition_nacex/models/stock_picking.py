@@ -60,9 +60,12 @@ class StockPicking(models.Model):
                 if '/' in vals['delivery_code']:
                     delivery_code_split = vals['delivery_code'].split("/")
                     if len(delivery_code_split) > 1:
-                        vals['url_info'] = "http://www.nacex.es/seguimientoDetalle.do?" \
-                                           "agencia_origen=%s&numero_albaran=%s" \
-                                           "&estado=4&internacional=0&externo=N" \
+                        vals['url_info'] = "http://www.nacex.es/" \
+                                           "seguimientoDetalle.do?" \
+                                           "agencia_origen=%s" \
+                                           "&numero_albaran=%s" \
+                                           "&estado=4&internacional=0" \
+                                           "&externo=N" \
                                            "&usr=null&pas=null" \
                                            % (
                                                delivery_code_split[0],
@@ -138,7 +141,7 @@ class StockPicking(models.Model):
             tip_env = str(self.carrier_id.nacex_tip_env_int)
         # create
         url = "http://gprs.nacex.com/nacex_ws/soap"
-        body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:typ="urn:soap/types">
+        body = """<soapenv:Envelope xmlns:soapenv="%s" xmlns:typ="urn:soap/types">
         <soapenv:Header/>
         <soapenv:Body>
         <typ:putExpedicion>
@@ -154,7 +157,7 @@ class StockPicking(models.Model):
         <arrayOfString_3>obs1=%s</arrayOfString_3>
         <arrayOfString_3>obs2=%s</arrayOfString_3>
         <arrayOfString_3>obs3=%s</arrayOfString_3>
-        <arrayOfString_3>obs4=%s</arrayOfString_3>        				        				
+        <arrayOfString_3>obs4=%s</arrayOfString_3>
         <arrayOfString_3>ref_cli=%s</arrayOfString_3>
         <arrayOfString_3>bul=%s</arrayOfString_3>
         <arrayOfString_3>kil=%s</arrayOfString_3>
@@ -170,6 +173,7 @@ class StockPicking(models.Model):
         <arrayOfString_3>cp_ent=%s</arrayOfString_3>
         <arrayOfString_3>pob_ent=%s</arrayOfString_3>
         <arrayOfString_3>tel_ent=%s</arrayOfString_3>""" % (
+            "http://schemas.xmlsoap.org/soap/envelope/",
             nacex_username,  # String_1
             nacex_password,  # String_2
             self.carrier_id.nacex_del_cli,  # del_cli
@@ -200,12 +204,14 @@ class StockPicking(models.Model):
             partner_picking_phone,  # tel_ent
         )
         # con
-        if self.partner_id.country_id.code not in ['ES', 'PT', 'AD']:
+        if self.partner_id.country_id.code not in [
+            'ES', 'PT', 'AD'
+        ]:
             # con
             con = '' 
-            for pack_operation_product_id in self.pack_operation_product_ids:
-                if pack_operation_product_id.product_id:
-                   con += str(pack_operation_product_id.product_id.name)+','
+            for product_id in self.pack_operation_product_ids:
+                if product_id.product_id:
+                   con += str(product_id.product_id.name)+','
             # val_dec
             val_dec = "0.0"
             if self.sale_id:
@@ -238,8 +244,7 @@ class StockPicking(models.Model):
         curl.setopt(pycurl.POSTFIELDS, body)        
         curl.setopt(pycurl.USERAGENT, "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)")
         curl.setopt(pycurl.HTTPHEADER, ["Content-Type: text/xml; charset=utf-8"])
-        curl.perform()                
-    
+        curl.perform()
         response = {
             'errors': True, 
             'error': "", 
@@ -247,16 +252,12 @@ class StockPicking(models.Model):
         }        
         if curl.getinfo(pycurl.RESPONSE_CODE) == 200:        
             response['errors'] = False
-            
             response_curl = b.getvalue()
-            
             root = ET.fromstring(response_curl)
-            
             response['return'] = {
                 'label': "",                    
                 'results': []
             }
-                                    
             for item in root.findall('{http://schemas.xmlsoap.org/soap/envelope/}Body'):                
                 for item2 in item.findall('{urn:soap/types}putExpedicionResponse'):                    
                     for result in item2.findall('result'):
@@ -285,14 +286,10 @@ class StockPicking(models.Model):
             response['error'] = b.getvalue()
             _logger.info('Response KO')            
             _logger.info(pycurl.RESPONSE_CODE)
-            
             response_curl = b.getvalue()            
             root = ET.fromstring(response_curl)
-            
             _logger.info(response_curl)
-            
             response['errors'] = True
-            
             response['return'] = {
                 'label': "",                    
                 'results': []
@@ -328,8 +325,14 @@ class StockPicking(models.Model):
         curl.setopt(pycurl.FORBID_REUSE, 1)
         curl.setopt(pycurl.FRESH_CONNECT, 1)                        
         curl.setopt(pycurl.URL, url)        
-        curl.setopt(pycurl.USERAGENT, "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)")
-        curl.setopt(pycurl.HTTPHEADER, ["Content-Type: text/xml; charset=utf-8"])
+        curl.setopt(
+            pycurl.USERAGENT,
+            "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)"
+        )
+        curl.setopt(
+            pycurl.HTTPHEADER,
+            ["Content-Type: text/xml; charset=utf-8"]
+        )
         curl.perform()                                
         
         response = {
@@ -339,9 +342,7 @@ class StockPicking(models.Model):
         }
         if curl.getinfo(pycurl.RESPONSE_CODE) == 200:                                
             response_curl = b.getvalue()
-            
             response_curl_split = response_curl.split('|')
-            
             if response_curl_split[0] != "ERROR":
                 response['return_real'] = response_curl
                             
@@ -350,7 +351,6 @@ class StockPicking(models.Model):
                     response_curl = response_curl.replace(search, replace)
                 
                 response_curl = response_curl.decode('base64')
-                
                 response['errors'] = False
                 response['return'] = response_curl 
         else:
@@ -358,7 +358,7 @@ class StockPicking(models.Model):
                 'errors': True,  
                 'error':
                     _("No se puede generar la etiqueta de una expedicion que no esta creada todavia"),
-                'return_real': "",
+                'return_real': ""
             }
         # return
         return response;
@@ -371,23 +371,21 @@ class StockPicking(models.Model):
             if res['errors']:
                 raise exceptions.Warning(res['error'])
             else:
-                delivery_code_split = self.shipping_expedition_id.delivery_code.split('/')
                 # vals
                 vals = {
                     'name': "%s-%s.png" % (
-                        delivery_code_split[0],
-                        delivery_code_split[1]
+                        self.shipping_expedition_id.delivery_code.split('/')[0],
+                        self.shipping_expedition_id.delivery_code.split('/')[1]
                     ),
                     'datas': base64.encodestring(res['return']),
                     'datas_fname': "%s-%s.png" % (
-                        delivery_code_split[0],
-                        delivery_code_split[1]
+                        self.shipping_expedition_id.delivery_code.split('/')[0],
+                        self.shipping_expedition_id.delivery_code.split('/')[1]
                     ),
                     'res_model': 'stock.picking',
                     'res_id': self.id
                 }
                 ir_attachment_obj = self.env['ir.attachment'].sudo().create(vals)
-                # update ir_attachment_id
                 self.ir_attachment_id = ir_attachment_obj.id                 
                        
     @api.multi
@@ -410,10 +408,12 @@ class StockPicking(models.Model):
                     self.shipping_expedition_id.code
                 )
                 # return url_image_expedition
-                file = cStringIO.StringIO(urllib.urlopen(url_image_expedition).read())
+                file = StringIO(
+                    urllib.urlopen(url_image_expedition).read()
+                )
                 img = Image.open(file)
                 return img
-                
+
     @api.multi
     def _get_expedition_image_url_ir_attachment(self):
         self.ensure_one()

@@ -9,7 +9,7 @@ class ShippingExpedition(models.Model):
     @api.multi
     def action_send_sms_info(self):
         return super(ShippingExpedition, self).action_send_sms_info()
-    
+
     @api.model
     def cron_shipping_expeditionsend_sms_info(self):
         # not nacex
@@ -18,7 +18,13 @@ class ShippingExpedition(models.Model):
                 ('carrier_id.carrier_type', '!=', 'nacex'),
                 ('carrier_id.send_sms_info', '=', True),
                 ('carrier_id.sms_info_sms_template_id', '!=', False),
-                ('state', 'not in', ('error', 'generate', 'canceled', 'delivered', 'incidence')),
+                (
+                    'state',
+                    'not in',
+                    (
+                        'error', 'generate',
+                        'canceled', 'delivered', 'incidence'))
+                ,
                 ('date_send_sms_info', '=', False),
                 ('delegation_name', '!=', False),
                 ('delegation_phone', '!=', False),
@@ -35,7 +41,14 @@ class ShippingExpedition(models.Model):
                 ('carrier_id.carrier_type', '=', 'nacex'),
                 ('carrier_id.send_sms_info', '=', True),
                 ('carrier_id.sms_info_sms_template_id', '!=', False),
-                ('state', 'not in', ('error', 'generate', 'canceled', 'delivered', 'incidence')),
+                (
+                    'state',
+                    'not in',
+                    (
+                        'error', 'generate',
+                        'canceled', 'delivered', 'incidence'
+                    )
+                ),
                 ('date_send_sms_info', '=', False),
                 ('partner_id.mobile', '!=', False),
                 ('partner_id.mobile_code_res_country_id', '!=', False),
