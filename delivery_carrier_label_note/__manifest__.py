@@ -9,6 +9,7 @@
     "category": "Delivery",
     "license": "AGPL-3",
     "depends": [
+        "crm",
         "base_delivery_carrier_label",
         "sale_stock"
     ],
