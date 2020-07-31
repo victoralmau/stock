@@ -7,7 +7,6 @@ import logging
 import base64
 from datetime import datetime
 
-import base64
 import os
 import ftplib
 _logger = logging.getLogger(__name__)
