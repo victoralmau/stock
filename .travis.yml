@@ -29,7 +29,7 @@ install:
   - travis_install_nightly
 
 before_install:
-    -sudo apt-get update
+  - sudo apt-get update
 
 script:
   - travis_run_tests
