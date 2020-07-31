@@ -2,7 +2,7 @@
 from odoo import api, models, _
 
 import logging
-from beautifulsoup4 import BeautifulSoup
+from BeautifulSoup4 import BeautifulSoup
 import requests
 _logger = logging.getLogger(__name__)
 
