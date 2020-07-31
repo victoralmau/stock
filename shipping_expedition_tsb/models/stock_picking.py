@@ -363,7 +363,7 @@ class StockPicking(models.Model):
             # remove
             ftp.cwd(self.carrier_id.tsb_ftp_directory_upload)
             f_h = open(file_name, 'rb')
-            ftp.storbinary('STOR ' + file_name_real, f_h)  
+            ftp.storbinary('STOR ' + file_name_real, f_h)
             ftp.quit()
             # change return and generate shipping_expedition
             response['errors'] = False

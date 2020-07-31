@@ -71,18 +71,16 @@ class ShippingExpedition(models.Model):
                 if os.path.isfile(file_name):
                     f = open(file_name, 'r')
                     for line in f:
-                        if separator_fields in line:                           
+                        if separator_fields in line:
                             line_split = line.split(separator_fields)
-                            
-                            expedition_line = line_split[0]                    
+                            expedition_line = line_split[0]
                             reference_line = line_split[1]
                             origin_line = line_split[15]
                             ctrl_identiticket_line = line_split[28]
                             ctrl_localizator_line = line_split[29]
-                            ctrl_link_line = line_split[30]  
+                            ctrl_link_line = line_split[30]
                             estd_fecha_llegada_line = line_split[33]
                             estd_codigo_sl = line_split[36]
-                            
                             if self.picking_id.name == reference_line \
                                     and not shipping_expedition_find:
                                 estd_fll_split = estd_fecha_llegada_line.split(' ')
@@ -92,7 +90,7 @@ class ShippingExpedition(models.Model):
                                     estd_fll_split[0].split('/')[0]
                                 )
                                 self.code = expedition_line
-                                self.delivery_code = reference_line                    
+                                self.delivery_code = reference_line
                                 self.tsb_identiticket = ctrl_identiticket_line
                                 self.date = estd_fecha_llegada_line_real
                                 self.tsb_localizator = ctrl_localizator_line
@@ -116,17 +114,17 @@ class ShippingExpedition(models.Model):
                                         self.state = state_new
                                 # result
                                 response['return'] = {
-                                    'label': "",                    
+                                    'label': ""
                                 }
                                 response['return']['result'] = {
                                     'expe_codigo': expedition_line,
                                     'fecha': estd_fecha_llegada_line_real,
-                                    'estado_code': estd_codigo_situacion_line,
+                                    'estado_code': estd_codigo_sl,
                                     'origen': origin_line,
                                     'albaran': reference_line,
-                                    'exps_rels': "", 
-                                }                                
-                                shipping_expedition_find = True                                
+                                    'exps_rels': ""
+                                }
+                                shipping_expedition_find = True
         # response
         ftp.quit()
         response['errors'] = False

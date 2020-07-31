@@ -1,8 +1,6 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import api, fields, models, tools
+from odoo import api, models, tools
 from odoo.exceptions import Warning as UserError
-
-import urllib
 
 import logging
 
@@ -15,35 +13,36 @@ _logger = logging.getLogger(__name__)
 
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
-    
+
     @api.multi
     def generate_shipping_expedition(self):
         # operations
         for item in self:
-            if itemcarrier_id.carrier_type == 'txt':
+            if item.carrier_id.carrier_type == 'txt':
                 item.generate_shipping_expedition_txt()
         # return
         return super(StockPicking, self).generate_shipping_expedition()
-        
+
     @api.multi
     def generate_shipping_expedition_txt(self):
         self.ensure_one()
-        if self.shipping_expedition_id.id == 0 and self.carrier_id.carrier_type == 'txt' \
+        if self.shipping_expedition_id.id == 0 \
+                and self.carrier_id.carrier_type == 'txt' \
                 and self.partner_id:
             res = self.generate_shipping_expedition_txt_real()[0]
             # operations
             if res['errors']:
-                #logger
+                # logger
                 _logger.info(res)
                 # action_error_create_expedition_message_slack
                 self.action_error_create_expedition_message_slack({
                     'error': res['error']
-                })  
+                })
                 # raise
                 raise UserError(res['error'])
             else:
                 # file_name
-                file_name = self.name.replace('/','-')+'.txt'
+                file_name = self.name.replace('/', '-')+'.txt'
                 # vals
                 vals = {
                     'name': file_name,
@@ -53,7 +52,7 @@ class StockPicking(models.Model):
                     'res_id': self.id
                 }
                 ir_attachment_obj = self.env['ir.attachment'].sudo().create(vals)
-                #create
+                # create
                 vals = {
                     'picking_id': self.id,
                     'code': '',
@@ -64,15 +63,16 @@ class StockPicking(models.Model):
                     'observations': '',
                     'state': 'generate',
                     'state_code': 2,
-                    'ir_attachment_id': ir_attachment_obj.id                
+                    'ir_attachment_id': ir_attachment_obj.id
                 }
                 # url_info
                 if '-' in vals['date']:
                     date_split = vals['date'].split("-")
-                    vals['url_info'] = "http://tracking.txt.es/?EXPED=@33701@fx4iqq5kj101tks@R@%s@%s@" % (
-                        shipping_expedition_vals['origin'],
+                    ui = "http://tracking.txt.es/?EXPED=@33701@fx4iqq5kj101tks@R@%s@%s@" % (
+                        vals['origin'],
                         date_split[0]
                     )
+                    vals['url_info'] = ui
                 # create
                 if self.sale_id.user_id.id > 0:
                     expedition_obj = self.env['shipping.expedition'].sudo(
@@ -87,14 +87,12 @@ class StockPicking(models.Model):
                 })
                 # update
                 self.shipping_expedition_id = expedition_obj.id
-                    
+
     @api.multi
     def generate_shipping_expedition_txt_real(self):
         self.ensure_one()
         # define
-        today = datetime.today()
-        datetime_body = today.strftime('%d/%m/%Y')
-        separator_fields = '#'                
+        separator_fields = '#'
         # partner_name
         if self.partner_id.name:
             partner_name = self.partner_id.name
@@ -130,7 +128,7 @@ class StockPicking(models.Model):
                 'type': 'sender_customer',
                 'value': self.carrier_id.txt_sender_customer,
                 'size': 11,
-            },            
+            },
             {
                 'type': 'sender_name',
                 'value': str(self.company_id.name),
@@ -230,7 +228,7 @@ class StockPicking(models.Model):
                 'type': 'observations2',
                 'value': str(observations2),
                 'size': 100,
-            },                                    
+            },
             {
                 'type': 'return_conform',
                 'value': 'N',
@@ -240,7 +238,7 @@ class StockPicking(models.Model):
                 'type': 'identicket',
                 'value': 'N',
                 'size': 1,
-            },                                    
+            },
             {
                 'type': 'refund_amount',
                 'value': '0000000.00',
@@ -275,25 +273,23 @@ class StockPicking(models.Model):
                 'type': 'total_cashondelivery',
                 'value': str(format(self.total_cashondelivery, '.2f')),
                 'size': 10.2,
-            },                                                                                                
-        ]                        
-        
+            },
+        ]
         txt_line = ''
-        for txt_field in txt_fields:                    
+        for txt_field in txt_fields:
             txt_line = txt_line + str(txt_field['value'])+separator_fields
-                
+
         txt_line = txt_line[:-1]
         txt_line = txt_line + '\r\n'
         # error prev
         response = {
-            'errors': True, 
-            'error': "", 
+            'errors': True,
+            'error': "",
             'return': "",
             'txt_line': txt_line
-        }                                
+        }
         # open file for reading
         picking_name_replace = self.name.replace("/", "-")
-        file_name_real = str(picking_name_replace)+'.txt'
         # folder_name
         folder_name = str(os.path.abspath(__file__))
         item_replace = '/%s' % self.carrier_id.carrier_type
@@ -306,20 +302,20 @@ class StockPicking(models.Model):
         # check if exists line
         line_exist_in_file = False
         if os.path.isfile(file_name):
-            line_exist_in_file=True                        
+            line_exist_in_file = True
         # continue line_exist_in_file
         if not line_exist_in_file:
             # fh = open(file_name,'a')# if file does not exist, create it
-            fh = codecs.open(file_name_real, "a", "utf-8-sig")                            
+            fh = codecs.open(file_name_real, "a", "utf-8-sig")
             fh.write(txt_line)
-            fh.close()                       
+            fh.close()
             # change return and generate shipping_expedition
-            response['errors'] = False                      
+            response['errors'] = False
         else:
             response = {
-                'errors': True, 
-                'error': "Ya existe este albaran en el archivo .txt", 
-                'return': "",
+                'errors': True,
+                'error': "Ya existe este albaran en el archivo .txt",
+                'return': ""
             }
         # return
         return response
