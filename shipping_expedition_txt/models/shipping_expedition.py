@@ -110,9 +110,8 @@ class ShippingExpedition(models.Model):
                     # slack.message
                     attachments = [
                         {
-                            "title":
-                                _('No se ha encontrado el telefono de TXT '
-                                  'para la delegacion *%s*') % dns,
+                            "title": _('No se ha encontrado el telefono de '
+                                       'TXT para la delegacion *%s*') % dns,
                             "color": "#ff0000",
                             "fallback": _("Ver expedicion %s") % url_item,
                             "actions": [
