@@ -9,8 +9,7 @@
     "category": "Delivery",
     "license": "AGPL-3",
     "depends": [
-        "crm",
-        "base_delivery_carrier_label",
+        "base_delivery_carrier_label"  # https://github.com/OCA/delivery-carrier,
         "sale_stock"
     ],
     "data": [
