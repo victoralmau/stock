@@ -1,5 +1,5 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import api, exceptions, fields, models
+from odoo import api, fields, models
 
 import logging
 import os
@@ -16,7 +16,7 @@ class ShippingExpedition(models.Model):
     tsb_localizator = fields.Char(
         string='Tsb Localizator'
     )
-    
+
     @api.multi
     def action_update_state(self):
         # operations
@@ -25,23 +25,23 @@ class ShippingExpedition(models.Model):
                 item.action_update_state_tsb()
         # return
         return super(ShippingExpedition, self).action_update_state()
-        
+
     @api.multi
     def action_update_state_tsb(self):
         for item in self:
             item.update_state_tsb()
-        return False                
-    
+        return False
+
     @api.multi
     def update_state_tsb(self):
         self.ensure_one()
         separator_fields = '|'
         # response
         response = {
-            'errors': True, 
-            'error': "", 
-            'return': "",
-        }                 
+            'errors': True,
+            'error': "",
+            'return': ""
+        }
         # file_name ric
         file_name_real = "RIC_%s.txt" % self.carrier_id.tsb_sender_customer
         file_name = '%s/%s' % (
@@ -50,21 +50,23 @@ class ShippingExpedition(models.Model):
         )
         # ftp + download
         ftp = ftplib.FTP(self.carrier_id.tsb_ftp_host)
-        ftp.login(self.carrier_id.tsb_ftp_user, self.carrier_id.tsb_ftp_password)  
-        ftp.cwd(self.carrier_id.tsb_ftp_directory_download)                
-        
+        ftp.login(
+            self.carrier_id.tsb_ftp_user,
+            self.carrier_id.tsb_ftp_password
+        )
+        ftp.cwd(self.carrier_id.tsb_ftp_directory_download)
         ls = []
         ftp.retrlines('MLSD', ls.append)
-        
         shipping_expedition_find = False
-        
         for entry in ls:
             entry_split = entry.split(";")
             entry_name = str(entry_split[4])
             entry_name = entry_name.replace(" ", "")
-            
             if entry_name != "." and entry_name != "..":
-                ftp.retrbinary("RETR "+entry_name, open(file_name, 'wb').write)                                           
+                ftp.retrbinary(
+                    "RETR "+entry_name,
+                    open(file_name, 'wb').write
+                )
                 # read_file
                 if os.path.isfile(file_name):
                     f = open(file_name, 'r')
@@ -79,15 +81,15 @@ class ShippingExpedition(models.Model):
                             ctrl_localizator_line = line_split[29]
                             ctrl_link_line = line_split[30]  
                             estd_fecha_llegada_line = line_split[33]
-                            estd_codigo_situacion_line = line_split[36]
+                            estd_codigo_sl = line_split[36]
                             
-                            if self.picking_id.name == reference_line and not shipping_expedition_find:
-                                estd_fecha_llegada_line_split = estd_fecha_llegada_line.split(' ')
-                                estd_fecha_llegada_line2 = estd_fecha_llegada_line_split[0].split('/')
+                            if self.picking_id.name == reference_line \
+                                    and not shipping_expedition_find:
+                                estd_fll_split = estd_fecha_llegada_line.split(' ')
                                 estd_fecha_llegada_line_real = '%s-%s-%s' % (
-                                    estd_fecha_llegada_line2[2],
-                                    estd_fecha_llegada_line2[1],
-                                    estd_fecha_llegada_line2[0]
+                                    estd_fll_split[0].split('/')[2],
+                                    estd_fll_split[0].split('/')[1],
+                                    estd_fll_split[0].split('/')[0]
                                 )
                                 self.code = expedition_line
                                 self.delivery_code = reference_line                    
@@ -96,15 +98,16 @@ class ShippingExpedition(models.Model):
                                 self.tsb_localizator = ctrl_localizator_line
                                 self.url_info = ctrl_link_line
                                 # codigo_situacion
-                                if estd_codigo_situacion_line != "00000001":
+                                if estd_codigo_sl != "00000001":
                                     # state_new
-                                    if estd_codigo_situacion_line == "00000002":
+                                    if estd_codigo_sl == "00000002":
                                         state_new = "shipped"
-                                    elif estd_codigo_situacion_line in ["00000003", "00000006"]:
+                                    elif estd_codigo_sl in \
+                                            ["00000003", "00000006"]:
                                         state_new = "in_transit"
-                                    elif estd_codigo_situacion_line == "00000004":
-                                        state_new = "in_delegation"                            
-                                    elif estd_codigo_situacion_line == "00000005":
+                                    elif estd_codigo_sl == "00000004":
+                                        state_new = "in_delegation"
+                                    elif estd_codigo_sl == "00000005":
                                         state_new = "delivered"
                                     else:
                                         state_new = "incidence"

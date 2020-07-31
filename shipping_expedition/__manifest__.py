@@ -12,7 +12,7 @@
         "base",
         "delivery",
         "stock",
-        "cashondelivery",
+        "cashondelivery",  # https://github.com/OdooNodrizaTech/sale
         "sale_stock"
     ],
     "data": [

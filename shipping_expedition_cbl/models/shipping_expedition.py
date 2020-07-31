@@ -112,7 +112,7 @@ class ShippingExpedition(models.Model):
             # state
             state_old = self.state
             state_new = False
-                                    
+
             if response['return']['situacion'] in [
                 'entregada', 'entregada_con_incidencia'
             ]:

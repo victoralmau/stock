@@ -44,7 +44,7 @@ class ShippingExpedition(models.Model):
                 state_old = self.state
                 state_new = False
                 if res_estado == "ERROR" or self.state_code == 18:
-                    state_new = "error"                         
+                    state_new = "error"
                 elif res_estado or self.state_code in [9, 13, 17]:
                     state_new = "incidence"
                 elif self.state_code in [1, 11, 12, 15]:
@@ -73,11 +73,12 @@ class ShippingExpedition(models.Model):
         # url
         url = "http://gprs.nacex.com/nacex_ws/ws?" \
               "method=getEstadoExpedicion&&user=%s&pass=%s" \
-              "&data=origen=%s%7Calbaran=%s" % (
-                nacex_username,
-                nacex_password,
-                delivery_code_split[0],
-                delivery_code_split[1]
+              "&data=origen=%s%7Calbaran=%s" \
+              % (
+                  nacex_username,
+                  nacex_password,
+                  delivery_code_split[0],
+                  delivery_code_split[1]
               )
         b = StringIO.StringIO()
         curl = pycurl.Curl()

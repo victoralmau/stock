@@ -1,5 +1,5 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import api, exceptions, models, tools
+from odoo import api, exceptions, models, tools, _
 from odoo.exceptions import Warning as UserError
 
 import urllib
@@ -9,6 +9,7 @@ import xml.etree.ElementTree as ET
 
 import logging
 import base64
+import Image
 
 from datetime import datetime
 _logger = logging.getLogger(__name__)
@@ -268,14 +269,14 @@ class StockPicking(models.Model):
                 'results': []
             }
             for item in root.findall('{http://schemas.xmlsoap.org/soap/envelope/}Body'):
-                for item2 in item.findall('{urn:soap/types}putExpedicionResponse'):                    
+                for item2 in item.findall('{urn:soap/types}putExpedicionResponse'):
                     for result in item2.findall('result'):
                         response['return']['results'].append(result.text)
-            
+
             if response['return']['results'][0] == "ERROR":
                 response['errors'] = True
                 response['error'] = response['return']['results'][1]
-            else:                                                                            
+            else:
                 response['return']['result'] = {
                     'expe_codigo':
                         response['return']['results'][0],
@@ -289,7 +290,7 @@ class StockPicking(models.Model):
                     'serv': response['return']['results'][7],
                     'hora_entrega':
                         response['return']['results'][8],
-                    'barcode': response['return']['results'][9], 
+                    'barcode': response['return']['results'][9],
                     'fecha_objetivo':
                         datetime.strptime(
                             response['return']['results'][10],
@@ -401,7 +402,7 @@ class StockPicking(models.Model):
                     'res_id': self.id
                 }
                 ir_attachment_obj = self.env['ir.attachment'].sudo().create(vals)
-                self.ir_attachment_id = ir_attachment_obj.id                 
+                self.ir_attachment_id = ir_attachment_obj.id
 
     @api.multi
     def action_view_etiqueta(self, package_ids=None):
@@ -413,17 +414,19 @@ class StockPicking(models.Model):
     def _get_expedition_image(self):
         # operations
         self.ensure_one()
+        url_ie = "http://gprs.nacex.com/nacex_ws/ws?method=getEtiqueta&user=%s" \
+                 "&pass=%s&data=codexp=%s|modelo=IMAGEN" \
+                 % (
+                     tools.config.get('nacex_username'),
+                     tools.config.get('nacex_password'),
+                     self.shipping_expedition_id.code
+                 )
+
         if self.shipping_expedition_id:
             if self.carrier_id.carrier_type == 'nacex':
-                url_ie = 'http://gprs.nacex.com/nacex_ws/ws?method=getEtiqueta&user=%s' \
-                         '&pass=%s&data=codexp=%s|modelo=IMAGEN' % (
-                            tools.config.get('nacex_username'),
-                            tools.config.get('nacex_password'),
-                            self.shipping_expedition_id.code
-                         )
                 # return url_image_expedition
                 file = StringIO(
-                    urllib.urlopen(url_image_expedition).read()
+                    urllib.urlopen(url_ie).read()
                 )
                 img = Image.open(file)
                 return img
