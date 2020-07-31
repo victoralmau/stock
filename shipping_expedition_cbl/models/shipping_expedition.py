@@ -1,5 +1,5 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import api, fields, models
+from odoo import api, models
 
 import logging
 
@@ -60,7 +60,7 @@ class ShippingExpedition(models.Model):
             data = urllib.urlencode(values)
             response_data = urllib2.urlopen(url, data)
             page = response_data.read()
-            soup = BeautifulSoup(page, 'html.parser')        
+            soup = BeautifulSoup(page, 'html.parser')
             trs = soup.find_all('tr')
             td0_previous = False
             for tr in trs:
@@ -79,7 +79,7 @@ class ShippingExpedition(models.Model):
                     if td0 == "situacion":
                         td1 = unidecode.unidecode(td1.lower())
                         td1 = td1.replace(" ", "_")
-                    response['return'][str(td0)] = str(td1)                                     
+                    response['return'][str(td0)] = str(td1)
 
         if 'situacion' not in response['return']:
             response['errors'] = True
@@ -87,7 +87,7 @@ class ShippingExpedition(models.Model):
         if response['errors']:
             _logger.info(response)
             self.action_error_update_state_expedition(response)
-        else:                
+        else:
             # fecha_entrega
             if 'fecha_entrega' in response['return']:
                 if '/' in response['return']['fecha_entrega']:
@@ -108,7 +108,7 @@ class ShippingExpedition(models.Model):
                 self.delegation_phone = response['return']['telefono']
             # observaciones
             if 'observaciones' in response['return']:
-                self.observations = response['return']['observaciones']                                                                                                                    
+                self.observations = response['return']['observaciones']
             # state
             state_old = self.state
             state_new = False
@@ -128,7 +128,7 @@ class ShippingExpedition(models.Model):
             elif response['return']['situacion'] == "devuelta":
                 state_new = "canceled"
             elif response['return']['situacion'] == "incidencia":
-                state_new = "incidence"                
+                state_new = "incidence"
             # update state
             if state_new and state_new != state_old:
                 self.state = state_new

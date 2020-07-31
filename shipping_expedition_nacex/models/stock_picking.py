@@ -66,11 +66,10 @@ class StockPicking(models.Model):
                                            "&numero_albaran=%s" \
                                            "&estado=4&internacional=0" \
                                            "&externo=N" \
-                                           "&usr=null&pas=null" \
-                                           % (
-                                               delivery_code_split[0],
-                                               delivery_code_split[1]
-                                           )
+                                           "&usr=null&pas=null" % (
+                            delivery_code_split[0],
+                            delivery_code_split[1]
+                        )
                 # create
                 if self.sale_id.user_id:
                     expedition_obj = self.env['shipping.expedition'].sudo(
@@ -84,7 +83,7 @@ class StockPicking(models.Model):
                 self.shipping_expedition_id = expedition_obj.id
                 # Fix
                 self.action_view_etiqueta_item()
-    
+
     @api.multi
     def nacex_ws_putExpedicion(self):
         self.ensure_one()
@@ -110,17 +109,17 @@ class StockPicking(models.Model):
                 obs2 = self.partner_id.street2[37:75].replace('&', '')
         # notes
         obs3 = ''
-        obs4 = ''        
+        obs4 = ''
         if self.shipping_expedition_note:
             note_len = len(str(self.shipping_expedition_note))
             if note_len > 1:
                 if note_len <= 38:
-                    obs3 = self.shipping_expedition_note                                
+                    obs3 = self.shipping_expedition_note
                 else:
                     obs3 = self.shipping_expedition_note[0:38]
                     obs4 = self.shipping_expedition_note[37:75]
         # phone
-        partner_picking_phone = ''        
+        partner_picking_phone = ''
         if self.partner_id.mobile:
             partner_picking_phone = self.partner_id.mobile
         elif self.partner_id.phone:
@@ -133,7 +132,8 @@ class StockPicking(models.Model):
         if self.partner_id.country_id.code not in ['ES', 'PT', 'AD']:
             tip_ser = str(self.carrier_id.nacex_tip_ser_int)
         # tip_ser (Baleares) 20 - NACEX MALLORCA MARÍTIMO
-        if self.partner_id.country_id.code == 'ES' and self.partner_id.state_id.code == 'PM':
+        if self.partner_id.country_id.code == 'ES' \
+                and self.partner_id.state_id.code == 'PM':
             tip_ser = '20'
         # tip_env
         tip_env = str(self.carrier_id.nacex_tip_env)
@@ -208,10 +208,13 @@ class StockPicking(models.Model):
             'ES', 'PT', 'AD'
         ]:
             # con
-            con = '' 
+            con = ''
             for product_id in self.pack_operation_product_ids:
                 if product_id.product_id:
-                   con += str(product_id.product_id.name)+','
+                    con = '%s%s,' % (
+                        con,
+                        product_id.product_id.name
+                    )
             # val_dec
             val_dec = "0.0"
             if self.sale_id:
@@ -237,28 +240,34 @@ class StockPicking(models.Model):
         b = StringIO.StringIO()
         # continue
         curl = pycurl.Curl()
-        curl.setopt(pycurl.WRITEFUNCTION, b.write)    
+        curl.setopt(pycurl.WRITEFUNCTION, b.write)
         curl.setopt(pycurl.FORBID_REUSE, 1)
-        curl.setopt(pycurl.FRESH_CONNECT, 1)                        
+        curl.setopt(pycurl.FRESH_CONNECT, 1)
         curl.setopt(pycurl.URL, url)
-        curl.setopt(pycurl.POSTFIELDS, body)        
-        curl.setopt(pycurl.USERAGENT, "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)")
-        curl.setopt(pycurl.HTTPHEADER, ["Content-Type: text/xml; charset=utf-8"])
+        curl.setopt(pycurl.POSTFIELDS, body)
+        curl.setopt(
+            pycurl.USERAGENT,
+            "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)"
+        )
+        curl.setopt(
+            pycurl.HTTPHEADER,
+            ["Content-Type: text/xml; charset=utf-8"]
+        )
         curl.perform()
         response = {
-            'errors': True, 
-            'error': "", 
-            'return': "",
-        }        
-        if curl.getinfo(pycurl.RESPONSE_CODE) == 200:        
+            'errors': True,
+            'error': "",
+            'return': ""
+        }
+        if curl.getinfo(pycurl.RESPONSE_CODE) == 200:
             response['errors'] = False
             response_curl = b.getvalue()
             root = ET.fromstring(response_curl)
             response['return'] = {
-                'label': "",                    
+                'label': "",
                 'results': []
             }
-            for item in root.findall('{http://schemas.xmlsoap.org/soap/envelope/}Body'):                
+            for item in root.findall('{http://schemas.xmlsoap.org/soap/envelope/}Body'):
                 for item2 in item.findall('{urn:soap/types}putExpedicionResponse'):                    
                     for result in item2.findall('result'):
                         response['return']['results'].append(result.text)
@@ -268,34 +277,41 @@ class StockPicking(models.Model):
                 response['error'] = response['return']['results'][1]
             else:                                                                            
                 response['return']['result'] = {
-                    'expe_codigo': response['return']['results'][0],
-                    'ag_cod_num_exp': response['return']['results'][1],
+                    'expe_codigo':
+                        response['return']['results'][0],
+                    'ag_cod_num_exp':
+                        response['return']['results'][1],
                     'color': response['return']['results'][2],
                     'ent_ruta': response['return']['results'][3],
                     'ent_cod': response['return']['results'][4],
                     'ent_nom': response['return']['results'][5],
                     'ent_tlf': response['return']['results'][6],
                     'serv': response['return']['results'][7],
-                    'hora_entrega': response['return']['results'][8],
+                    'hora_entrega':
+                        response['return']['results'][8],
                     'barcode': response['return']['results'][9], 
-                    'fecha_objetivo': datetime.strptime(response['return']['results'][10], "%d/%m/%Y").date(),                   
+                    'fecha_objetivo':
+                        datetime.strptime(
+                            response['return']['results'][10],
+                            "%d/%m/%Y"
+                        ).date(),
                     'cambios': response['return']['results'][11],
-                    'origin': self.name 
+                    'origin': self.name
                 }
         else:
             response['error'] = b.getvalue()
-            _logger.info('Response KO')            
+            _logger.info('Response KO')
             _logger.info(pycurl.RESPONSE_CODE)
-            response_curl = b.getvalue()            
+            response_curl = b.getvalue()
             root = ET.fromstring(response_curl)
             _logger.info(response_curl)
             response['errors'] = True
             response['return'] = {
-                'label': "",                    
+                'label': "",
                 'results': []
             }
-            for item in root.findall('{http://schemas.xmlsoap.org/soap/envelope/}Body'):                
-                for item2 in item.findall('{urn:soap/types}putExpedicionResponse'):                    
+            for item in root.findall('{http://schemas.xmlsoap.org/soap/envelope/}Body'):
+                for item2 in item.findall('{urn:soap/types}putExpedicionResponse'):
                     for result in item2.findall('result'):
                         response['return']['results'].append(result.text)
             # Fix
@@ -306,7 +322,7 @@ class StockPicking(models.Model):
             _logger.info(body)
         # return
         return response
-    
+
     @api.multi
     def view_etiqueta_nacex(self):
         self.ensure_one()
@@ -321,10 +337,10 @@ class StockPicking(models.Model):
               )
         b = StringIO.StringIO()
         curl = pycurl.Curl()
-        curl.setopt(pycurl.WRITEFUNCTION, b.write)    
+        curl.setopt(pycurl.WRITEFUNCTION, b.write)
         curl.setopt(pycurl.FORBID_REUSE, 1)
-        curl.setopt(pycurl.FRESH_CONNECT, 1)                        
-        curl.setopt(pycurl.URL, url)        
+        curl.setopt(pycurl.FRESH_CONNECT, 1)
+        curl.setopt(pycurl.URL, url)
         curl.setopt(
             pycurl.USERAGENT,
             "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)"
@@ -333,36 +349,35 @@ class StockPicking(models.Model):
             pycurl.HTTPHEADER,
             ["Content-Type: text/xml; charset=utf-8"]
         )
-        curl.perform()                                
-        
+        curl.perform()
         response = {
-            'errors': True,  
+            'errors': True,
             'return': "",
             'return_real': "",
         }
-        if curl.getinfo(pycurl.RESPONSE_CODE) == 200:                                
+        if curl.getinfo(pycurl.RESPONSE_CODE) == 200:
             response_curl = b.getvalue()
             response_curl_split = response_curl.split('|')
             if response_curl_split[0] != "ERROR":
                 response['return_real'] = response_curl
-                            
                 edits = [('-', '+'), ('_', '/'), ('*', '=')]
                 for search, replace in edits:
                     response_curl = response_curl.replace(search, replace)
-                
+
                 response_curl = response_curl.decode('base64')
                 response['errors'] = False
-                response['return'] = response_curl 
+                response['return'] = response_curl
         else:
             response = {
-                'errors': True,  
+                'errors': True,
                 'error':
-                    _("No se puede generar la etiqueta de una expedicion que no esta creada todavia"),
+                    _("No se puede generar la etiqueta de una expedicion "
+                      "que no esta creada todavia"),
                 'return_real': ""
             }
         # return
-        return response;
-    
+        return response
+
     @api.multi
     def action_view_etiqueta_item(self):
         self.ensure_one()
@@ -387,26 +402,25 @@ class StockPicking(models.Model):
                 }
                 ir_attachment_obj = self.env['ir.attachment'].sudo().create(vals)
                 self.ir_attachment_id = ir_attachment_obj.id                 
-                       
+
     @api.multi
     def action_view_etiqueta(self, package_ids=None):
         for obj in self:
             if obj.shipping_expedition_id:
-                obj.action_view_etiqueta_item()                                                                              
-    
+                obj.action_view_etiqueta_item()
+
     @api.multi
     def _get_expedition_image(self):
         # operations
         self.ensure_one()
         if self.shipping_expedition_id:
             if self.carrier_id.carrier_type == 'nacex':
-                url_image_expedition = 'http://gprs.nacex.com/nacex_ws/ws?' \
-                                       'method=getEtiqueta&user=%s&pass=%s' \
-                                       '&data=codexp=%s|modelo=IMAGEN' % (
-                    tools.config.get('nacex_username'),
-                    tools.config.get('nacex_password'),
-                    self.shipping_expedition_id.code
-                )
+                url_ie = 'http://gprs.nacex.com/nacex_ws/ws?method=getEtiqueta&user=%s' \
+                         '&pass=%s&data=codexp=%s|modelo=IMAGEN' % (
+                            tools.config.get('nacex_username'),
+                            tools.config.get('nacex_password'),
+                            self.shipping_expedition_id.code
+                         )
                 # return url_image_expedition
                 file = StringIO(
                     urllib.urlopen(url_image_expedition).read()
@@ -420,13 +434,13 @@ class StockPicking(models.Model):
         if self.shipping_expedition_id:
             if self.carrier_id.carrier_type == 'nacex':
                 ir_attachment_ids = self.env['ir.attachment'].search(
-                    [ 
+                    [
                         ('res_model', '=', 'stock.picking'),
                         ('res_id', '=', self.id)
-                     ]
+                    ]
                 )
                 return_url = ''
                 for ir_attachment_id in ir_attachment_ids:
                     return_url = '/web/image/%s' % ir_attachment_id.id
-                    
+
                 return return_url

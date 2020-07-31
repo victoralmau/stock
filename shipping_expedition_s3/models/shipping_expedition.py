@@ -49,7 +49,6 @@ class ShippingExpedition(models.Model):
                     file_name_real
                 )
                 # define S3
-                url_s3 = False
                 AWS_ACCESS_KEY_ID = tools.config.get('aws_access_key_id')
                 AWS_SECRET_ACCESS_KEY = tools.config.get('aws_secret_key_id')
                 AWS_REGION_NAME = tools.config.get('aws_region_name')

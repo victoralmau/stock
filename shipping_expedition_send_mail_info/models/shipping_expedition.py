@@ -31,7 +31,7 @@ class ShippingExpedition(models.Model):
             self.id
         )
         message_obj.update({
-            'author_id': mail_compose_message_vals['author_id'],
+            'author_id': vals['author_id'],
             'template_id': self.carrier_id.mail_info_mail_template_id.id,
             'composition_mode': 'comment',
             'model': 'shipping.expedition',
@@ -41,7 +41,7 @@ class ShippingExpedition(models.Model):
             'email_from': res['value']['email_from'],
             'partner_ids': res['value']['partner_ids'],
             # 'attachment_ids': res['value']['attachment_ids'],
-            'record_name': mail_compose_message_vals['record_name'],
+            'record_name': vals['record_name'],
             'no_auto_thread': False
         })
         message_obj.send_mail_action()

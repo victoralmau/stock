@@ -25,7 +25,8 @@ class StockPicking(models.Model):
                                     qty_item_final = qty_item-pack_lot_id.qty
                                     if qty_item_final < 0:
                                         raise UserError(
-                                            _('Product  %s - %s would keep stock %s') % (
+                                            _('Product  %s - %s would keep stock %s')
+                                            % (
                                                 product_id.product_id.name,
                                                 pack_lot_id.lot_id.name,
                                                 qty_item_final

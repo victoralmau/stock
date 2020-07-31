@@ -1,5 +1,5 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import api, exceptions, models, tools
+from odoo import api, models, tools
 
 import pycurl
 from io import StringIO
@@ -39,34 +39,30 @@ class ShippingExpedition(models.Model):
                 self.hour = res['return']['result']['hora']
                 self.observations = res['return']['result']['observaciones']
                 self.state_code = res['return']['result']['estado_code']
+                res_estado = res['return']['result']['estado']
                 # state
                 state_old = self.state
                 state_new = False
-                if res['return']['result']['estado'] == "ERROR" \
-                        or res['return']['result']['estado_code'] == 18:
+                if res_estado == "ERROR" or self.state_code == 18:
                     state_new = "error"                         
-                elif res['return']['result']['estado'] == "INCIDENCIA" \
-                        or res['return']['result']['estado_code'] in [9,13,17]:
-                    state_new = "incidence"                
-                elif res['return']['result']['estado_code'] in [1, 11, 12, 15]:
-                    state_new = "shipped"                
-                elif res['return']['result']['estado_code'] in [2, 3]\
-                        or res['return']['result']['estado'] in \
-                        ["REPARTO", "TRANSITO"]:
-                    state_new = "in_transit"                
-                elif res['return']['result']['estado'] == "DELEGACION" \
-                        or res['return']['result']['estado_code'] == 16:
-                    state_new = "in_delegation"                                                
-                elif res['return']['result']['estado_code'] == 4 \
-                        or res['return']['result']['estado'] in \
-                        ["ENTREGADO", "OK", "SOL SIN OK"]:
-                    state_new = "delivered"                   
-                elif res['return']['result']['estado'] == "ANULADA":
+                elif res_estado or self.state_code in [9, 13, 17]:
+                    state_new = "incidence"
+                elif self.state_code in [1, 11, 12, 15]:
+                    state_new = "shipped"
+                elif self.state_code in [2, 3] \
+                        or res_estado in ["REPARTO", "TRANSITO"]:
+                    state_new = "in_transit"
+                elif res_estado == "DELEGACION" or self.state_code == 16:
+                    state_new = "in_delegation"
+                elif self.state_code == 4 \
+                        or res_estado in ["ENTREGADO", "OK", "SOL SIN OK"]:
+                    state_new = "delivered"
+                elif res_estado == "ANULADA":
                     state_new = "canceled"
-                        
+
                 if state_new and state_new != state_old:
-                    self.state = state_new                    
-    
+                    self.state = state_new
+
     @api.multi
     def nacex_ws_getEstadoExpedicion(self):
         # tools
@@ -78,17 +74,17 @@ class ShippingExpedition(models.Model):
         url = "http://gprs.nacex.com/nacex_ws/ws?" \
               "method=getEstadoExpedicion&&user=%s&pass=%s" \
               "&data=origen=%s%7Calbaran=%s" % (
-            nacex_username,
-            nacex_password,
-            delivery_code_split[0],
-            delivery_code_split[1]
-        )
+                nacex_username,
+                nacex_password,
+                delivery_code_split[0],
+                delivery_code_split[1]
+              )
         b = StringIO.StringIO()
         curl = pycurl.Curl()
-        curl.setopt(pycurl.WRITEFUNCTION, b.write)    
+        curl.setopt(pycurl.WRITEFUNCTION, b.write)
         curl.setopt(pycurl.FORBID_REUSE, 1)
-        curl.setopt(pycurl.FRESH_CONNECT, 1)                        
-        curl.setopt(pycurl.URL, url)        
+        curl.setopt(pycurl.FRESH_CONNECT, 1)
+        curl.setopt(pycurl.URL, url)
         curl.setopt(
             pycurl.USERAGENT,
             "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)"
@@ -99,19 +95,19 @@ class ShippingExpedition(models.Model):
         )
         curl.perform()
         response = {
-            'errors': True, 
-            'error': "", 
-            'return': "",
+            'errors': True,
+            'error': "",
+            'return': ""
         }
-        if curl.getinfo(pycurl.RESPONSE_CODE) == 200:        
+        if curl.getinfo(pycurl.RESPONSE_CODE) == 200:
             response['errors'] = False
             response_curl = b.getvalue()
             response_curl_split = response_curl.split('|')
             if response_curl_split[0] == "ERROR":
-                response['errors'] = True                
-            else:                
+                response['errors'] = True
+            else:
                 response['return'] = {
-                    'label': "",                    
+                    'label': ""
                 }
                 response['return']['result'] = {
                     'expe_codigo': response_curl_split[0],
@@ -125,7 +121,7 @@ class ShippingExpedition(models.Model):
                 }
         else:
             response['error'] = b.getvalue()
-            _logger.info('Response KO')            
-            _logger.info(pycurl.RESPONSE_CODE)        
+            _logger.info('Response KO')
+            _logger.info(pycurl.RESPONSE_CODE)
         # return
         return response
