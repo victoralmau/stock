@@ -11,6 +11,11 @@
     "depends": [
         "shipping_expedition"
     ],
+    "external_dependencies": {
+        "python": [
+            "beautifulsoup4",
+        ],
+    },
     "data": [
         "views/delivery_carrier_view.xml",
         "views/shipping_expedition_view.xml",

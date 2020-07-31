@@ -47,8 +47,9 @@ class ShippingExpedition(models.Model):
         message_obj.send_mail_action()
         self.date_send_mail_info = datetime.today()
 
-    @api.one
+    @api.multi
     def action_send_mail_info(self):
+        self.ensure_one()
         allow_send = False
         if self.carrier_id.send_mail_info:
             if self.carrier_id.mail_info_mail_template_id:

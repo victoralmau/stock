@@ -174,6 +174,6 @@ class ShippingExpedition(models.Model):
     def action_update_state(self):
         return False
 
-    @api.one
+    @api.multi
     def action_error_update_state_expedition(self, res):
         return False

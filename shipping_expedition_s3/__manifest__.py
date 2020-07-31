@@ -13,7 +13,8 @@
     ],
     "external_dependencies": {
         "python": [
-            "boto3"
+            "boto3",
+            "botocore"
         ],
     },
     "data": [

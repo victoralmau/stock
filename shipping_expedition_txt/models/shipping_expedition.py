@@ -83,6 +83,13 @@ class ShippingExpedition(models.Model):
         for item in self:
             if item.delegation_name and item.delegation_name != "":
                 dns = str(item.delegation_name)
+                #define
+                model_item = "shipping.expedition"
+                url_item = "%s/web?#id=%s&view_type=form&model=%s" % (
+                    web_base_url,
+                    item.id,
+                    model_item
+                )
                 # stranger_things
                 if 'TORRIJOS' in dns:
                     dns = 'TORRIJOS'
@@ -118,11 +125,7 @@ class ShippingExpedition(models.Model):
                                 {
                                     "type": "button",
                                     "text": _("Ver expedicion"),
-                                    "url": "%s/web?#id=%s&view_type=form"
-                                           "&model=shipping.expedition" % (
-                                                web_base_url,
-                                                item.id
-                                            )
+                                    "url": url_item
                                 }
                             ]
                         }
