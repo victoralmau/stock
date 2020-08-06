@@ -9,7 +9,7 @@ Addons
 ----------------
 nombre | version
 --- | ---
-[delivery_carrier_label_note](delivery_carrier_label_note/) | 12.0.1.0.0
+[delivery_carrier_sale_label_note](delivery_carrier_sale_label_note/) | 12.0.1.0.0
 [delivery_carrier_range](delivery_carrier_range/) | 12.0.1.0.0
 [shipping_expedition](shipping_expedition/) | 12.0.1.0.0
 [shipping_expedition_cbl](shipping_expedition_cbl/) | 12.0.1.0.0
