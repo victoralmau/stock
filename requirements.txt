@@ -2,6 +2,6 @@ boto3
 botocore
 beautifulsoup4
 # libcurl
-libgnutls28-dev
+gnutls
 pycurl==7.43.0
 Pillow
