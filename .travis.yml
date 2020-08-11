@@ -2,8 +2,8 @@ language: python
 sudo: false
 cache: pip
 
-python:
-  - "3.5"
+python: 3.5
+dist: xenial
 
 addons:
   postgresql: "9.6"
