@@ -1,9 +1,11 @@
 language: python
-sudo: false
 cache: pip
 
-python: 3.5
-dist: xenial
+matrix:
+    include:
+        - python: 3.5
+          dist: xenial
+          sudo: true
 
 addons:
   postgresql: "9.6"
