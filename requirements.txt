@@ -1,5 +1,6 @@
 boto3
 botocore
 beautifulsoup4
-# pycurl
+libcurl
+pycurl
 Pillow
