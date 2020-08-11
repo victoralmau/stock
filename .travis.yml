@@ -18,14 +18,15 @@ env:
 
   matrix:
   - LINT_CHECK="1"
-  - TESTS="1" ODOO_REPO="OCA/OCB" EXCLUDE="shipping_expedition_nacex"
-  - TESTS="1" ODOO_REPO="odoo/odoo" EXCLUDE="shipping_expedition_nacex" MAKEPOT="1"
+  - TESTS="1" ODOO_REPO="OCA/OCB"
+  - TESTS="1" ODOO_REPO="odoo/odoo" MAKEPOT="1"
 
 
 install:
   - git clone https://github.com/OCA/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools
   - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
   - pip install unidecode
+  - pip install pycurl
   - travis_install_nightly
 
 script:
