@@ -1,11 +1,9 @@
 language: python
+sudo: true
 cache: pip
 
-matrix:
-    include:
-        - python: 3.5
-          dist: xenial
-          sudo: true
+python: 3.5
+dist: xenial
 
 addons:
   postgresql: "9.6"
@@ -29,6 +27,9 @@ install:
   - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
   - pip install unidecode
   - travis_install_nightly
+
+before_install:
+  -sudo apt-get update
 
 script:
   - travis_run_tests
